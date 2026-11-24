@@ -5,14 +5,14 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-md);
 }
-@media (min-width: 600px) and (max-width: 1023px) {
+@media (min-width: 600px) {
   .service-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
   }
 }
 @media (min-width: 1024px) {
   .service-grid {
-    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-xl);
   }
 }
@@ -22,9 +22,15 @@
   flex-direction: column;
   gap: var(--space-md);
 }
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .step-grid {
     flex-direction: row;
+    gap: var(--space-lg);
+  }
+}
+@media (min-width: 1024px) {
+  .step-grid {
+    gap: var(--space-xl);
   }
 }
 .step-card {
@@ -54,15 +60,46 @@
   margin: 0;
 }
 
+/* "Why AJORA": heading stays full-width on mobile, becomes a narrow column
+   beside the (wrapping) point grid from tablet up. */
+.why-ajora {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+@media (min-width: 600px) {
+  .why-ajora {
+    flex-direction: row;
+    gap: var(--space-2xl);
+    align-items: flex-start;
+  }
+  .why-ajora__intro {
+    flex-shrink: 0;
+    width: 260px;
+  }
+}
+@media (min-width: 1024px) {
+  .why-ajora__intro {
+    width: 400px;
+  }
+}
+
 .point-grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  flex: 1;
 }
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .point-grid {
     flex-direction: row;
     flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+}
+@media (min-width: 1024px) {
+  .point-grid {
+    gap: var(--space-xl);
   }
 }
 .point-card {
@@ -87,6 +124,24 @@
   margin: 0;
 }
 
+/* "Who it is for": heading stays centred on top at every size; only the
+   group cards go from a column to a row, starting at tablet. */
+.group-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+@media (min-width: 600px) {
+  .group-grid {
+    flex-direction: row;
+    gap: var(--space-lg);
+  }
+}
+@media (min-width: 1024px) {
+  .group-grid {
+    gap: var(--space-xl);
+  }
+}
 .group-card {
   display: flex;
   gap: var(--space-md);
@@ -116,7 +171,7 @@
   flex-direction: column;
   gap: var(--space-lg);
 }
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .closing__cta {
     flex-direction: row;
     align-items: center;
@@ -147,7 +202,7 @@
   flex-direction: column;
   gap: var(--space-xl);
 }
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .closing__footer {
     flex-direction: row;
     justify-content: space-between;
@@ -175,6 +230,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs) 20px;
+}
+@media (min-width: 600px) {
+  .closing__links {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: var(--space-sm);
+  }
 }
 .closing__links a {
   color: var(--color-text-inverse);

@@ -50,6 +50,7 @@
       method="post"
       novalidate
       data-loading-text="Creating account…"
+      data-password-rules
     >
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="auth-form__heading">
@@ -80,13 +81,13 @@
       </div>
 
       <div class="auth-form__rules">
-        <p class="auth-form__rule">
+        <p class="auth-form__rule" data-rule="length">
           {{ icon("circle-info") }}At least 8 characters
         </p>
-        <p class="auth-form__rule">
+        <p class="auth-form__rule" data-rule="common">
           {{ icon("circle-info") }}Not a common password
         </p>
-        <p class="auth-form__rule">
+        <p class="auth-form__rule" data-rule="email">
           {{ icon("circle-info") }}Not the same as your email
         </p>
       </div>

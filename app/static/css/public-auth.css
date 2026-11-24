@@ -12,12 +12,12 @@
 .auth-split {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: calc(100vh - 56px);
 }
 @media (min-width: 1024px) {
   .auth-split {
     flex-direction: row;
-    min-height: calc(100vh - 0px);
+    min-height: 100vh;
   }
 }
 
@@ -90,6 +90,26 @@
   }
 }
 
+/* Tablet shows a centred, bordered card (not the mobile full-bleed form,
+   not the laptop split screen). */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .auth-form-area {
+    align-items: center;
+  }
+  .auth-form {
+    width: 480px;
+    max-width: 480px;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-xl);
+    padding: 40px;
+  }
+  .auth-form--wide {
+    width: 600px;
+    max-width: 600px;
+  }
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -153,4 +173,10 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+}
+.auth-form__rule--ok {
+  color: var(--color-text-secondary);
+}
+.auth-form__rule--ok .icon {
+  color: var(--color-status-success);
 }

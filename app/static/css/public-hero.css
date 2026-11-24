@@ -6,6 +6,11 @@
   gap: var(--space-xl);
   padding: 56px var(--space-lg);
 }
+@media (min-width: 600px) {
+  .section {
+    padding: 72px 32px;
+  }
+}
 @media (min-width: 1024px) {
   .section {
     padding: 96px 120px;
@@ -27,7 +32,7 @@
   margin: 0;
   max-width: 640px;
 }
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
   .section__heading--centered {
     align-items: center;
     text-align: center;
@@ -45,7 +50,7 @@
 @media (min-width: 600px) {
   .hero {
     flex-direction: row;
-    padding: 64px var(--space-xl);
+    padding: 72px 32px;
   }
 }
 @media (min-width: 1024px) {
