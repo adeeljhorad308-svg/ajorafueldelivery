@@ -18,5 +18,9 @@ def find_by_name(db, name):
     return db.execute("SELECT * FROM services WHERE name = ?", (name,)).fetchone()
 
 
+def find_by_id(db, service_id):
+    return db.execute("SELECT * FROM services WHERE service_id = ?", (service_id,)).fetchone()
+
+
 def list_active(db):
     return db.execute("SELECT * FROM services WHERE available = 1 ORDER BY service_id").fetchall()

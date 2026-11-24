@@ -1,0 +1,190 @@
+/* Segmented control, stepper, quick chip and location card: reused on every
+   order form (docs/FIGMA.md 9:420, 9:427, 9:412). */
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+}
+.segmented__option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 56px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.segmented__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.segmented__input:focus-visible + .segmented__label {
+  outline: 2px solid var(--color-border-focus);
+}
+.segmented__label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+}
+.segmented__price {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-muted);
+}
+.segmented__option--selected {
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-hover);
+}
+.segmented__option--selected .segmented__label {
+  color: var(--color-text-primary);
+}
+.segmented__option--selected .segmented__price {
+  color: var(--color-text-brand);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: 240px;
+  padding: var(--space-sm);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.stepper--error {
+  border: 2px solid var(--color-border-error);
+}
+.stepper__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.stepper__button .icon {
+  width: 20px;
+  height: 20px;
+}
+.stepper__value {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-text-primary);
+}
+.stepper__value::-webkit-outer-spin-button,
+.stepper__value::-webkit-inner-spin-button {
+  appearance: none;
+}
+.stepper__value:focus {
+  outline: none;
+}
+
+.quick-chips {
+  display: flex;
+  gap: var(--space-sm);
+}
+.chip {
+  flex: 1;
+  height: 40px;
+  padding: 0 var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+@media (min-width: 600px) {
+  .chip {
+    flex: none;
+  }
+}
+.chip--selected {
+  background: var(--color-bg-brand-subtle);
+  border: 2px solid var(--color-border-brand);
+  color: var(--color-text-brand);
+}
+
+.location-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+}
+.location-card--captured {
+  background: var(--color-bg-status-success-tint);
+}
+.location-card--off {
+  background: var(--color-bg-status-warning-tint);
+}
+.location-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+}
+.location-card__icon .icon {
+  width: 16px;
+  height: 16px;
+}
+.location-card--captured .location-card__icon .icon {
+  color: var(--color-status-success);
+}
+.location-card--off .location-card__icon .icon {
+  color: var(--color-status-warning);
+}
+.location-card__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.location-card__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-primary);
+}
+.location-card__message {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}

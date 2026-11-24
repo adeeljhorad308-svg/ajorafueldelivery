@@ -1,6 +1,6 @@
 {% from "components/icon.html" import icon %}
 
-{% macro field(name, label, type="text", value="", placeholder="", helper="", error="", required=True, autocomplete=None, inputmode=None) %}
+{% macro field(name, label, type="text", value="", placeholder="", helper="", error="", required=True, autocomplete=None, inputmode=None, maxlength=None) %}
 <div class="field{% if error %} field--error{% endif %}">
   <label class="label" for="field-{{ name }}">{{ label }}</label>
   <div class="field__box">
@@ -14,6 +14,7 @@
       {% if required %}required{% endif %}
       {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
       {% if inputmode %}inputmode="{{ inputmode }}"{% endif %}
+      {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
       {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% endif %}
     />
   </div>

@@ -1,0 +1,20 @@
+{% macro segmented_control(options) %}
+<div class="segmented" role="radiogroup" aria-label="Fuel type" data-segmented>
+  {% for option in options %}
+  <label
+    class="segmented__option{% if loop.first %} segmented__option--selected{% endif %}"
+  >
+    <input
+      type="radio"
+      name="fuel_type"
+      value="{{ option.name }}"
+      data-unit-price="{{ option.unit_price }}"
+      {% if loop.first %}checked{% endif %}
+      class="segmented__input"
+    />
+    <span class="segmented__label">{{ option.name }}</span>
+    <span class="segmented__price">{{ option.price_label }}</span>
+  </label>
+  {% endfor %}
+</div>
+{% endmacro %}

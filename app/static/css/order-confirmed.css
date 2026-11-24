@@ -1,0 +1,17 @@
+/* Minimal placeholder styling for Order confirmed / Track order (full screens
+   land in a later session). */
+
+.confirmed-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+.confirmed-page__note {
+  color: var(--color-text-muted);
+}
+.confirmed-page__actions {
+  margin-top: var(--space-lg);
+}

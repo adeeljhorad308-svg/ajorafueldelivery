@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "components/button.html" import button %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+
+{% block title %}Track order – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-confirmed.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("track", True) }} {% endblock %}
+
+{% block content %}
+<div class="confirmed-page">
+  <p class="h3">Track order</p>
+  <p class="body">{{ order_number }} &middot; {{ status }}</p>
+  <p class="body confirmed-page__note">
+    This is a placeholder tracking page; the full Track order screen lands in a later session.
+  </p>
+  <div class="confirmed-page__actions">
+    {{ button("Back to home", style="brand", href=url_for('customer.home')) }}
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("track", True) }} {% endblock %}

@@ -1,0 +1,15 @@
+{% from "components/icon.html" import icon %}
+
+{% set STATUS_ICONS = {
+  "Pending": "clock",
+  "Assigned": "user-check",
+  "On the Way": "truck-fast",
+  "Delivered": "circle-check",
+  "Cancelled": "circle-xmark",
+} %}
+
+{% macro status_chip(status, label) %}
+<span class="status-chip status-chip--{{ status | lower | replace(' ', '-') }}">
+  {{ icon(STATUS_ICONS.get(status, "clock")) }}<span>{{ label }}</span>
+</span>
+{% endmacro %}

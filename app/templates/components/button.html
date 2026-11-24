@@ -1,7 +1,7 @@
 {% from "components/icon.html" import icon %}
 
-{% macro button(label, style="brand", type="submit", href=None, icon_name=None, name=None, id=None, full_width=True, disabled=False, data_action=None) %}
-{%- set classes = "btn btn--" ~ style ~ (" btn--full" if full_width else "") -%}
+{% macro button(label, style="brand", type="submit", href=None, icon_name=None, name=None, id=None, full_width=True, disabled=False, data_action=None, small=False) %}
+{%- set classes = "btn btn--" ~ style ~ (" btn--full" if full_width else "") ~ (" btn--small" if small else "") -%}
 {% if href %}
 <a class="{{ classes }}" href="{{ href }}"{% if id %} id="{{ id }}"{% endif %}
   >{% if icon_name %}{{ icon(icon_name) }}{% endif %}<span>{{ label }}</span></a

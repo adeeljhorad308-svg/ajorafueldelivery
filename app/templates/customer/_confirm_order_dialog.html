@@ -1,0 +1,61 @@
+{% from "components/icon.html" import icon %}
+{% from "components/alert_banner.html" import alert_banner %}
+
+<div class="dialog-backdrop" data-confirm-backdrop hidden></div>
+<div
+  class="dialog-panel"
+  id="confirm-order-dialog"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="confirm-order-title"
+  data-confirm-dialog
+  hidden
+>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="confirm-order-title">Confirm your order</p>
+    <button
+      class="icon-btn dialog-panel__close"
+      type="button"
+      aria-label="Close"
+      data-action="close-confirm"
+    >
+      {{ icon("xmark") }}
+    </button>
+  </div>
+
+  <div data-price-banner hidden>
+    {{ alert_banner("info", "Price updated", "") }}
+  </div>
+
+  <div class="dialog-details">
+    <div class="dialog-details__row"><span>Service</span><span data-confirm-service></span></div>
+    <div class="dialog-details__row">
+      <span>Quantity</span><span class="mono-amount" data-confirm-quantity></span>
+    </div>
+    <div class="dialog-details__row"><span>Payment</span><span>Cash on delivery</span></div>
+    <div class="dialog-details__row"><span>Deliver to</span><span data-confirm-deliver></span></div>
+  </div>
+  <hr class="dialog-divider" />
+  <div class="dialog-total">
+    <span>Total &middot; cash on delivery</span>
+    <span class="mono-stat" data-confirm-total></span>
+  </div>
+
+  <p class="field__error" data-confirm-form-error hidden></p>
+
+  <div class="dialog-actions">
+    <button
+      class="btn btn--brand"
+      type="button"
+      data-action="confirm-order"
+      data-loading-text="Placing order&hellip;"
+    >
+      <span>Confirm order</span>
+    </button>
+    <button class="btn btn--outline" type="button" data-action="close-confirm">
+      <span>Edit</span>
+    </button>
+  </div>
+  <p class="dialog-note">We check the price again and send the nearest free driver.</p>
+</div>

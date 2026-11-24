@@ -27,8 +27,8 @@
       location.
     </p>
     <div class="hero__buttons">
-      {{ button("Order fuel", style="brand", href=url_for('auth.login'), full_width=False) }}
-      {{ button("Emergency fuel", style="outline", icon_name="triangle-exclamation", href=url_for('auth.login'), full_width=False) }}
+      {{ button("Order fuel", style="brand", href=url_for('auth.login', next='/app/order/fuel'), full_width=False) }}
+      {{ button("Emergency fuel", style="outline", icon_name="triangle-exclamation", href=url_for('auth.login', next='/app/order/emergency'), full_width=False) }}
     </div>
     <div class="hero__trust">
       <span class="hero__trust-item"
@@ -98,14 +98,14 @@
     </p>
   </div>
   <div class="service-grid">
-    {{ service_tile(url_for('auth.login'), "gas-pump", "Petrol and diesel", "From PKR 252 / litre") }}
-    {{ service_tile(url_for('auth.login'), "triangle-exclamation", "Emergency fuel", "Up to 10 L, sent first") }}
-    {{ service_tile(url_for('auth.login'), "plug-circle-bolt", "Generator fuel", "20–500 L, on time") }}
-    {{ service_tile(url_for('auth.login'), "tractor", "Machinery fuel", "Tractors and tube wells") }}
-    {{ service_tile(url_for('auth.login'), "oil-can", "Engine oil", "Delivered to you") }}
-    {{ service_tile(url_for('auth.login'), "car-battery", "Battery help", "Jump-start or new battery") }}
-    {{ service_tile(url_for('auth.login'), "custom-tyre", "Tyre help", "Puncture or change") }}
-    {{ service_tile(url_for('auth.login'), "spray-can-sparkles", "Car wash", "Book 2 hours ahead") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/fuel'), "gas-pump", "Petrol and diesel", "From PKR 252 / litre") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/emergency'), "triangle-exclamation", "Emergency fuel", "Up to 10 L, sent first") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/generator'), "plug-circle-bolt", "Generator fuel", "20–500 L, on time") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/generator'), "tractor", "Machinery fuel", "Tractors and tube wells") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/assistance'), "oil-can", "Engine oil", "Delivered to you") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/assistance'), "car-battery", "Battery help", "Jump-start or new battery") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/assistance'), "custom-tyre", "Tyre help", "Puncture or change") }}
+    {{ service_tile(url_for('auth.login', next='/app/order/assistance'), "spray-can-sparkles", "Car wash", "Book 2 hours ahead") }}
   </div>
 </section>
 

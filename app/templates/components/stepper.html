@@ -1,0 +1,23 @@
+{% from "components/icon.html" import icon %}
+
+{% macro stepper(name, value, minimum, maximum, step) %}
+<div class="stepper" data-stepper data-min="{{ minimum }}" data-max="{{ maximum }}" data-step="{{ step }}">
+  <button class="stepper__button" type="button" data-stepper-decrease aria-label="Decrease litres">
+    {{ icon("minus") }}
+  </button>
+  <input
+    class="stepper__value"
+    id="field-{{ name }}"
+    name="{{ name }}"
+    type="number"
+    inputmode="numeric"
+    value="{{ value }}"
+    min="{{ minimum }}"
+    max="{{ maximum }}"
+    aria-label="Litres"
+  />
+  <button class="stepper__button" type="button" data-stepper-increase aria-label="Increase litres">
+    {{ icon("plus") }}
+  </button>
+</div>
+{% endmacro %}

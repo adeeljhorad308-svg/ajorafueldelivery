@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/icon_button.html" import icon_button %}
+{% from "components/button.html" import button %}
+{% from "components/field.html" import field %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+{% from "components/segmented_control.html" import segmented_control %}
+{% from "components/stepper.html" import stepper %}
+{% from "components/chip.html" import quick_chip %}
+{% from "components/action_bar.html" import action_bar %}
+
+{% block title %}Order fuel – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link
+  rel="stylesheet"
+  href="{{ static_versioned('css/components-order-controls.css') }}"
+/>
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+
+{% block content %}
+<div class="order-page">
+  <div class="order-content">
+    <div class="order-header">
+      {{ icon_button("arrow-left", "Back to home", style="outline", href=url_for('customer.home')) }}
+      <div>
+        <p class="order-header__title">Order fuel</p>
+        <p class="order-header__sub order-header__sub--full">
+          Petrol or diesel delivered to you. Pay cash on delivery.
+        </p>
+        <p class="order-header__sub">Pay cash on delivery</p>
+      </div>
+    </div>
+
+    <form id="order-fuel-form" class="order-columns" novalidate data-order-fuel>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" data-csrf-token />
+      <input type="hidden" name="order_key" value="{{ order_key }}" data-order-key />
+      <input
+        type="hidden"
+        name="price_snapshot"
+        value="{{ fuel_options[0].unit_price }}"
+        data-price-snapshot
+      />
+
+      <div class="order-form">
+        <div class="order-field-group">
+          <p class="order-field-group__label">Fuel type</p>
+          {{ segmented_control(fuel_options) }}
+        </div>
+
+        <div class="order-field-group">
+          <p class="order-field-group__label">Litres</p>
+          <div class="order-litres-controls">
+            {{ stepper("litres", 20, 5, 100, 5) }}
+            <div class="quick-chips">
+              {{ quick_chip("10 L", 10) }} {{ quick_chip("20 L", 20) }} {{ quick_chip("50 L", 50) }}
+            </div>
+          </div>
+          <p class="order-field-group__helper">Between 5 and 100 litres. Steps of 5.</p>
+          <p class="field__error" data-error="litres" hidden>
+            {{ icon("circle-exclamation") }}<span>Enter between 5 and 100 litres</span>
+          </p>
+        </div>
+
+        <div class="order-field-group">
+          <p class="order-field-group__label">Delivery location</p>
+          <div
+            class="location-card location-card--off"
+            data-location-card
+            data-state="off"
+          >
+            <span class="location-card__icon" data-location-icon>
+              {{ icon("location-crosshairs") }}
+            </span>
+            <span class="location-card__text">
+              <span class="location-card__title" data-location-title>Location is off</span>
+              <span class="location-card__message" data-location-message
+                >Pick your area and type your address.</span
+              >
+            </span>
+            <button class="btn btn--outline btn--small" type="button" data-location-action>
+              <span data-location-action-label>Try again</span>
+            </button>
+          </div>
+          <input type="hidden" name="latitude" data-latitude />
+          <input type="hidden" name="longitude" data-longitude />
+        </div>
+
+        <div class="order-field-group">
+          <label class="order-field-group__label" for="field-address">Address</label>
+          <div class="field__box field__box--with-icon">
+            {{ icon("location-dot") }}
+            <input
+              class="field__input"
+              type="text"
+              id="field-address"
+              name="address"
+              maxlength="200"
+              placeholder="House, street and block"
+            />
+          </div>
+          <p class="order-field-group__helper">House, street and block &middot; up to 200 characters</p>
+          <p class="field__error" data-error="address" hidden>
+            {{ icon("circle-exclamation") }}<span>Add your address so the driver can find you</span>
+          </p>
+        </div>
+
+        <div class="area-landmark">
+          <div class="order-field-group">
+            <label class="order-field-group__label" for="field-area">Area</label>
+            <div class="field__box field__box--select">
+              <select class="field__input field__select" id="field-area" name="area">
+                <option value="">Choose your area</option>
+                {% for area in areas %}
+                <option value="{{ area }}">{{ area }}</option>
+                {% endfor %}
+              </select>
+              {{ icon("chevron-down") }}
+            </div>
+            <p class="field__error" data-error="area" hidden>
+              {{ icon("circle-exclamation") }}<span>Pick your area</span>
+            </p>
+          </div>
+          {{ field("note", "Landmark or note (optional)", placeholder="near Shell pump gate", required=False, maxlength=200) }}
+        </div>
+      </div>
+
+      <aside class="order-summary">
+        <p class="order-summary__title overline">ORDER SUMMARY</p>
+        <div class="order-summary__row"><span>Fuel</span><span data-summary-fuel></span></div>
+        <div class="order-summary__row"><span>Quantity</span><span data-summary-quantity></span></div>
+        <div class="order-summary__row">
+          <span>Price</span><span class="mono-amount" data-summary-price></span>
+        </div>
+        <div class="order-summary__row"><span>Payment</span><span>Cash on delivery</span></div>
+        <div class="order-summary__row">
+          <span>Deliver to</span><span data-summary-deliver>&mdash;</span>
+        </div>
+        <hr class="order-summary__divider" />
+        <div class="order-summary__total">
+          <span>Total</span><span class="mono-stat" data-total-display></span>
+        </div>
+        {{ button("Review order", style="brand", type="button", data_action="open-confirm") }}
+        <p class="order-summary__note">Nothing is placed until you confirm on the next step.</p>
+      </aside>
+    </form>
+  </div>
+
+  {{ action_bar("") }}
+  {% include "customer/_confirm_order_dialog.html" %}
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_fuel.js') }}"></script>
+{% endblock %}

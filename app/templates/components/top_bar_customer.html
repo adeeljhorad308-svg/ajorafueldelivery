@@ -1,0 +1,45 @@
+{% from "components/icon.html" import icon %}
+
+{% macro top_bar_customer(active, has_active_order=True) %}
+<header class="top-bar top-bar--customer">
+  <a class="top-bar__logo" href="{{ url_for('customer.home') }}">
+    <img
+      class="logo-mark"
+      src="{{ static_versioned('brand/svg/ajora-mark.svg') }}"
+      alt=""
+      width="28"
+      height="28"
+    />
+    <span class="top-bar__logo-text">AJORA</span>
+  </a>
+  <nav class="customer-nav" aria-label="Main">
+    <a
+      class="customer-nav__item{% if active == 'home' %} customer-nav__item--active{% endif %}"
+      href="{{ url_for('customer.home') }}"
+      >{{ icon("house") }}<span>Home</span></a
+    >
+    {% if has_active_order %}
+    <a
+      class="customer-nav__item{% if active == 'track' %} customer-nav__item--active{% endif %}"
+      href="/app/orders"
+      >{{ icon("route") }}<span>Track</span></a
+    >
+    {% else %}
+    <span class="customer-nav__item customer-nav__item--disabled"
+      >{{ icon("route") }}<span>Track</span></span
+    >
+    {% endif %}
+    <a
+      class="customer-nav__item{% if active == 'orders' %} customer-nav__item--active{% endif %}"
+      href="/app/orders"
+      >{{ icon("receipt") }}<span>My orders</span></a
+    >
+  </nav>
+  <form method="post" action="{{ url_for('auth.logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <button class="icon-btn" type="submit" aria-label="Log out">
+      {{ icon("right-from-bracket") }}
+    </button>
+  </form>
+</header>
+{% endmacro %}

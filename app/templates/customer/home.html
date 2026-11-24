@@ -1,4 +1,93 @@
-{% extends "base.html" %} {% block title %}Home – AJORA{% endblock %} {% block
-content %}
-<h1 class="h2">Customer home</h1>
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/button.html" import button %}
+{% from "components/service_tile.html" import service_tile %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/emergency_card.html" import emergency_card %}
+
+{% block title %}Home – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/customer-home.css') }}" />
+<link
+  rel="stylesheet"
+  href="{{ static_versioned('css/components-order-card.css') }}"
+/>
 {% endblock %}
+
+{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+
+{% block content %}
+<div class="home-content">
+  <div class="home-greeting">
+    <p class="home-greeting__name">Assalam-o-Alaikum, {{ first_name }}</p>
+    <p class="home-greeting__sub">What do you need today?</p>
+  </div>
+
+  <div class="home-layout">
+    {% if active_order %}
+    <div class="order-card home-layout__order">
+      <div class="order-card__header">
+        <p class="order-card__header-label">Active order</p>
+        {{ status_chip(active_order.status, active_order.status_label) }}
+      </div>
+      <div class="order-card__service">
+        <span class="order-card__service-icon">{{ icon("gas-pump") }}</span>
+        <span>
+          <p class="order-card__service-name">
+            {{ active_order.service_name }} &middot; {{ active_order.quantity_label }}
+          </p>
+          <p class="order-card__service-meta">
+            {{ active_order.order_number }} &middot; {{ active_order.placed_label }}
+          </p>
+        </span>
+      </div>
+      {% if active_order.has_assignment %}
+      <div class="order-card__eta">
+        {{ icon("truck-fast") }}
+        <span>
+          <p class="order-card__eta-label">Arriving in</p>
+          <p class="order-card__eta-value">about {{ active_order.eta_minutes }} min</p>
+        </span>
+      </div>
+      <p class="order-card__driver">{{ icon("user") }}<span>{{ active_order.driver_line }}</span></p>
+      {% endif %}
+      {{ button("Track order", style="brand", href=active_order.track_url, icon_name="route") }}
+    </div>
+    {% endif %}
+
+    <div class="home-layout__emergency">{{ emergency_card() }}</div>
+
+    <div class="home-layout__services">
+      <div class="home-services__header">
+        <p class="home-services__title">Order a service</p>
+        <p class="home-services__note">Pay cash on delivery</p>
+      </div>
+      <div class="home-tile-grid">
+        {% for tile in tiles %}
+        {{ service_tile(tile.href, tile.icon, tile.name, tile.price) }}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if last_order %}
+    <div class="last-order-card home-layout__last-order">
+      <div class="last-order-card__row">
+        <span class="last-order-card__icon">{{ icon("receipt") }}</span>
+        <span>
+          <p class="last-order-card__date">Last order &middot; {{ last_order.date_label }}</p>
+          <p class="last-order-card__summary">{{ last_order.summary }}</p>
+        </span>
+      </div>
+      {% if last_order.repeat_href %}
+      {{ button("Order again", style="outline", href=last_order.repeat_href, icon_name="rotate-right", full_width=False, small=True) }}
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}

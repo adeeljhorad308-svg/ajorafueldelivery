@@ -66,6 +66,18 @@
   color: var(--color-text-inverse);
 }
 
+/* Compact 36 px button for tables and dense rows only (docs/FIGMA.md 8:450). */
+.btn--small {
+  height: 36px;
+  padding: 0 var(--space-lg);
+  font-size: 14px;
+  gap: var(--space-xs);
+}
+.btn--small .icon {
+  width: 16px;
+  height: 16px;
+}
+
 .btn--brand:focus-visible,
 .btn--secondary:focus-visible,
 .btn--outline:focus-visible,

@@ -1,0 +1,195 @@
+/* Customer home layout (docs/FIGMA.md screen 4: 23:280 laptop, 23:502 tablet, 24:548 mobile). */
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+@media (min-width: 600px) {
+  .home-content {
+    padding: var(--space-2xl);
+    gap: var(--space-xl);
+  }
+}
+
+.home-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.home-greeting__name {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 32px;
+  color: var(--color-text-primary);
+}
+.home-greeting__sub {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-secondary);
+}
+@media (min-width: 600px) {
+  .home-greeting__name {
+    font-size: 34px;
+    line-height: 40px;
+    letter-spacing: -0.34px;
+  }
+  .home-greeting__sub {
+    font-size: 16px;
+    line-height: 26px;
+  }
+}
+
+/* Figma places these 4 blocks differently on every breakpoint: mobile stacks
+   them in document order; tablet pairs emergency with the last-order card
+   beside the order card, with services below spanning both columns; laptop
+   pairs the order card with emergency on the left instead. A flat grid with
+   explicit placement (not nested column wrappers) is the only way to satisfy
+   all three without duplicating markup. */
+.home-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+@media (min-width: 600px) and (max-width: 1023px) {
+  .home-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+  .home-layout__order {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .home-layout__emergency {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .home-layout__last-order {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .home-layout__services {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+@media (min-width: 1024px) {
+  .home-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: var(--space-2xl);
+  }
+  .home-layout__order {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .home-layout__emergency {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .home-layout__services {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .home-layout__last-order {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.home-services__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-services__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-text-primary);
+}
+.home-services__note {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+
+.home-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+@media (min-width: 600px) {
+  .home-tile-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+}
+@media (min-width: 1024px) {
+  .home-tile-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.last-order-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+@media (min-width: 1024px) {
+  .last-order-card {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+.last-order-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+@media (min-width: 1024px) {
+  .last-order-card__row {
+    flex: 1;
+    min-width: 0;
+  }
+}
+.last-order-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+}
+.last-order-card__icon .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-icon-default);
+}
+.last-order-card__date {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+.last-order-card__summary {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-primary);
+}
