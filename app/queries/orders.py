@@ -83,12 +83,19 @@ _ORDER_WITH_ASSIGNMENT = """
 
 
 def find_active_for_user(db, user_id):
-    """The customer's one open order (Pending/Assigned/On the Way), newest first."""
+    """The customer's one open order to feature on Customer home: whichever is
+    furthest along (On the Way > Assigned > Pending), newest first among ties."""
     return db.execute(
         f"""
         {_ORDER_WITH_ASSIGNMENT}
         WHERE orders.user_id = ? AND orders.status IN ('Pending', 'Assigned', 'On the Way')
-        ORDER BY orders.created_at DESC
+        ORDER BY
+            CASE orders.status
+                WHEN 'On the Way' THEN 0
+                WHEN 'Assigned' THEN 1
+                WHEN 'Pending' THEN 2
+            END,
+            orders.created_at DESC
         LIMIT 1
         """,  # noqa: S608 (static SQL text, no interpolated values)
         (user_id,),

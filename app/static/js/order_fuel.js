@@ -148,6 +148,7 @@ function requestLocation(form) {
       form.querySelector("[data-latitude]").value = latitude;
       form.querySelector("[data-longitude]").value = longitude;
       const area = nearestArea(latitude, longitude);
+      form.querySelector("#field-area").value = area;
       setLocationState(
         form,
         "captured",

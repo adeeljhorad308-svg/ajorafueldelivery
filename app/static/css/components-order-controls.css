@@ -121,6 +121,7 @@
   font-weight: 600;
   font-size: 14px;
   color: var(--color-text-primary);
+  white-space: nowrap;
   cursor: pointer;
 }
 @media (min-width: 600px) {

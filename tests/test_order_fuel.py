@@ -94,6 +94,54 @@ def test_another_users_order_is_404(app, client, make_user):
     assert confirmed.status_code == 404
 
 
+def test_active_order_prefers_on_the_way_over_a_newer_pending_order(app, make_user):
+    _seed_fuel_services(app)
+    user_id = make_user()
+    with app.app_context():
+        db = get_db()
+        service_id = service_queries.find_by_name(db, "Petrol")["service_id"]
+        older_on_the_way = order_queries.insert_order(
+            db,
+            user_id,
+            service_id,
+            "key-on-the-way",
+            20,
+            "5040.00",
+            "Addr 1",
+            "DHA",
+            None,
+            None,
+            None,
+        )
+        db.execute(
+            "UPDATE orders SET status = 'On the Way', created_at = '2026-01-01 08:00:00' "
+            "WHERE order_id = ?",
+            (older_on_the_way,),
+        )
+        newer_pending = order_queries.insert_order(
+            db,
+            user_id,
+            service_id,
+            "key-pending",
+            10,
+            "2520.00",
+            "Addr 2",
+            "Gulberg",
+            None,
+            None,
+            None,
+        )
+        db.execute(
+            "UPDATE orders SET created_at = '2026-01-02 08:00:00' WHERE order_id = ?",
+            (newer_pending,),
+        )
+        db.commit()
+
+        active = order_queries.find_active_for_user(db, user_id)
+    assert active["order_id"] == older_on_the_way
+    assert active["status"] == "On the Way"
+
+
 def test_stale_price_shows_price_updated_state_and_does_not_place_order(app, client, make_user):
     _seed_fuel_services(app)
     make_user()

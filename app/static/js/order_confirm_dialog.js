@@ -15,14 +15,14 @@ function trapFocus(panel, event) {
   }
 }
 
-function fillDialog(form, summary, formatPkr) {
-  form.querySelector("[data-confirm-service]").textContent = summary.fuel_type;
-  form.querySelector("[data-confirm-quantity]").textContent =
+function fillDialog(dialog, summary, formatPkr) {
+  dialog.querySelector("[data-confirm-service]").textContent = summary.fuel_type;
+  dialog.querySelector("[data-confirm-quantity]").textContent =
     `${summary.litres} L × ${formatPkr(summary.unitPrice)}`;
-  form.querySelector("[data-confirm-deliver]").textContent = summary.deliverTo;
-  form.querySelector("[data-confirm-total]").textContent = formatPkr(summary.total);
-  form.querySelector("[data-price-banner]").hidden = true;
-  form.querySelector("[data-confirm-form-error]").hidden = true;
+  dialog.querySelector("[data-confirm-deliver]").textContent = summary.deliverTo;
+  dialog.querySelector("[data-confirm-total]").textContent = formatPkr(summary.total);
+  dialog.querySelector("[data-price-banner]").hidden = true;
+  dialog.querySelector("[data-confirm-form-error]").hidden = true;
 }
 
 function setPlacing(dialog, placing) {
@@ -110,7 +110,7 @@ export function initConfirmOrderDialog(form, options) {
   function open(trigger) {
     if (!options.validate(form)) return;
     opener = trigger;
-    fillDialog(form, options.summary(form), options.formatPkr);
+    fillDialog(dialog, options.summary(form), options.formatPkr);
     dialog.hidden = false;
     backdrop.hidden = false;
     document.addEventListener("keydown", onKeydown);

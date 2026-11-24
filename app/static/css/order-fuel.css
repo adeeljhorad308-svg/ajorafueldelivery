@@ -142,8 +142,13 @@
   .area-landmark {
     flex-direction: row;
   }
-  .area-landmark > .order-field-group {
+  /* .field (the Landmark/note field's own macro) carries width:100% for its
+     usual single-column use, which becomes its flex-basis here and squeezes
+     the Area field next to it; both children need the same override. */
+  .area-landmark > .order-field-group,
+  .area-landmark > .field {
     flex: 1;
+    width: auto;
     min-width: 0;
   }
 }

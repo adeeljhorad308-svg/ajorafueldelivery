@@ -96,6 +96,13 @@
   color: var(--color-text-error);
   margin: 0;
 }
+/* `display` here would otherwise outrank the `[hidden]` attribute's
+   user-agent style (author origin beats UA origin regardless of selector
+   specificity) on the field errors that are shown/hidden by JS rather than
+   by Jinja. */
+.field__error[hidden] {
+  display: none;
+}
 .field__error .icon {
   width: 14px;
   height: 14px;

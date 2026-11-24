@@ -21,6 +21,9 @@ logs/
 *.db-shm
 loadtest/result*
 
+# Visual check screenshots (tools/screenshots.py)
+tools/screenshots/
+
 # Editors and OS
 .vscode/settings.json
 .idea/
