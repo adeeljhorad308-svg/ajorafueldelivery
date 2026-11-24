@@ -110,7 +110,7 @@ def _enforce_session_rules():
         session.clear()
         if _is_background_poll():
             return None
-        flash(IDLE_TIMEOUT_MESSAGE)
+        flash(IDLE_TIMEOUT_MESSAGE, "info")
         next_path = request.path if is_safe_next(request.path) else None
         return redirect(url_for("auth.login", next=next_path))
 

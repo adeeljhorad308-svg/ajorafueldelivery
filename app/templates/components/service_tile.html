@@ -1,0 +1,11 @@
+{% from "components/icon.html" import icon %}
+
+{% macro service_tile(href, icon_name, name, price) %}
+<a class="service-tile" href="{{ href }}">
+  <span class="service-tile__icon">{{ icon(icon_name) }}</span>
+  <span>
+    <p class="service-tile__name">{{ name }}</p>
+    <p class="service-tile__price">{{ price }}</p>
+  </span>
+</a>
+{% endmacro %}

@@ -1,0 +1,62 @@
+{% from "components/icon.html" import icon %}
+
+{% macro field(name, label, type="text", value="", placeholder="", helper="", error="", required=True, autocomplete=None, inputmode=None) %}
+<div class="field{% if error %} field--error{% endif %}">
+  <label class="label" for="field-{{ name }}">{{ label }}</label>
+  <div class="field__box">
+    <input
+      class="field__input"
+      type="{{ type }}"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      value="{{ value }}"
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+      {% if inputmode %}inputmode="{{ inputmode }}"{% endif %}
+      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% endif %}
+    />
+  </div>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">
+    {{ icon("circle-exclamation") }}<span>{{ error }}</span>
+  </p>
+  {% elif helper %}
+  <p class="field__helper">{{ helper }}</p>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro password_field(name, label, placeholder="", error="", helper="", autocomplete="current-password") %}
+<div class="field{% if error %} field--error{% endif %}">
+  <label class="label" for="field-{{ name }}">{{ label }}</label>
+  <div class="field__box field__box--with-toggle">
+    <input
+      class="field__input"
+      type="password"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      autocomplete="{{ autocomplete }}"
+      required
+      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% endif %}
+    />
+    <button
+      class="field__toggle"
+      type="button"
+      data-password-toggle="field-{{ name }}"
+      aria-label="Show password"
+      aria-pressed="false"
+    >
+      {{ icon("eye") }}
+    </button>
+  </div>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">
+    {{ icon("circle-exclamation") }}<span>{{ error }}</span>
+  </p>
+  {% elif helper %}
+  <p class="field__helper">{{ helper }}</p>
+  {% endif %}
+</div>
+{% endmacro %}

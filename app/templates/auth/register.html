@@ -1,50 +1,103 @@
-{% extends "base.html" %} {% block title %}Create account – AJORA{% endblock %}
+{% extends "base.html" %}
+{% from "components/button.html" import button %}
+{% from "components/field.html" import field, password_field %}
+{% from "components/icon.html" import icon %}
+{% from "components/top_bar_public.html" import top_bar_public %}
+
+{% block title %}Create account – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/public-auth.css') }}" />
+{% endblock %}
+
+{% block header %}
+<div class="auth-page__top-bar-mobile">{{ top_bar_public() }}</div>
+{% endblock %}
+
 {% block content %}
-<h1 class="h2">Create account</h1>
-<form method="post" novalidate>
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  <label class="label" for="full_name">Full name</label>
-  <input class="body" id="full_name" name="full_name" required />
-  {% if errors and errors.full_name %}
-  <p class="body" role="alert">{{ errors.full_name }}</p>
-  {% endif %}
-  <label class="label" for="email">Email</label>
-  <input class="body" id="email" name="email" type="email" required />
-  {% if errors and errors.email %}
-  <p class="body" role="alert">{{ errors.email }}</p>
-  {% endif %}
-  <label class="label" for="phone">Phone</label>
-  <input
-    class="body"
-    id="phone"
-    name="phone"
-    placeholder="03XX-XXXXXXX"
-    required
-  />
-  {% if errors and errors.phone %}
-  <p class="body" role="alert">{{ errors.phone }}</p>
-  {% endif %}
-  <label class="label" for="password">Password</label>
-  <input class="body" id="password" name="password" type="password" required />
-  {% if errors and errors.password %}
-  <p class="body" role="alert">{{ errors.password }}</p>
-  {% endif %}
-  <label class="label" for="confirm_password">Confirm password</label>
-  <input
-    class="body"
-    id="confirm_password"
-    name="confirm_password"
-    type="password"
-    required
-  />
-  {% if errors and errors.confirm_password %}
-  <p class="body" role="alert">{{ errors.confirm_password }}</p>
-  {% endif %}
-  <p class="caption">Your location is used only for your own orders.</p>
-  <button class="label" type="submit">Create account</button>
-</form>
-<p class="body">
-  Already have an account?
-  <a href="{{ url_for('auth.login') }}">Log in</a>
-</p>
+<div class="auth-split">
+  <aside class="auth-brand">
+    <a class="auth-brand__logo" href="{{ url_for('landing') }}">
+      <img
+        src="{{ static_versioned('brand/svg/ajora-mark-white.svg') }}"
+        alt=""
+        width="32"
+        height="32"
+      />
+      <span>AJORA</span>
+    </a>
+    <div class="auth-brand__message">
+      <p class="overline">FUEL DELIVERY · ROAD HELP</p>
+      <h2 class="display">Fuel and road help, brought to you.</h2>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Petrol, diesel and emergency fuel at your
+        location
+      </p>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Battery, tyre, engine oil and car wash
+      </p>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Nearest free driver with a live arrival time
+      </p>
+    </div>
+    <p class="caption auth-brand__footer">
+      Final Year Project · BS Software Engineering · The University of Lahore
+    </p>
+  </aside>
+
+  <div class="auth-form-area">
+    <form
+      class="auth-form auth-form--wide"
+      method="post"
+      novalidate
+      data-loading-text="Creating account…"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="auth-form__heading">
+        <h1 class="h3">Create account</h1>
+        <p class="body">
+          It takes one minute. Your location is used only for your own
+          orders.
+        </p>
+      </div>
+
+      {{ field("full_name", "Full name", placeholder="Your full name", error=errors.full_name if errors else "") }}
+
+      <div class="auth-form__row">
+        <div class="auth-form__field-group">
+          {{ field("email", "Email", type="email", placeholder="you@example.com", error=errors.email if errors else "", autocomplete="email", inputmode="email") }}
+          {% if errors and errors.email_taken %}
+          <p class="field__error"
+            ><a href="{{ url_for('auth.login') }}">Log in instead?</a></p
+          >
+          {% endif %}
+        </div>
+        {{ field("phone", "Mobile number", placeholder="03XX-XXXXXXX", helper="Example: 0300-1234567", error=errors.phone if errors else "", autocomplete="tel", inputmode="tel") }}
+      </div>
+
+      <div class="auth-form__row">
+        {{ password_field("password", "Password", placeholder="At least 8 characters", error=errors.password if errors else "", autocomplete="new-password") }}
+        {{ password_field("confirm_password", "Confirm password", placeholder="Type it again", error=errors.confirm_password if errors else "", autocomplete="new-password") }}
+      </div>
+
+      <div class="auth-form__rules">
+        <p class="auth-form__rule">
+          {{ icon("circle-info") }}At least 8 characters
+        </p>
+        <p class="auth-form__rule">
+          {{ icon("circle-info") }}Not a common password
+        </p>
+        <p class="auth-form__rule">
+          {{ icon("circle-info") }}Not the same as your email
+        </p>
+      </div>
+
+      {{ button("Create account", style="brand", type="submit") }}
+
+      <p class="body auth-form__switch">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+      </p>
+    </form>
+  </div>
+</div>
 {% endblock %}

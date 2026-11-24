@@ -13,6 +13,18 @@
     />
     <link rel="stylesheet" href="{{ static_versioned('css/tokens.css') }}" />
     <link rel="stylesheet" href="{{ static_versioned('css/base.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ static_versioned('css/components-actions.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ static_versioned('css/components-forms.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ static_versioned('css/components-feedback.css') }}"
+    />
     {% block extra_css %}{% endblock %}
     <link rel="icon" href="{{ static_versioned('favicon.ico') }}" />
     <link
@@ -23,18 +35,20 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
-    <header>{% block header %}{% endblock %}</header>
+    {% block header %}{% endblock %}
     <main id="main">
-      {% with messages = get_flashed_messages() %} {% if messages %}
-      <div class="banner" role="alert">
-        {% for message in messages %}
-        <p class="body">{{ message }}</p>
-        {% endfor %}
-      </div>
-      {% endif %} {% endwith %} {% block content %}{% endblock %}
+      {% set flashes = get_flashed_messages(with_categories=True) %} {% for
+      category, message in flashes %} {% if category != "success" %}
+      <div class="flash-notice" role="alert"><p class="body">{{ message }}</p></div>
+      {% endif %} {% endfor %} {% block content %}{% endblock %}
     </main>
-    <footer>{% block footer %}{% endblock %}</footer>
-    <div id="toast-area" role="status" aria-live="polite"></div>
+    {% block footer %}{% endblock %}
+    <div id="toast-area" role="status" aria-live="polite">
+      {% from "components/toast.html" import toast %} {% for category,
+      message in flashes %} {% if category == "success" %} {{ toast("success",
+      message) }} {% endif %} {% endfor %}
+    </div>
+    <script type="module" src="{{ static_versioned('js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
   </body>
 </html>

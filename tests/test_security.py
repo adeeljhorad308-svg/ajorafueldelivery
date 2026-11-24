@@ -145,7 +145,8 @@ def test_checklist_2_rate_limit_eleven_logins_per_minute(tmp_path):
     ]
     assert [r.status_code for r in responses[:10]] == [400] * 10
     assert responses[10].status_code == 429
-    assert b"Too many tries. Wait a minute and try again." in responses[10].data
+    assert b"Too many tries." in responses[10].data
+    assert b"Wait a minute and try again." in responses[10].data
 
 
 def test_checklist_5_logged_out_visiting_app_redirects_then_returns(client, make_user):
@@ -178,7 +179,8 @@ def test_checklist_7_post_without_csrf_token_is_400(csrf_app):
     client = csrf_app.test_client()
     response = client.post("/login", data={"email": "x@example.com", "password": "x"})
     assert response.status_code == 400
-    assert b"This form expired. Reload the page and try again." in response.data
+    assert b"This form expired." in response.data
+    assert b"Reload the page and try again." in response.data
 
 
 def test_checklist_8_role_posted_on_register_is_ignored(client, app):

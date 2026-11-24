@@ -127,7 +127,7 @@ def login_submit():
         minutes = _minutes_remaining(user["locked_until"])
         security_logger().info("lockout email=%s", email)
         message = f"Too many tries. Try again in {minutes} minutes."
-        return _login_form(next_path, {"form": message}, 429)
+        return _login_form(next_path, {"form": message, "form_kind": "lockout"}, 429)
 
     password_ok = _verify_password(user, password)
 
@@ -138,19 +138,21 @@ def login_submit():
                 minutes = _minutes_remaining(user["locked_until"])
                 security_logger().info("lockout email=%s", email)
                 message = f"Too many tries. Try again in {minutes} minutes."
-                return _login_form(next_path, {"form": message}, 429)
+                return _login_form(next_path, {"form": message, "form_kind": "lockout"}, 429)
         security_logger().info("login failed email=%s", email)
-        return _login_form(next_path, {"form": WRONG_CREDENTIALS_MESSAGE}, 400)
+        return _login_form(
+            next_path, {"form": WRONG_CREDENTIALS_MESSAGE, "form_kind": "wrong"}, 400
+        )
 
     if not user["is_active"]:
         security_logger().info("login blocked user_id=%s", user["user_id"])
-        return _login_form(next_path, {"form": BLOCKED_MESSAGE}, 403)
+        return _login_form(next_path, {"form": BLOCKED_MESSAGE, "form_kind": "blocked"}, 403)
 
     user_queries.reset_login_state(db, user["user_id"])
     db.commit()
     _start_session(user)
     security_logger().info("login ok user_id=%s", user["user_id"])
-    flash(f"Welcome back, {user['name'].split()[0]}")
+    flash(f"Welcome back, {user['name'].split()[0]}", "success")
     return _redirect_after_login(user["role"])
 
 
@@ -178,7 +180,8 @@ def register_submit():
 
     db = get_db()
     if "email" not in errors and user_queries.find_by_email(db, email):
-        errors["email"] = "This email is already registered. Log in instead?"
+        errors["email"] = "This email is already registered."
+        errors["email_taken"] = True
     if "phone" not in errors and user_queries.find_by_phone(db, phone):
         errors["phone"] = "This phone number is already registered."
 
@@ -191,7 +194,7 @@ def register_submit():
     user = user_queries.find_by_id(db, user_id)
     _start_session(user)
     security_logger().info("register ok user_id=%s", user_id)
-    flash("Account created. Welcome to AJORA.")
+    flash("Account created. Welcome to AJORA.", "success")
     return redirect(url_for("customer.home"))
 
 

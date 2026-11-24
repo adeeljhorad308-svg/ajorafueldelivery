@@ -1,0 +1,46 @@
+{% from "components/icon.html" import icon %}
+
+{% macro top_bar_public() %}
+<header class="top-bar">
+  <a class="top-bar__logo" href="{{ url_for('landing') }}">
+    <img
+      class="logo-mark"
+      src="{{ static_versioned('brand/svg/ajora-mark.svg') }}"
+      alt=""
+      width="28"
+      height="28"
+    />
+    <span class="top-bar__logo-text">AJORA</span>
+  </a>
+  <nav class="top-bar__links" aria-label="Main">
+    <a class="top-bar__link" href="{{ url_for('landing') }}#how-it-works">How it works</a>
+    <a class="top-bar__link" href="{{ url_for('landing') }}#services">Services</a>
+    <a class="btn btn--outline" href="{{ url_for('auth.login') }}"
+      ><span>Log in</span></a
+    >
+    <a class="btn btn--brand" href="{{ url_for('auth.register') }}"
+      ><span>Create account</span></a
+    >
+  </nav>
+  <button
+    class="icon-btn top-bar__menu-button"
+    type="button"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="public-menu-sheet"
+    data-menu-toggle
+  >
+    {{ icon("bars") }}
+  </button>
+</header>
+<div class="menu-sheet" id="public-menu-sheet" hidden data-menu-sheet>
+  <a class="menu-sheet__link" href="{{ url_for('landing') }}#how-it-works">How it works</a>
+  <a class="menu-sheet__link" href="{{ url_for('landing') }}#services">Services</a>
+  <a class="btn btn--outline btn--full" href="{{ url_for('auth.login') }}"
+    ><span>Log in</span></a
+  >
+  <a class="btn btn--brand btn--full" href="{{ url_for('auth.register') }}"
+    ><span>Create account</span></a
+  >
+</div>
+{% endmacro %}

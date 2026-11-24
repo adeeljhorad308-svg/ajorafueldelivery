@@ -1,0 +1,16 @@
+{% from "components/icon.html" import icon %}
+
+{% macro icon_button(icon_name, label, style="outline", type="button", href=None, id=None, data_action=None) %}
+{%- set classes = "icon-btn icon-btn--" ~ style -%}
+{% if href %}
+<a class="{{ classes }}" href="{{ href }}" aria-label="{{ label }}"{% if id %} id="{{ id }}"{% endif %}>{{ icon(icon_name) }}</a>
+{%- else %}
+<button
+  class="{{ classes }}"
+  type="{{ type }}"
+  aria-label="{{ label }}"
+  {% if id %}id="{{ id }}"{% endif %}
+  {% if data_action %}data-action="{{ data_action }}"{% endif %}
+>{{ icon(icon_name) }}</button>
+{%- endif %}
+{% endmacro %}

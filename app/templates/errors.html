@@ -1,5 +1,38 @@
-{% extends "base.html" %} {% block title %}AJORA{% endblock %} {% block content
-%}
-<h1 class="h2">{{ message }}</h1>
-<a class="label" href="{{ url_for('landing') }}">Back to safety</a>
+{% extends "base.html" %}
+{% from "components/button.html" import button %}
+{% from "components/icon.html" import icon %}
+
+{% block title %}AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/error-page.css') }}" />
+{% endblock %}
+
+{% block header %}
+<header class="error-page__top-bar">
+  <a class="error-page__logo" href="{{ url_for('landing') }}">
+    <img
+      src="{{ static_versioned('brand/svg/ajora-mark.svg') }}"
+      alt=""
+      width="28"
+      height="28"
+    />
+    <span>AJORA</span>
+  </a>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+  <span class="error-page__icon-circle error-page__icon-circle--{{ content.tint }}"
+    >{{ icon(content.icon) }}</span
+  >
+  <h1 class="h3 error-page__title">{{ content.title }}</h1>
+  <p class="body-lg error-page__message">{{ content.message }}</p>
+  <div class="error-page__actions">
+    {% for action in content.actions %} {{ button(action.label,
+    style=action.style, type="button", href=url_for(action.endpoint) if
+    action.endpoint else None, data_action=action.data_action if
+    action.data_action else None, full_width=True) }} {% endfor %}
+  </div>
+</div>
 {% endblock %}

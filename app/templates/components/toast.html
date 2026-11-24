@@ -1,0 +1,16 @@
+{% from "components/icon.html" import icon %}
+
+{% macro toast(type, message) %}
+{%- set toast_icons = {
+  "success": "circle-check",
+  "error": "circle-exclamation",
+  "info": "circle-info",
+} -%}
+<div class="toast toast--{{ type }}" role="status">
+  {{ icon(toast_icons[type]) }}
+  <p class="toast__message">{{ message }}</p>
+  <button class="toast__close" type="button" aria-label="Dismiss" data-toast-close>
+    {{ icon("xmark") }}
+  </button>
+</div>
+{% endmacro %}

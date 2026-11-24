@@ -1,27 +1,87 @@
-{% extends "base.html" %} {% block title %}Log in – AJORA{% endblock %} {%
-block content %}
-<h1 class="h2">Log in</h1>
-{% if errors and errors.form %}
-<p class="body" role="alert">{{ errors.form }}</p>
-{% endif %}
-<form method="post" novalidate>
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
-  <label class="label" for="email">Email</label>
-  <input class="body" id="email" name="email" type="email" required />
-  {% if errors and errors.email %}
-  <p class="body" role="alert">{{ errors.email }}</p>
-  {% endif %}
-  <label class="label" for="password">Password</label>
-  <input class="body" id="password" name="password" type="password" required />
-  {% if errors and errors.password %}
-  <p class="body" role="alert">{{ errors.password }}</p>
-  {% endif %}
-  <button class="label" type="submit">Log in</button>
-</form>
-<p class="body">
-  New to AJORA?
-  <a href="{{ url_for('auth.register') }}">Create account</a>
-</p>
-<p class="caption">Forgot your password? Contact AJORA support.</p>
+{% extends "base.html" %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/button.html" import button %}
+{% from "components/field.html" import field, password_field %}
+{% from "components/icon.html" import icon %}
+{% from "components/top_bar_public.html" import top_bar_public %}
+
+{% block title %}Log in – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/public-auth.css') }}" />
+{% endblock %}
+
+{% block header %}
+<div class="auth-page__top-bar-mobile">{{ top_bar_public() }}</div>
+{% endblock %}
+
+{% block content %}
+<div class="auth-split">
+  <aside class="auth-brand">
+    <a class="auth-brand__logo" href="{{ url_for('landing') }}">
+      <img
+        src="{{ static_versioned('brand/svg/ajora-mark-white.svg') }}"
+        alt=""
+        width="32"
+        height="32"
+      />
+      <span>AJORA</span>
+    </a>
+    <div class="auth-brand__message">
+      <p class="overline">FUEL DELIVERY · ROAD HELP</p>
+      <h2 class="display">Fuel and road help, brought to you.</h2>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Petrol, diesel and emergency fuel at your
+        location
+      </p>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Battery, tyre, engine oil and car wash
+      </p>
+      <p class="auth-brand__point">
+        {{ icon("circle-check") }}Nearest free driver with a live arrival time
+      </p>
+    </div>
+    <p class="caption auth-brand__footer">
+      Final Year Project · BS Software Engineering · The University of Lahore
+    </p>
+  </aside>
+
+  <div class="auth-form-area">
+    <form
+      class="auth-form"
+      method="post"
+      novalidate
+      data-loading-text="Logging in…"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      {% if next %}<input type="hidden" name="next" value="{{ next }}" />{%
+      endif %}
+      <div class="auth-form__heading">
+        <h1 class="h3">Log in</h1>
+        <p class="body">
+          Welcome back. Use the email and password of your AJORA account.
+        </p>
+      </div>
+
+      {% if errors and errors.form %} {% if errors.form_kind == "lockout" %}
+      {{ alert_banner("warning", "Too many tries", errors.form) }} {% elif
+      errors.form_kind == "blocked" %} {{ alert_banner("error", "Account
+      blocked", errors.form) }} {% else %} {{ alert_banner("error", "Could not
+      log in", errors.form) }} {% endif %} {% endif %}
+
+      {{ field("email", "Email", type="email", placeholder="you@example.com", error=errors.email if errors else "", autocomplete="email", inputmode="email") }}
+      {{ password_field("password", "Password", placeholder="Enter your password", error=errors.password if errors else "", autocomplete="current-password") }}
+
+      {{ button("Log in", style="brand", type="submit") }}
+
+      <p class="caption auth-form__muted">
+        Forgot your password? Contact AJORA support.
+      </p>
+      <hr class="auth-form__divider" />
+      <p class="body auth-form__switch">
+        New to AJORA?
+        <a href="{{ url_for('auth.register') }}">Create account</a>
+      </p>
+    </form>
+  </div>
+</div>
 {% endblock %}

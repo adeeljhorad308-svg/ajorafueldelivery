@@ -1,0 +1,17 @@
+{% from "components/icon.html" import icon %}
+
+{% macro alert_banner(type, title, message) %}
+{%- set alert_icons = {
+  "error": "triangle-exclamation",
+  "warning": "circle-exclamation",
+  "info": "circle-info",
+  "success": "circle-check",
+} -%}
+<div class="alert-banner alert-banner--{{ type }}" role="alert">
+  {{ icon(alert_icons[type]) }}
+  <div class="alert-banner__text">
+    <p class="alert-banner__title">{{ title }}</p>
+    <p class="alert-banner__message">{{ message }}</p>
+  </div>
+</div>
+{% endmacro %}

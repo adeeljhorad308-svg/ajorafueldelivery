@@ -1,17 +1,268 @@
-{% extends "base.html" %} {% block title %}AJORA – fuel and road help{%
-endblock %} {% block header %}
-<nav>
-  <a href="{{ url_for('landing') }}">AJORA</a>
-  <a href="{{ url_for('auth.login') }}">Log in</a>
-  <a href="{{ url_for('auth.register') }}">Create account</a>
-</nav>
-{% endblock %} {% block content %}
-<h1 class="display">Fuel and road help, brought to you.</h1>
-<p class="body-lg">
-  Order petrol or diesel, get emergency fuel when you are stuck, or book
-  battery, tyre and car wash help. The nearest free driver comes to your
-  location.
-</p>
-{% endblock %} {% block footer %}
-<p class="caption">© 2026 AJORA · Final Year Project, University of Lahore</p>
+{% extends "base.html" %}
+{% from "components/button.html" import button %}
+{% from "components/icon.html" import icon %}
+{% from "components/service_tile.html" import service_tile %}
+{% from "components/top_bar_public.html" import top_bar_public %}
+
+{% block title %}AJORA – Fuel and road help, brought to you.{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/public-hero.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/public-phone.css') }}" />
+<link
+  rel="stylesheet"
+  href="{{ static_versioned('css/public-sections.css') }}"
+/>
+{% endblock %}
+
+{% block header %} {{ top_bar_public() }} {% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero__copy">
+    <p class="overline">FUEL DELIVERY · ROAD HELP · LAHORE</p>
+    <h1 class="display">Fuel and road help, brought to you.</h1>
+    <p class="body-lg">
+      Order petrol or diesel, get emergency fuel when you are stuck, or book
+      battery, tyre and car wash help. The nearest free driver comes to your
+      location.
+    </p>
+    <div class="hero__buttons">
+      {{ button("Order fuel", style="brand", href=url_for('auth.login'), full_width=False) }}
+      {{ button("Emergency fuel", style="outline", icon_name="triangle-exclamation", href=url_for('auth.login'), full_width=False) }}
+    </div>
+    <div class="hero__trust">
+      <span class="hero__trust-item"
+        >{{ icon("circle-check") }}Cash on delivery</span
+      >
+      <span class="hero__trust-item"
+        >{{ icon("circle-check") }}Nearest free driver</span
+      >
+      <span class="hero__trust-item"
+        >{{ icon("circle-check") }}Live order status</span
+      >
+    </div>
+  </div>
+  <div class="phone-mockup" aria-hidden="true">
+    <div class="phone-mockup__screen">
+      <div class="phone-mockup__bar">AJORA</div>
+      <div class="phone-mockup__content">
+        <div class="phone-mockup__row">
+          <span>Order ORD-0042</span>
+          <span class="phone-mockup__chip">On the way</span>
+        </div>
+        <div class="phone-mockup__card">
+          <div class="phone-mockup__driver">
+            <span class="phone-mockup__avatar">AR</span>
+            <span>
+              <p class="phone-mockup__driver-name">Ahmed Raza</p>
+              <p class="phone-mockup__driver-meta">4.8 · LEA-1234</p>
+            </span>
+            <span class="phone-mockup__eta">
+              <p class="phone-mockup__driver-meta">Arriving in</p>
+              <p class="phone-mockup__eta-value">about 13 min</p>
+            </span>
+          </div>
+        </div>
+        <div class="phone-mockup__card phone-mockup__steps">
+          <span class="phone-mockup__step phone-mockup__step--done"
+            ><span class="phone-mockup__dot"></span>Placed</span
+          >
+          <span class="phone-mockup__step phone-mockup__step--done"
+            ><span class="phone-mockup__dot"></span>Assigned</span
+          >
+          <span class="phone-mockup__step phone-mockup__step--done"
+            ><span class="phone-mockup__dot"></span>On the way</span
+          >
+          <span class="phone-mockup__step"
+            ><span class="phone-mockup__dot"></span>Delivered</span
+          >
+        </div>
+      </div>
+      <div class="phone-mockup__nav">
+        <span class="phone-mockup__nav-item">Home</span>
+        <span class="phone-mockup__nav-item phone-mockup__nav-item--active"
+          >Track</span
+        >
+        <span class="phone-mockup__nav-item">My orders</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--surface" id="services">
+  <div class="section__heading">
+    <p class="overline">SERVICES</p>
+    <h2 class="h3">Everything your vehicle needs, in one place</h2>
+    <p class="body section__lead">
+      Choose a service, see the price first and pay cash on delivery.
+    </p>
+  </div>
+  <div class="service-grid">
+    {{ service_tile(url_for('auth.login'), "gas-pump", "Petrol and diesel", "From PKR 252 / litre") }}
+    {{ service_tile(url_for('auth.login'), "triangle-exclamation", "Emergency fuel", "Up to 10 L, sent first") }}
+    {{ service_tile(url_for('auth.login'), "plug-circle-bolt", "Generator fuel", "20–500 L, on time") }}
+    {{ service_tile(url_for('auth.login'), "tractor", "Machinery fuel", "Tractors and tube wells") }}
+    {{ service_tile(url_for('auth.login'), "oil-can", "Engine oil", "Delivered to you") }}
+    {{ service_tile(url_for('auth.login'), "car-battery", "Battery help", "Jump-start or new battery") }}
+    {{ service_tile(url_for('auth.login'), "custom-tyre", "Tyre help", "Puncture or change") }}
+    {{ service_tile(url_for('auth.login'), "spray-can-sparkles", "Car wash", "Book 2 hours ahead") }}
+  </div>
+</section>
+
+<section class="section" id="how-it-works">
+  <div class="section__heading section__heading--centered">
+    <p class="overline">HOW IT WORKS</p>
+    <h2 class="h3">Three steps, no phone calls</h2>
+  </div>
+  <div class="step-grid">
+    <div class="step-card">
+      <span class="step-card__number h4">1</span>
+      <span>
+        <p class="step-card__title h4">Choose a service</p>
+        <p class="step-card__text body">
+          Fuel, emergency fuel or vehicle help.
+        </p>
+      </span>
+    </div>
+    <div class="step-card">
+      <span class="step-card__number h4">2</span>
+      <span>
+        <p class="step-card__title h4">Share your location</p>
+        <p class="step-card__text body">
+          Or pick your area and add a landmark.
+        </p>
+      </span>
+    </div>
+    <div class="step-card">
+      <span class="step-card__number h4">3</span>
+      <span>
+        <p class="step-card__title h4">Track your driver</p>
+        <p class="step-card__text body">
+          See the driver, phone number and arrival time.
+        </p>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section class="section section--surface">
+  <div class="section__heading">
+    <p class="overline">WHY AJORA</p>
+    <h2 class="h3">Help that comes to you, not the other way round</h2>
+    <p class="body section__lead">
+      Petrol pumps, mechanics and small suppliers each solve one part. AJORA
+      joins them in one place.
+    </p>
+  </div>
+  <div class="point-grid">
+    <div class="point-card">
+      {{ icon("gas-pump") }}
+      <p class="point-card__title h4">One place for fuel and road help</p>
+      <p class="point-card__text body">
+        Order fuel or book battery, tyre and car wash help from one account.
+      </p>
+    </div>
+    <div class="point-card">
+      {{ icon("triangle-exclamation") }}
+      <p class="point-card__title h4">Emergencies go first</p>
+      <p class="point-card__text body">
+        A stuck vehicle jumps the queue and the office is alerted.
+      </p>
+    </div>
+    <div class="point-card">
+      {{ icon("location-crosshairs") }}
+      <p class="point-card__title h4">Nearest free driver</p>
+      <p class="point-card__text body">
+        Smart dispatch picks the closest available driver and shows the
+        arrival time.
+      </p>
+    </div>
+    <div class="point-card">
+      {{ icon("money-bill-wave") }}
+      <p class="point-card__title h4">Price before you order</p>
+      <p class="point-card__text body">
+        See the total before you confirm and pay cash on delivery.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__heading section__heading--centered">
+    <p class="overline">WHO IT IS FOR</p>
+    <h2 class="h3">Made for the way Pakistan moves</h2>
+  </div>
+  <div class="point-grid">
+    <div class="group-card">
+      {{ icon("route") }}
+      <span>
+        <p class="group-card__title h4">Daily commuters and families</p>
+        <p class="group-card__text body">
+          Fuel or road help without searching for a pump or a mechanic.
+        </p>
+      </span>
+    </div>
+    <div class="group-card">
+      {{ icon("plug-circle-bolt") }}
+      <span>
+        <p class="group-card__title h4">Homes, shops and offices</p>
+        <p class="group-card__text body">
+          Generator fuel before or during load shedding.
+        </p>
+      </span>
+    </div>
+    <div class="group-card">
+      {{ icon("tractor") }}
+      <span>
+        <p class="group-card__title h4">Farmers and machine operators</p>
+        <p class="group-card__text body">
+          Diesel delivered to the field in sowing and harvest season.
+        </p>
+      </span>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="section section--inverse closing">
+  <div class="closing__cta">
+    <span>
+      <h2 class="h3">Need fuel now?</h2>
+      <p class="body-lg">Create a free account in one minute. Pay cash on delivery.</p>
+    </span>
+    <div class="closing__buttons">
+      {{ button("Order fuel", style="brand", href=url_for('auth.register'), full_width=False) }}
+      {{ button("Emergency fuel", style="danger", icon_name="triangle-exclamation", href=url_for('auth.register'), full_width=False) }}
+    </div>
+  </div>
+  <hr class="closing__divider" />
+  <div class="closing__footer">
+    <div>
+      <div class="closing__logo">
+        <img
+          src="{{ static_versioned('brand/svg/ajora-mark-white.svg') }}"
+          alt=""
+          width="32"
+          height="32"
+        />
+        <span class="closing__logo-text">AJORA</span>
+      </div>
+      <p class="body closing__brand-text closing__brand-text--spaced">
+        AJORA – AI-Based Smart Fuel Delivery &amp; Vehicle Assistance Platform
+        for Pakistan
+      </p>
+      <p class="caption closing__brand-text">
+        Final Year Project · BS Software Engineering · The University of
+        Lahore · © 2026
+      </p>
+    </div>
+    <nav class="closing__links" aria-label="Footer">
+      <a href="#how-it-works">How it works</a>
+      <a href="#services">Services</a>
+      <a href="{{ url_for('auth.login') }}">Log in</a>
+      <a href="{{ url_for('auth.register') }}">Create account</a>
+    </nav>
+  </div>
+</footer>
 {% endblock %}
