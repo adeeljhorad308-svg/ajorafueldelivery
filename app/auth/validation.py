@@ -6,6 +6,7 @@ from pathlib import Path
 from email_validator import EmailNotValidError, validate_email
 
 PHONE_RE = re.compile(r"^03\d{9}$")
+MAX_EMAIL_LENGTH = 80
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 128
 
@@ -29,6 +30,8 @@ def normalize_phone(phone):
 
 
 def is_valid_email(email):
+    if not email or len(email) > MAX_EMAIL_LENGTH:
+        return False
     try:
         validate_email(email, check_deliverability=False)
     except EmailNotValidError:

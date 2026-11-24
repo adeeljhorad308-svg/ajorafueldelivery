@@ -36,6 +36,8 @@ orders(user_id, created_at)
 orders(status)
 orders(is_emergency, status)
 orders(order_key) UNIQUE
+assignments(order_id) UNIQUE
+assignments(driver_id)
 drivers(status)
 tracking(order_id)
 users(email) UNIQUE

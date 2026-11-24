@@ -26,7 +26,7 @@ def close_db(_exception=None):
 
 
 def init_db():
-    schema_path = Path(current_app.root_path).parent / "schema.sql"
+    schema_path = Path(current_app.root_path) / "schema.sql"
     db = get_db()
     db.executescript(schema_path.read_text(encoding="utf-8"))
     db.commit()

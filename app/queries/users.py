@@ -6,20 +6,20 @@ def find_by_email(db, email):
 
 
 def find_by_id(db, user_id):
-    return db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    return db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
 
 
 def find_by_phone(db, phone):
     return db.execute("SELECT * FROM users WHERE phone = ?", (phone,)).fetchone()
 
 
-def create_user(db, full_name, email, phone, password_hash, role, is_active=1):
+def create_user(db, name, email, phone, password_hash, role, is_active=1):
     cursor = db.execute(
         """
-        INSERT INTO users (full_name, email, phone, password_hash, role, is_active)
+        INSERT INTO users (name, email, phone, password_hash, role, is_active)
         VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (full_name, email, phone, password_hash, role, is_active),
+        (name, email, phone, password_hash, role, is_active),
     )
     return cursor.lastrowid
 
@@ -31,20 +31,20 @@ def count_admins(db):
 
 def record_failed_login(db, user_id, failed_attempts, locked_until):
     db.execute(
-        "UPDATE users SET failed_attempts = ?, locked_until = ? WHERE id = ?",
+        "UPDATE users SET failed_attempts = ?, locked_until = ? WHERE user_id = ?",
         (failed_attempts, locked_until, user_id),
     )
 
 
 def reset_login_state(db, user_id):
     db.execute(
-        "UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ?",
+        "UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE user_id = ?",
         (user_id,),
     )
 
 
 def bump_session_version(db, user_id):
     db.execute(
-        "UPDATE users SET session_version = session_version + 1 WHERE id = ?",
+        "UPDATE users SET session_version = session_version + 1 WHERE user_id = ?",
         (user_id,),
     )

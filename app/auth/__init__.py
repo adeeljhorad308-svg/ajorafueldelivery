@@ -1,11 +1,12 @@
 """Auth blueprint: login, register, logout (docs/SPEC.md screens 2 and 3)."""
 
 import math
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app import timeutil
 from app.auth import validation
 from app.db import get_db
 from app.queries import users as user_queries
@@ -38,10 +39,10 @@ def _redirect_after_login(role):
 
 def _start_session(user):
     session.clear()
-    session["user_id"] = user["id"]
+    session["user_id"] = user["user_id"]
     session["role"] = user["role"]
     session["session_version"] = user["session_version"]
-    now = datetime.now(UTC).isoformat()
+    now = timeutil.to_sql(timeutil.utcnow())
     session["login_at"] = now
     session["last_seen"] = now
     session.permanent = True
@@ -49,19 +50,19 @@ def _start_session(user):
 
 def _is_locked(user):
     locked_until = user["locked_until"]
-    return bool(locked_until) and datetime.fromisoformat(locked_until) > datetime.now(UTC)
+    return bool(locked_until) and timeutil.from_sql(locked_until) > timeutil.utcnow()
 
 
 def _minutes_remaining(locked_until):
-    remaining = datetime.fromisoformat(locked_until) - datetime.now(UTC)
+    remaining = timeutil.from_sql(locked_until) - timeutil.utcnow()
     return max(1, math.ceil(remaining.total_seconds() / 60))
 
 
 def _clear_lock_if_expired(db, user):
     if user["locked_until"] and not _is_locked(user):
-        user_queries.reset_login_state(db, user["id"])
+        user_queries.reset_login_state(db, user["user_id"])
         db.commit()
-        return user_queries.find_by_id(db, user["id"])
+        return user_queries.find_by_id(db, user["user_id"])
     return user
 
 
@@ -69,10 +70,10 @@ def _record_failed_attempt(db, user):
     attempts = user["failed_attempts"] + 1
     locked_until = None
     if attempts >= LOCK_AFTER_ATTEMPTS:
-        locked_until = (datetime.now(UTC) + timedelta(minutes=LOCK_MINUTES)).isoformat()
-    user_queries.record_failed_login(db, user["id"], attempts, locked_until)
+        locked_until = timeutil.to_sql(timeutil.utcnow() + timedelta(minutes=LOCK_MINUTES))
+    user_queries.record_failed_login(db, user["user_id"], attempts, locked_until)
     db.commit()
-    return user_queries.find_by_id(db, user["id"])
+    return user_queries.find_by_id(db, user["user_id"])
 
 
 def _verify_password(user, password):
@@ -142,14 +143,14 @@ def login_submit():
         return _login_form(next_path, {"form": WRONG_CREDENTIALS_MESSAGE}, 400)
 
     if not user["is_active"]:
-        security_logger().info("login blocked user_id=%s", user["id"])
+        security_logger().info("login blocked user_id=%s", user["user_id"])
         return _login_form(next_path, {"form": BLOCKED_MESSAGE}, 403)
 
-    user_queries.reset_login_state(db, user["id"])
+    user_queries.reset_login_state(db, user["user_id"])
     db.commit()
     _start_session(user)
-    security_logger().info("login ok user_id=%s", user["id"])
-    flash(f"Welcome back, {user['full_name'].split()[0]}")
+    security_logger().info("login ok user_id=%s", user["user_id"])
+    flash(f"Welcome back, {user['name'].split()[0]}")
     return _redirect_after_login(user["role"])
 
 

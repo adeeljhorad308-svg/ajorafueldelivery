@@ -1,23 +1,28 @@
 """SQL for the drivers table. Always parameterised with `?`."""
 
 
-def create_driver(db, name, phone, vehicle_number, area, status, lat, lng, rating):
+def create_driver(
+    db, name, phone, vehicle_no, area, status, latitude, longitude, rating, is_active=1
+):
+    # rating is not money (DECIMAL(2,1)); str() avoids sqlite3's "Decimal not
+    # supported" bind error without going through app/money.py's paisa rules.
     cursor = db.execute(
         """
-        INSERT INTO drivers (name, phone, vehicle_number, area, status, lat, lng, rating)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO drivers
+            (name, phone, vehicle_no, area, status, latitude, longitude, rating, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (name, phone, vehicle_number, area, status, lat, lng, rating),
+        (name, phone, vehicle_no, area, status, latitude, longitude, str(rating), is_active),
     )
     return cursor.lastrowid
 
 
-def find_by_vehicle_number(db, vehicle_number):
-    return db.execute(
-        "SELECT * FROM drivers WHERE vehicle_number = ?", (vehicle_number,)
-    ).fetchone()
+def find_by_vehicle_no(db, vehicle_no):
+    return db.execute("SELECT * FROM drivers WHERE vehicle_no = ?", (vehicle_no,)).fetchone()
 
 
 def count_by_status(db, status):
-    row = db.execute("SELECT COUNT(*) AS n FROM drivers WHERE status = ?", (status,)).fetchone()
+    row = db.execute(
+        "SELECT COUNT(*) AS n FROM drivers WHERE status = ? AND is_active = 1", (status,)
+    ).fetchone()
     return row["n"]

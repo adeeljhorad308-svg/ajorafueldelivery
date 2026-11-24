@@ -1,7 +1,7 @@
 """8 response headers, CSRF, rate limits, sessions and the security log (docs/SECURITY.md)."""
 
 import logging
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from functools import wraps
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -11,6 +11,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf import CSRFProtect
 
+from app import timeutil
 from app.db import get_db
 from app.queries import users as user_queries
 
@@ -75,10 +76,6 @@ def is_safe_next(path):
     return not ("\\" in path or "\r" in path or "\n" in path)
 
 
-def _now():
-    return datetime.now(UTC)
-
-
 def _is_background_poll():
     # Polling (GET /api/*) never counts as activity, so it can never keep an
     # idle session alive on its own, but it must still see an idle session
@@ -91,7 +88,7 @@ def _idle_timed_out():
     if not last_seen:
         return False
     minutes = current_app.config["SESSION_IDLE_MINUTES"]
-    return _now() - datetime.fromisoformat(last_seen) > timedelta(minutes=minutes)
+    return timeutil.utcnow() - timeutil.from_sql(last_seen) > timedelta(minutes=minutes)
 
 
 def _absolute_timed_out():
@@ -102,7 +99,7 @@ def _absolute_timed_out():
     if not login_at:
         return False
     hours = current_app.config["SESSION_ABSOLUTE_HOURS"]
-    return _now() - datetime.fromisoformat(login_at) > timedelta(hours=hours)
+    return timeutil.utcnow() - timeutil.from_sql(login_at) > timedelta(hours=hours)
 
 
 def _enforce_session_rules():
@@ -132,7 +129,7 @@ def _enforce_session_rules():
         return None
 
     if not _is_background_poll():
-        session["last_seen"] = _now().isoformat()
+        session["last_seen"] = timeutil.to_sql(timeutil.utcnow())
     g.current_user = user
     return None
 

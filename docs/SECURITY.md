@@ -58,7 +58,7 @@ Send HSTS and `upgrade-insecure-requests` only when not in local development.
 
 ## Input rules
 
-- Name 2–60 chars · email ≤ 254 and valid · phone `^03\d{9}$` after removing the dash · address ≤ 200 · note ≤ 200 · litres integer in the allowed range · latitude 23–37.5 and longitude 60–78 (Pakistan) · dates within 7 days · all text trimmed · unknown fields ignored.
+- Name 2–60 chars · email ≤ 80 and valid · phone `^03\d{9}$` after removing the dash · address ≤ 200 · note ≤ 200 · litres integer in the allowed range · latitude 23–37.5 and longitude 60–78 (Pakistan) · dates within 7 days · all text trimmed · unknown fields ignored.
 
 ## Test checklist (all 19 must pass before deploy)
 

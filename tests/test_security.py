@@ -220,7 +220,7 @@ def test_checklist_17_blocked_customer_logged_out_on_next_click(client, app, mak
 
     with app.app_context():
         db = get_db()
-        db.execute("UPDATE users SET is_active = 0 WHERE id = ?", (user_id,))
+        db.execute("UPDATE users SET is_active = 0 WHERE user_id = ?", (user_id,))
         db.commit()
 
     response = client.get("/app", follow_redirects=False)

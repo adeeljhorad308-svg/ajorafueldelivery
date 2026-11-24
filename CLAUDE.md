@@ -29,6 +29,26 @@ Read this file, then `docs/SPEC.md`, `docs/SECURITY.md`, `docs/PERFORMANCE.md` a
 - Every screen needs all its states from `docs/SPEC.md`: loading skeleton (after 300 ms), empty, error, success, and the special states in `docs/FIGMA.md`.
 - Seed data must match the "Seed data" section of `docs/FIGMA.md`.
 
+## Database (from FYP document Tables 35-40)
+
+Chapter 4.2 of the project document is the source of truth for table names, column names, types and sizes; `app/schema.sql` follows it. SQLite gives DECIMAL columns NUMERIC affinity (there is no true DECIMAL type) and silently stores the value as a float/int regardless of the declared type, so money and distance values go through `app/money.py` (`decimal.Decimal`, quantized to 0.01, `ROUND_HALF_UP`) and never raw SQL arithmetic or a Python float. Reports pages may use `ROUND(SUM(total_amount), 2)` in SQL for one aggregate value, then re-quantize it through `app/money.py` - no other money maths belongs in SQL. Times are UTC via `app/timeutil.py`; SQLite's `CURRENT_TIMESTAMP` is already UTC.
+
+Six tables:
+- `users` (user_id, name, email, phone, password_hash, role, is_active, created_at)
+- `services` (service_id, name, category, unit_price, unit, available)
+- `drivers` (driver_id, name, phone, vehicle_no, status, latitude, longitude, rating)
+- `orders` (order_id, user_id, service_id, quantity, total_amount, address, latitude, longitude, is_emergency, note, scheduled_at, status, created_at)
+- `assignments` - every driver/ETA/assigned/delivered/distance column that used to live on `orders` (assign_id, order_id, driver_id, eta_minutes, assigned_at, completed_at). Change driver = update the row; back to Pending = delete the row (`tracking` keeps the history). Actual delivery minutes = `completed_at - assigned_at`; predicted = `eta_minutes` (ML data for Release 3).
+- `tracking` (track_id, order_id, status, latitude, longitude, updated_at)
+
+The database stores the document's status words (`'On the Way'`, `'Off Duty'`); screens show the Figma labels (`'On the way'`, `'Off duty'`) through the one mapping in `app/labels.py`, never a second hard-coded string.
+
+Extra columns not in the document, so later sessions never rename them again:
+- `users`: `failed_attempts`, `locked_until`, `session_version`
+- `drivers`: `area`, `is_active`
+- `orders`: `order_key`, `call_confirmed`, `cancel_reason`, `area`
+- `assignments`: `distance_km`
+
 ## Business rules
 
 - Fuel order: 5–100 L. Emergency: max 10 L and only one open emergency per customer. Generator/machinery: 20–500 L; above 200 L sets `call_confirmed = 0` and waits until the admin marks the call done.
@@ -47,7 +67,7 @@ Read this file, then `docs/SPEC.md`, `docs/SECURITY.md`, `docs/PERFORMANCE.md` a
 - Missing customer location → centre of the chosen area.
 - Nearest-neighbour order for a driver's open stops.
 - "As soon as possible" orders are assigned automatically in the same transaction as the order. Scheduled orders and above-200 L orders wait for the admin. No free driver → order stays Pending and the admin sees an alert.
-- Save distance, predicted ETA, assigned/delivered times so a machine-learning ETA model can be trained in Release 3.
+- Save distance, predicted ETA, assigned/delivered times (in `assignments`) so a machine-learning ETA model can be trained in Release 3.
 
 ## Security (never skip)
 
