@@ -1,0 +1,225 @@
+/* AJORA design tokens — generated from Figma "AJORA – Design" (M95uPMv61dMZF0YLEU2DJV),
+   Foundations 15:827 and Component overview 16:827. Do not hard-code these values
+   elsewhere; reference the variables. */
+
+/* Self-hosted fonts, Latin subset only (licences: app/static/fonts/*-LICENSE.txt) */
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/inter-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/inter-medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/inter-semibold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/inter-bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-medium.woff2") format("woff2");
+}
+
+:root {
+  /* Backgrounds */
+  --color-bg-page: #f6f7f4;
+  --color-bg-surface: #ffffff;
+  --color-bg-subtle: #eef1ee;
+  --color-bg-inverse: #0b0d0c;
+  --color-bg-brand: #0f9f6e;
+  --color-bg-brand-subtle: #ddf8ec;
+  --color-bg-highlight: #c8f169;
+  --color-bg-status-success-tint: rgba(22, 163, 74, 0.14);
+  --color-bg-status-warning-tint: rgba(217, 119, 6, 0.14);
+  --color-bg-status-error-tint: rgba(220, 38, 38, 0.14);
+  --color-bg-status-info-tint: rgba(8, 145, 178, 0.14);
+  --color-bg-status-error-wash: rgba(220, 38, 38, 0.06);
+
+  /* Actions (buttons) */
+  --color-action-primary: #0b7f58;
+  --color-action-primary-hover: #08654a;
+  --color-action-secondary: #0b0d0c;
+  --color-action-secondary-hover: #2a2e2c;
+  --color-action-disabled: #dde3de;
+
+  /* Text */
+  --color-text-primary: #0b0d0c;
+  --color-text-secondary: #2a2e2c;
+  --color-text-muted: #6b726e;
+  --color-text-disabled: #a3ada7;
+  --color-text-inverse: #ffffff;
+  --color-text-brand: #0b7f58;
+  --color-text-error: #dc2626;
+
+  /* Borders */
+  --color-border-default: #dde3de;
+  --color-border-strong: #a3ada7;
+  --color-border-focus: #0f9f6e;
+  --color-border-error: #dc2626;
+  --color-border-brand: #0b7f58;
+
+  /* Icons */
+  --color-icon-default: #2a2e2c;
+  --color-icon-muted: #6b726e;
+  --color-icon-active: #0b7f58;
+  --color-icon-inverse: #ffffff;
+  --color-icon-brand: #0f9f6e;
+
+  /* Status */
+  --color-status-success: #16a34a;
+  --color-status-warning: #d97706;
+  --color-status-error: #dc2626;
+  --color-status-info: #0891b2;
+
+  /* Spacing: 4px base, 8px rhythm */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* Elevation (effect styles) */
+  --shadow-hover: 0 4px 12px 0 rgba(11, 13, 12, 0.08);
+  --shadow-raised: 0 8px 24px 0 rgba(11, 13, 12, 0.1);
+  --shadow-modal: 0 16px 40px 0 rgba(11, 13, 12, 0.18);
+  --shadow-focus-ring: 0 0 0 3px rgba(15, 159, 110, 0.35);
+
+  /* Type */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Text styles -> CSS classes (docs/FIGMA.md) */
+
+.display {
+  /* Figma specifies Inter Extra Bold (800); we self-host only 400-700, so
+     this renders at Bold (700), the closest approved weight. */
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 38px;
+  letter-spacing: -1px;
+}
+@media (min-width: 1024px) {
+  .display {
+    font-size: 48px;
+    line-height: 52px;
+    letter-spacing: -2px;
+  }
+}
+
+.h2 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 40px;
+  letter-spacing: -1px;
+}
+
+.h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 32px;
+}
+
+.h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.body-lg {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.body-strong {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.label-sm {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.caption {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.overline {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.mono-amount {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.mono-stat {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+}

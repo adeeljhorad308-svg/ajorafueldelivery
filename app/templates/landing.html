@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}AJORA – fuel and road help{%
+endblock %} {% block header %}
+<nav>
+  <a href="{{ url_for('landing') }}">AJORA</a>
+  <a href="{{ url_for('auth.login') }}">Log in</a>
+  <a href="{{ url_for('auth.register') }}">Create account</a>
+</nav>
+{% endblock %} {% block content %}
+<h1 class="display">Fuel and road help, brought to you.</h1>
+<p class="body-lg">
+  Order petrol or diesel, get emergency fuel when you are stuck, or book
+  battery, tyre and car wash help. The nearest free driver comes to your
+  location.
+</p>
+{% endblock %} {% block footer %}
+<p class="caption">© 2026 AJORA · Final Year Project, University of Lahore</p>
+{% endblock %}

@@ -1,0 +1,28 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# App data
+instance/
+logs/
+*.db
+*.db-wal
+*.db-shm
+loadtest/result*
+
+# Editors and OS
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db

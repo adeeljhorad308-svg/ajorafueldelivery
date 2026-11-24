@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block title %}Log in – AJORA{% endblock %} {%
+block content %}
+<h1 class="h2">Log in</h1>
+{% if errors and errors.form %}
+<p class="body" role="alert">{{ errors.form }}</p>
+{% endif %}
+<form method="post" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+  <label class="label" for="email">Email</label>
+  <input class="body" id="email" name="email" type="email" required />
+  {% if errors and errors.email %}
+  <p class="body" role="alert">{{ errors.email }}</p>
+  {% endif %}
+  <label class="label" for="password">Password</label>
+  <input class="body" id="password" name="password" type="password" required />
+  {% if errors and errors.password %}
+  <p class="body" role="alert">{{ errors.password }}</p>
+  {% endif %}
+  <button class="label" type="submit">Log in</button>
+</form>
+<p class="body">
+  New to AJORA?
+  <a href="{{ url_for('auth.register') }}">Create account</a>
+</p>
+<p class="caption">Forgot your password? Contact AJORA support.</p>
+{% endblock %}

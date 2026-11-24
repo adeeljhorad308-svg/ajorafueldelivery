@@ -1,0 +1,51 @@
+/* Base layout: resets, skip link, toast area. Screen-specific CSS lands with each screen. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
+
+a {
+  color: var(--color-text-brand);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-inverse);
+  color: var(--color-text-inverse);
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  left: var(--space-md);
+  top: var(--space-md);
+}
+
+.banner {
+  margin: var(--space-md) 0;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-status-info-tint);
+  border: 1px solid var(--color-border-default);
+}
+
+#toast-area {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  z-index: 900;
+}

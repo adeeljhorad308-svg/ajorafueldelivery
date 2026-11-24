@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}Create account – AJORA{% endblock %}
+{% block content %}
+<h1 class="h2">Create account</h1>
+<form method="post" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  <label class="label" for="full_name">Full name</label>
+  <input class="body" id="full_name" name="full_name" required />
+  {% if errors and errors.full_name %}
+  <p class="body" role="alert">{{ errors.full_name }}</p>
+  {% endif %}
+  <label class="label" for="email">Email</label>
+  <input class="body" id="email" name="email" type="email" required />
+  {% if errors and errors.email %}
+  <p class="body" role="alert">{{ errors.email }}</p>
+  {% endif %}
+  <label class="label" for="phone">Phone</label>
+  <input
+    class="body"
+    id="phone"
+    name="phone"
+    placeholder="03XX-XXXXXXX"
+    required
+  />
+  {% if errors and errors.phone %}
+  <p class="body" role="alert">{{ errors.phone }}</p>
+  {% endif %}
+  <label class="label" for="password">Password</label>
+  <input class="body" id="password" name="password" type="password" required />
+  {% if errors and errors.password %}
+  <p class="body" role="alert">{{ errors.password }}</p>
+  {% endif %}
+  <label class="label" for="confirm_password">Confirm password</label>
+  <input
+    class="body"
+    id="confirm_password"
+    name="confirm_password"
+    type="password"
+    required
+  />
+  {% if errors and errors.confirm_password %}
+  <p class="body" role="alert">{{ errors.confirm_password }}</p>
+  {% endif %}
+  <p class="caption">Your location is used only for your own orders.</p>
+  <button class="label" type="submit">Create account</button>
+</form>
+<p class="body">
+  Already have an account?
+  <a href="{{ url_for('auth.login') }}">Log in</a>
+</p>
+{% endblock %}

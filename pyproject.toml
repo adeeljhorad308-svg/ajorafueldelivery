@@ -1,0 +1,20 @@
+[project]
+name = "ajora"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F errors, I imports, B bugbear, S security (bandit), UP modern syntax, SIM simpler code
+select = ["E", "F", "I", "B", "S", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106"]
+"loadtest/*" = ["S311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

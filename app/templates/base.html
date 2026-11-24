@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}AJORA{% endblock %}</title>
+    <link
+      rel="preload"
+      href="{{ static_versioned('fonts/inter-regular.woff2') }}"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="{{ static_versioned('css/tokens.css') }}" />
+    <link rel="stylesheet" href="{{ static_versioned('css/base.css') }}" />
+    {% block extra_css %}{% endblock %}
+    <link rel="icon" href="{{ static_versioned('favicon.ico') }}" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ static_versioned('brand/svg/favicon.svg') }}"
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header>{% block header %}{% endblock %}</header>
+    <main id="main">
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div class="banner" role="alert">
+        {% for message in messages %}
+        <p class="body">{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+    <footer>{% block footer %}{% endblock %}</footer>
+    <div id="toast-area" role="status" aria-live="polite"></div>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>
