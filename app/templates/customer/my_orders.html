@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/empty_state.html" import empty_state %}
+{% from "components/pagination.html" import pagination %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+
+{% block title %}My orders – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-controls.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/my-orders.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("orders", active_order_url) }} {% endblock %}
+
+{% block content %}
+<div class="my-orders-page">
+  <div class="my-orders-header">
+    <p class="h3">My orders</p>
+    <p class="body my-orders-header__sub">Newest first &middot; tap an order to see its details</p>
+  </div>
+
+  <div class="filter-chips" role="tablist" aria-label="Filter orders">
+    {% for value, label in (("all", "All"), ("active", "Active"), ("delivered", "Delivered"), ("cancelled", "Cancelled")) %}
+    <a
+      class="chip{% if my_orders.show == value %} chip--selected{% endif %}"
+      href="{{ url_for('customer.my_orders', show=value) }}"
+      role="tab"
+      aria-selected="{{ (my_orders.show == value) | lower }}"
+      >{{ label }}</a
+    >
+    {% endfor %}
+  </div>
+
+  {% if my_orders.is_empty %}
+  {{ empty_state("receipt", "No orders yet", "Your fuel and service orders will show here.", "Order fuel", url_for("customer.order_fuel")) }}
+  {% else %}
+  <div class="order-row-list">
+    {% for row in my_orders.rows %}
+    <a class="order-row{% if row.is_emergency %} order-row--emergency{% endif %}" href="{{ row.track_url }}">
+      <span class="order-row__icon{% if row.is_emergency %} order-row__icon--emergency{% endif %}">
+        {{ icon(row.icon) }}
+      </span>
+      <span class="order-row__text">
+        <span class="order-row__title">{{ row.title }}</span>
+        <span class="order-row__meta">{{ row.date_label }} &middot; {{ row.order_number }}</span>
+      </span>
+      <span class="order-row__right">
+        <span class="mono-amount">{{ row.amount_label }}</span>
+        {{ status_chip(row.status, row.status_label) }}
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <table class="order-table">
+    <thead>
+      <tr>
+        <th class="order-table__wide-col">Date</th>
+        <th class="order-table__wide-col">Order</th>
+        <th>Service</th>
+        <th>Quantity</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th class="order-table__chevron-col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in my_orders.rows %}
+      <tr class="order-table__row" data-href="{{ row.track_url }}">
+        <td class="order-table__wide-col">{{ row.date_label }}</td>
+        <td class="order-table__wide-col mono-amount">{{ row.order_number }}</td>
+        <td>
+          <span class="order-table__service">
+            <span class="order-row__icon order-table__icon{% if row.is_emergency %} order-row__icon--emergency{% endif %}">
+              {{ icon(row.icon) }}
+            </span>
+            <span class="order-table__service-text">
+              <span>{{ row.service_label }}</span>
+              <span class="order-table__service-sub">{{ row.order_number }} &middot; {{ row.date_label }}</span>
+            </span>
+          </span>
+        </td>
+        <td>{{ row.quantity_label }}</td>
+        <td class="mono-amount">{{ row.amount_label }}</td>
+        <td>{{ status_chip(row.status, row.status_label) }}</td>
+        <td class="order-table__chevron-col">
+          <a href="{{ row.track_url }}" aria-label="Track order {{ row.order_number }}">{{ icon("chevron-right") }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="my-orders-footer">
+    {% if my_orders.showing_label %}<p class="caption">{{ my_orders.showing_label }}</p>{% endif %}
+    {{ pagination(my_orders.page, my_orders.total_pages, page_url) }}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("orders", active_order_url) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/my_orders.js') }}"></script>
+{% endblock %}

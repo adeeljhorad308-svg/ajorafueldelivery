@@ -57,8 +57,10 @@ def order_assistance():
         areas=area_names(),
         car_wash_slots=scheduling.car_wash_slots(now),
         order_key=secrets.token_urlsafe(24),
-        has_active_order=order_queries.find_active_for_user(db, g.current_user["user_id"])
-        is not None,
+        prefill_address=shared.prefill_text(request.args, "address", 200),
+        prefill_area=shared.prefill_area(request.args),
+        prefill_note=shared.prefill_text(request.args, "note", 200),
+        active_order_url=shared.active_order_url(db, g.current_user["user_id"]),
     )
 
 

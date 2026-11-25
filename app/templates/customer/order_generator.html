@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
 {% endblock %}
 
-{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+{% block header %} {{ top_bar_customer("home", active_order_url) }} {% endblock %}
 
 {% block content %}
 <div class="order-page">
@@ -73,7 +73,7 @@
         <div class="order-field-group">
           <p class="order-field-group__label">Litres</p>
           <div class="order-litres-controls">
-            {{ stepper("litres", 250, 20, 500, 10) }}
+            {{ stepper("litres", prefill_litres, 20, 500, 10) }}
             <div class="quick-chips">
               {{ quick_chip("50 L", 50) }} {{ quick_chip("100 L", 100) }} {{ quick_chip("200 L", 200) }}
             </div>
@@ -135,6 +135,7 @@
               type="text"
               id="field-address"
               name="address"
+              value="{{ prefill_address }}"
               maxlength="200"
               placeholder="Farm 7, Mauza Kot, Raiwind Road"
             />
@@ -151,7 +152,7 @@
               <select class="field__input field__select" id="field-area" name="area">
                 <option value="">Choose your area</option>
                 {% for area in areas %}
-                <option value="{{ area }}">{{ area }}</option>
+                <option value="{{ area }}"{% if area == prefill_area %} selected{% endif %}>{{ area }}</option>
                 {% endfor %}
               </select>
               {{ icon("chevron-down") }}
@@ -192,7 +193,7 @@
 {% endblock %}
 
 {% block footer %}
-<div class="order-form-bottom-nav">{{ bottom_nav("home", has_active_order) }}</div>
+<div class="order-form-bottom-nav">{{ bottom_nav("home", active_order_url) }}</div>
 {% endblock %}
 
 {% block scripts %}

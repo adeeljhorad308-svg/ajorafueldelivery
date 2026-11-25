@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
 {% endblock %}
 
-{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+{% block header %} {{ top_bar_customer("home", active_order_url) }} {% endblock %}
 
 {% block content %}
 <div class="order-page">
@@ -133,6 +133,7 @@
                 type="text"
                 id="field-address"
                 name="address"
+                value="{{ prefill_address }}"
                 maxlength="200"
                 placeholder="55-B Model Town, near Link Road"
               />
@@ -149,7 +150,7 @@
                 <select class="field__input field__select" id="field-area" name="area">
                   <option value="">Choose your area</option>
                   {% for area in areas %}
-                  <option value="{{ area }}">{{ area }}</option>
+                  <option value="{{ area }}"{% if area == prefill_area %} selected{% endif %}>{{ area }}</option>
                   {% endfor %}
                 </select>
                 {{ icon("chevron-down") }}
@@ -166,6 +167,7 @@
                   type="text"
                   id="field-note"
                   name="note"
+                  value="{{ prefill_note }}"
                   maxlength="200"
                   placeholder="Car will not start"
                 />
@@ -201,7 +203,7 @@
 {% endblock %}
 
 {% block footer %}
-<div class="order-form-bottom-nav">{{ bottom_nav("home", has_active_order) }}</div>
+<div class="order-form-bottom-nav">{{ bottom_nav("home", active_order_url) }}</div>
 {% endblock %}
 
 {% block scripts %}

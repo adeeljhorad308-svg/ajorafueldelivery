@@ -86,6 +86,7 @@ _ORDER_WITH_ASSIGNMENT = """
     SELECT orders.*, services.name AS service_name, services.unit_price AS unit_price,
            services.unit AS service_unit, assignments.driver_id AS driver_id,
            assignments.eta_minutes AS eta_minutes, assignments.distance_km AS distance_km,
+           assignments.assigned_at AS assigned_at,
            drivers.name AS driver_name, drivers.vehicle_no AS vehicle_no,
            drivers.rating AS driver_rating, drivers.phone AS driver_phone
     FROM orders
@@ -140,6 +141,54 @@ def find_by_id(db, order_id):
         f"{_ORDER_WITH_ASSIGNMENT} WHERE orders.order_id = ?",  # noqa: S608
         (order_id,),
     ).fetchone()
+
+
+STATUS_FILTERS = {
+    "active": ("Pending", "Assigned", "On the Way"),
+    "delivered": ("Delivered",),
+    "cancelled": ("Cancelled",),
+}
+
+
+def count_for_user_show(db, user_id, show):
+    """Row count for My orders' filter chips (show: all/active/delivered/cancelled)."""
+    if show not in STATUS_FILTERS:
+        row = db.execute(
+            "SELECT COUNT(*) AS n FROM orders WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        return row["n"]
+    statuses = STATUS_FILTERS[show]
+    placeholders = ", ".join("?" for _ in statuses)
+    row = db.execute(
+        f"SELECT COUNT(*) AS n FROM orders WHERE user_id = ? AND status IN ({placeholders})",  # noqa: S608
+        (user_id, *statuses),
+    ).fetchone()
+    return row["n"]
+
+
+def list_for_user_show(db, user_id, show, limit, offset):
+    """My orders (FR-08): one page, newest first."""
+    if show not in STATUS_FILTERS:
+        return db.execute(
+            f"""
+            {_ORDER_WITH_SERVICE}
+            WHERE orders.user_id = ?
+            ORDER BY orders.created_at DESC
+            LIMIT ? OFFSET ?
+            """,  # noqa: S608
+            (user_id, limit, offset),
+        ).fetchall()
+    statuses = STATUS_FILTERS[show]
+    placeholders = ", ".join("?" for _ in statuses)
+    return db.execute(
+        f"""
+        {_ORDER_WITH_SERVICE}
+        WHERE orders.user_id = ? AND orders.status IN ({placeholders})
+        ORDER BY orders.created_at DESC
+        LIMIT ? OFFSET ?
+        """,  # noqa: S608
+        (user_id, *statuses, limit, offset),
+    ).fetchall()
 
 
 def list_pending_asap(db):

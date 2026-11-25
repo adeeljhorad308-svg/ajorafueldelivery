@@ -36,3 +36,14 @@ def list_available(db):
 
 def set_status(db, driver_id, status):
     db.execute("UPDATE drivers SET status = ? WHERE driver_id = ?", (status, driver_id))
+
+
+def update_location(db, driver_id, latitude, longitude):
+    db.execute(
+        "UPDATE drivers SET latitude = ?, longitude = ? WHERE driver_id = ?",
+        (latitude, longitude, driver_id),
+    )
+
+
+def find_by_id(db, driver_id):
+    return db.execute("SELECT * FROM drivers WHERE driver_id = ?", (driver_id,)).fetchone()

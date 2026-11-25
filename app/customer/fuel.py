@@ -25,13 +25,20 @@ def order_fuel():
     fuel_services = shared.fuel_services(db)
     if not fuel_services:
         abort(404)
+    preset_fuel_type = request.args.get("fuel_type")
+    if preset_fuel_type not in ("Petrol", "Diesel"):
+        preset_fuel_type = None
     return render_template(
         "customer/order_fuel.html",
         fuel_options=shared.fuel_options(fuel_services),
+        preset_fuel_type=preset_fuel_type,
         areas=area_names(),
         order_key=secrets.token_urlsafe(24),
-        has_active_order=order_queries.find_active_for_user(db, g.current_user["user_id"])
-        is not None,
+        prefill_litres=shared.prefill_litres(request.args, 5, 100, 20),
+        prefill_address=shared.prefill_text(request.args, "address", 200),
+        prefill_area=shared.prefill_area(request.args),
+        prefill_note=shared.prefill_text(request.args, "note", 200),
+        active_order_url=shared.active_order_url(db, g.current_user["user_id"]),
     )
 
 

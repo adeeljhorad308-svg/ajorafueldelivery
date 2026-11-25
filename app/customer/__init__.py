@@ -1,16 +1,17 @@
-"""Customer blueprint: home (screen 4), order confirmed (screen 9) and track order.
+"""Customer blueprint: home (screen 4), order confirmed (screen 9), track
+order and my orders (screens 10-11).
 
 Each order type (fuel, emergency, generator, vehicle assistance) has its own
 route module below, all registered on this same blueprint.
 """
 
-from flask import Blueprint, abort, g, render_template
+from flask import Blueprint, abort, g, redirect, render_template, request, url_for
 
-from app import money
-from app.customer import presentation
+from app.customer import presentation, shared
 from app.db import get_db
 from app.queries import orders as order_queries
 from app.queries import services as service_queries
+from app.queries import tracking as tracking_queries
 from app.security import login_required
 
 bp = Blueprint("customer", __name__)
@@ -37,30 +38,9 @@ def home():
         tiles=tiles,
         active_order=active_order,
         last_order=last_order,
-        has_active_order=active_order is not None,
+        active_order_url=active_order["track_url"] if active_order else None,
         emergency_href=presentation.emergency_href(open_emergency),
     )
-
-
-def _initials(name):
-    words = name.split()
-    return "".join(word[0] for word in words[:2]).upper()
-
-
-def _driver_context(order):
-    if order["driver_id"] is None:
-        return {"assigned": False}
-    distance = f"{float(money.from_db(order['distance_km'])):.1f}"
-    return {
-        "assigned": True,
-        "driver_name": order["driver_name"],
-        "initials": _initials(order["driver_name"]),
-        "vehicle_no": order["vehicle_no"],
-        "rating_label": f"{float(order['driver_rating']):.1f}",
-        "eta_minutes": order["eta_minutes"],
-        "distance_label": f"{distance} km away",
-        "phone": order["driver_phone"],
-    }
 
 
 @bp.get("/app/orders/<int:order_id>/confirmed")
@@ -73,7 +53,8 @@ def order_confirmed(order_id):
     return render_template(
         "customer/order_confirmed.html",
         order=presentation.order_confirmed_context(order),
-        driver=_driver_context(order),
+        driver=presentation.driver_template_context(order),
+        active_order_url=url_for("customer.order_track", order_id=order_id),
     )
 
 
@@ -84,12 +65,49 @@ def order_track(order_id):
     order = order_queries.find_by_id_for_user(db, order_id, g.current_user["user_id"])
     if order is None:
         abort(404)
+    tracking_rows = tracking_queries.list_for_order(db, order_id)
     return render_template(
         "customer/order_track.html",
-        order_number=f"ORD-{order['order_id']:04d}",
-        status=order["status"],
-        driver=_driver_context(order),
+        track=presentation.track_order_context(order, tracking_rows),
+        driver=presentation.driver_template_context(order),
+        default_steps=presentation.blank_steps(),
+        active_order_url=shared.active_order_url(db, g.current_user["user_id"]),
     )
+
+
+@bp.get("/app/orders")
+@login_required
+def my_orders():
+    db = get_db()
+    user_id = g.current_user["user_id"]
+    show = request.args.get("show", "all")
+    if show not in ("all", "active", "delivered", "cancelled"):
+        show = "all"
+    page = request.args.get("page", 1, type=int) or 1
+
+    total_count = order_queries.count_for_user_show(db, user_id, show)
+    total_pages = max(1, -(-total_count // presentation.ORDERS_PER_PAGE))
+    page = min(max(page, 1), total_pages)
+    offset = (page - 1) * presentation.ORDERS_PER_PAGE
+    rows = order_queries.list_for_user_show(db, user_id, show, presentation.ORDERS_PER_PAGE, offset)
+
+    return render_template(
+        "customer/my_orders.html",
+        my_orders=presentation.my_orders_context(rows, show, page, total_count),
+        page_url=lambda n: url_for("customer.my_orders", page=n, show=show),
+        active_order_url=shared.active_order_url(db, user_id),
+    )
+
+
+@bp.get("/app/orders/<int:order_id>/repeat")
+@login_required
+def order_repeat(order_id):
+    db = get_db()
+    order = order_queries.find_by_id_for_user(db, order_id, g.current_user["user_id"])
+    if order is None:
+        abort(404)
+    endpoint, args = presentation.repeat_target(order)
+    return redirect(url_for(endpoint, **args))
 
 
 # Each module registers its own routes on `bp` as a side effect of import.

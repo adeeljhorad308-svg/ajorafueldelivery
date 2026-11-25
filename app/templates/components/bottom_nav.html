@@ -1,6 +1,6 @@
 {% from "components/icon.html" import icon %}
 
-{% macro bottom_nav(active, has_active_order=True) %}
+{% macro bottom_nav(active, active_order_url=None) %}
 <nav class="bottom-nav" aria-label="Main">
   <a
     class="bottom-nav__item{% if active == 'home' %} bottom-nav__item--active{% endif %}"
@@ -9,10 +9,10 @@
     {{ icon("house") }}
     <span>Home</span>
   </a>
-  {% if has_active_order %}
+  {% if active_order_url %}
   <a
     class="bottom-nav__item{% if active == 'track' %} bottom-nav__item--active{% endif %}"
-    href="/app/orders"
+    href="{{ active_order_url }}"
   >
     {{ icon("route") }}
     <span>Track</span>
@@ -25,7 +25,7 @@
   {% endif %}
   <a
     class="bottom-nav__item{% if active == 'orders' %} bottom-nav__item--active{% endif %}"
-    href="/app/orders"
+    href="{{ url_for('customer.my_orders') }}"
   >
     {{ icon("receipt") }}
     <span>My orders</span>

@@ -1,6 +1,6 @@
 {% from "components/icon.html" import icon %}
 
-{% macro top_bar_customer(active, has_active_order=True) %}
+{% macro top_bar_customer(active, active_order_url=None) %}
 <header class="top-bar top-bar--customer">
   <a class="top-bar__logo" href="{{ url_for('customer.home') }}">
     <img
@@ -18,10 +18,10 @@
       href="{{ url_for('customer.home') }}"
       >{{ icon("house") }}<span>Home</span></a
     >
-    {% if has_active_order %}
+    {% if active_order_url %}
     <a
       class="customer-nav__item{% if active == 'track' %} customer-nav__item--active{% endif %}"
-      href="/app/orders"
+      href="{{ active_order_url }}"
       >{{ icon("route") }}<span>Track</span></a
     >
     {% else %}
@@ -31,7 +31,7 @@
     {% endif %}
     <a
       class="customer-nav__item{% if active == 'orders' %} customer-nav__item--active{% endif %}"
-      href="/app/orders"
+      href="{{ url_for('customer.my_orders') }}"
       >{{ icon("receipt") }}<span>My orders</span></a
     >
   </nav>

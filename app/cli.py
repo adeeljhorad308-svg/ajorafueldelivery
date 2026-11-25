@@ -1,5 +1,6 @@
-"""CLI commands: init-db, seed, create-admin, backup."""
+"""CLI commands: init-db, seed, create-admin, backup, demo-advance."""
 
+import re
 import shutil
 from datetime import UTC, datetime
 from pathlib import Path
@@ -9,9 +10,14 @@ from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash
 
+from app import demo
 from app.db import get_db, init_db
 from app.demo_data import seed_demo
+from app.labels import order_status_label
+from app.queries import orders as order_queries
 from app.queries import users as user_queries
+
+ORDER_NUMBER_RE = re.compile(r"ORD-(\d+)", re.IGNORECASE)
 
 BACKUPS_TO_KEEP = 7
 
@@ -79,8 +85,31 @@ def _prune_old_backups(backups_dir, stem):
         stale.unlink()
 
 
+@click.command("demo-advance")
+@click.argument("order_number")
+@with_appcontext
+def demo_advance_command(order_number):
+    """Move an order (e.g. ORD-0042) to its next allowed status, for the demo."""
+    if current_app.config["ENV"] == "production":
+        raise click.ClickException("Refusing to run demo-advance in production.")
+    match = ORDER_NUMBER_RE.fullmatch(order_number.strip())
+    if not match:
+        raise click.ClickException("Give an order number like ORD-0042.")
+    db = get_db()
+    order = order_queries.find_by_id(db, int(match.group(1)))
+    if order is None:
+        raise click.ClickException(f"No order {order_number}.")
+    try:
+        new_status = demo.advance_order(db, order)
+    except demo.DemoAdvanceError as exc:
+        raise click.ClickException(str(exc)) from exc
+    db.commit()
+    click.echo(f"{order_number} is now {order_status_label(new_status)}.")
+
+
 def init_app(app):
     app.cli.add_command(init_db_command)
     app.cli.add_command(seed_command)
     app.cli.add_command(create_admin_command)
     app.cli.add_command(backup_command)
+    app.cli.add_command(demo_advance_command)

@@ -3,6 +3,7 @@
 {% from "components/button.html" import button %}
 {% from "components/alert_banner.html" import alert_banner %}
 {% from "components/status_chip.html" import status_chip %}
+{% from "components/driver_card.html" import driver_card %}
 {% from "components/top_bar_customer.html" import top_bar_customer %}
 {% from "components/bottom_nav.html" import bottom_nav %}
 
@@ -14,7 +15,7 @@
 <link rel="stylesheet" href="{{ static_versioned('css/order-confirmed.css') }}" />
 {% endblock %}
 
-{% block header %} {{ top_bar_customer("home", True) }} {% endblock %}
+{% block header %} {{ top_bar_customer("home", active_order_url) }} {% endblock %}
 
 {% block content %}
 <div class="order-confirmed-page">
@@ -45,45 +46,8 @@
       </div>
 
       <div class="confirmed-driver-area">
-        <div class="driver-card" data-driver-card {% if not driver.assigned %}hidden{% endif %}>
-          <p class="overline driver-card__label">YOUR DRIVER</p>
-          <div class="driver-card__row">
-            <span class="driver-card__avatar" data-driver-initials
-              >{{ driver.initials if driver.assigned else "" }}</span
-            >
-            <span class="driver-card__info">
-              <span class="driver-card__name" data-driver-name
-                >{{ driver.driver_name if driver.assigned else "" }}</span
-              >
-              <span class="driver-card__meta"
-                >{{ icon("star") }}<span data-driver-meta
-                  >{{ (driver.rating_label ~ " · " ~ driver.vehicle_no) if driver.assigned else "" }}</span
-                ></span
-              >
-            </span>
-            <a
-              class="icon-btn icon-btn--brand"
-              data-driver-call
-              href="tel:{{ driver.phone if driver.assigned else '' }}"
-              aria-label="Call driver"
-              >{{ icon("phone") }}</a
-            >
-          </div>
-          <div class="driver-card__stats">
-            <span class="driver-card__stat">
-              <span class="driver-card__stat-label">Distance</span>
-              <span class="driver-card__stat-value" data-driver-distance
-                >{{ driver.distance_label if driver.assigned else "" }}</span
-              >
-            </span>
-            <span class="driver-card__stat driver-card__stat--right">
-              <span class="driver-card__stat-label">Arriving in</span>
-              <span class="driver-card__stat-value driver-card__stat-value--eta" data-driver-eta
-                >{{ ("about " ~ driver.eta_minutes ~ " min") if driver.assigned else "" }}</span
-              >
-            </span>
-          </div>
-        </div>
+        <p class="overline driver-card__label" {% if not driver.assigned %}hidden{% endif %} data-driver-label>YOUR DRIVER</p>
+        {{ driver_card(driver) }}
 
         <div data-searching-banner {% if not order.show_searching %}hidden{% endif %}>
           {{ alert_banner("warning", "Searching for a driver", "We will assign one shortly. This page updates by itself every 30 seconds.") }}
@@ -115,7 +79,7 @@
 </div>
 {% endblock %}
 
-{% block footer %} {{ bottom_nav("home", True) }} {% endblock %}
+{% block footer %} {{ bottom_nav("home", active_order_url) }} {% endblock %}
 
 {% block scripts %}
 <script type="module" src="{{ static_versioned('js/order_confirmed.js') }}"></script>

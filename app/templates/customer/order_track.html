@@ -1,35 +1,150 @@
 {% extends "base.html" %}
+{% from "components/icon.html" import icon %}
 {% from "components/button.html" import button %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/driver_card.html" import driver_card %}
+{% from "components/status_steps.html" import status_steps %}
 {% from "components/top_bar_customer.html" import top_bar_customer %}
 {% from "components/bottom_nav.html" import bottom_nav %}
 
 {% block title %}Track order – AJORA{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-card.css') }}" />
 <link rel="stylesheet" href="{{ static_versioned('css/order-confirmed.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-track.css') }}" />
 {% endblock %}
 
-{% block header %} {{ top_bar_customer("track", True) }} {% endblock %}
+{% block header %} {{ top_bar_customer("track", active_order_url) }} {% endblock %}
 
 {% block content %}
-<div class="confirmed-page">
-  <p class="h3">Track order</p>
-  <p class="body">{{ order_number }} &middot; {{ status }}</p>
-  {% if driver.assigned %}
-  <p class="body-strong">
-    {{ driver.driver_name }} &middot; {{ driver.vehicle_no }} &middot; {{ driver.distance_label }}
-  </p>
-  <p class="body">Arriving in about {{ driver.eta_minutes }} min</p>
-  {% elif status == "Pending" %}
-  <p class="body">Searching for a driver. We will assign one shortly.</p>
-  {% endif %}
-  <p class="body confirmed-page__note">
-    This is a placeholder tracking page; the full Track order screen lands in a later session.
-  </p>
-  <div class="confirmed-page__actions">
-    {{ button("Back to home", style="brand", href=url_for('customer.home')) }}
+<div
+  class="track-page"
+  data-track-page
+  data-status-url="{{ track.status_api_url }}"
+  data-status="{{ track.status }}"
+  data-finished="{{ track.is_finished | lower }}"
+  data-eta-target="{{ track.eta_target_iso or '' }}"
+>
+  <p class="sr-only" role="status" aria-live="polite" data-live-region></p>
+  <div class="track-header">
+    <div>
+      <p class="h3">Track order</p>
+      <p class="body track-header__meta">{{ track.order_number }} &middot; {{ track.service_line }}</p>
+    </div>
+    <span data-track-status-chip>{{ status_chip(track.status, track.status_label) }}</span>
+  </div>
+
+  <div data-offline-banner hidden>
+    <div class="alert-banner alert-banner--error offline-banner" role="alert">
+      {{ icon("wifi") }}
+      <div class="alert-banner__text">
+        <p class="alert-banner__title">Check your internet and try again</p>
+      </div>
+      <button class="btn btn--outline btn--small" type="button" data-retry-button>Retry</button>
+    </div>
+  </div>
+
+  <div class="track-columns">
+    <div class="track-columns__main">
+      <div data-eta-card {% if not track.show_eta %}hidden{% endif %} class="eta-card">
+        {{ icon("truck-fast") }}
+        <div class="eta-card__text">
+          <p class="eta-card__label">Arriving in</p>
+          <p class="eta-card__value" data-eta-value>{{ track.eta_text or "" }}</p>
+          <p class="eta-card__updated" data-eta-updated>
+            Updated {{ track.eta_updated_label }} &middot; checks every 30 seconds
+          </p>
+        </div>
+      </div>
+
+      <div data-searching-banner {% if not track.show_searching %}hidden{% endif %}>
+        <div class="alert-banner alert-banner--warning" role="status">
+          {{ icon("circle-exclamation") }}
+          <div class="alert-banner__text">
+            <p class="alert-banner__title">Searching for a driver</p>
+            <p class="alert-banner__message">
+              We will assign one shortly. This page checks every 30 seconds.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        data-delivered-card
+        {% if not track.is_delivered %}hidden{% endif %}
+        class="finished-card finished-card--success"
+      >
+        {{ icon("circle-check") }}
+        <div class="finished-card__text">
+          <p class="finished-card__title" data-delivered-label>{{ track.delivered_label or "" }}</p>
+          <p class="finished-card__message">{{ track.delivered_sub_label or "" }}</p>
+        </div>
+      </div>
+
+      <div data-cancelled-banner {% if not track.is_cancelled %}hidden{% endif %}>
+        <div class="alert-banner alert-banner--error" role="alert">
+          {{ icon("circle-xmark") }}
+          <div class="alert-banner__text">
+            <p class="alert-banner__title" data-cancelled-label>{{ track.cancelled_label or "" }}</p>
+            <p class="alert-banner__message" data-cancelled-reason>{{ track.reason_label or "" }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-steps-card" data-steps-card {% if not track.steps %}hidden{% endif %}>
+        {{ status_steps(track.steps or default_steps) }}
+      </div>
+    </div>
+
+    <div class="track-columns__side">
+      <p class="overline driver-card__label" data-driver-label {% if not driver.assigned %}hidden{% endif %}>
+        YOUR DRIVER
+      </p>
+      {{ driver_card(driver) }}
+
+      <div class="order-summary-fold{% if track.summary_open %} is-open{% endif %}" data-summary-fold>
+        <button
+          type="button"
+          class="order-summary-fold__header"
+          data-summary-toggle
+          aria-expanded="{{ track.summary_open | lower }}"
+        >
+          <span>Order summary</span>
+          <span class="mono-amount" data-summary-total>{{ track.summary_total_label }}</span>
+          <span class="order-summary-fold__chevron">{{ icon("chevron-down") }}</span>
+        </button>
+        <div class="order-summary-fold__body">
+          <div class="order-summary__row"><span>Service</span><span>{{ track.service_line }}</span></div>
+          <div class="order-summary__row">
+            <span>Price</span><span class="mono-amount">{{ track.summary_price_label }}</span>
+          </div>
+          <div class="order-summary__row">
+            <span>Total</span><span class="mono-amount">{{ track.summary_total_label }}</span>
+          </div>
+          <div class="order-summary__row"><span>Payment</span><span>Cash on delivery</span></div>
+          <div class="order-summary__row">
+            <span>Deliver to</span><span>{{ track.summary_address }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="track-finished-note" data-finished-note {% if not track.is_finished %}hidden{% endif %}>
+        This order is {{ "closed" if track.is_cancelled else "finished" }}, so the page has stopped
+        checking for updates.
+      </p>
+
+      <div data-order-again {% if not track.is_finished %}hidden{% endif %}>
+        {{ button("Order again", style="brand", href=track.repeat_url, icon_name="rotate-right") }}
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
-{% block footer %} {{ bottom_nav("track", True) }} {% endblock %}
+{% block footer %} {{ bottom_nav("track", active_order_url) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_track.js') }}"></script>
+{% endblock %}

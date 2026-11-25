@@ -1,15 +1,6 @@
-const POLL_MS = 30000;
+import { fillDriverCard } from "./driver_card.js";
 
-function fillDriverCard(card, driver) {
-  card.hidden = false;
-  card.querySelector("[data-driver-initials]").textContent = driver.initials;
-  card.querySelector("[data-driver-name]").textContent = driver.name;
-  card.querySelector("[data-driver-meta] span").textContent =
-    `${driver.rating_label} · ${driver.vehicle_no}`;
-  card.querySelector("[data-driver-call]").href = `tel:${driver.phone}`;
-  card.querySelector("[data-driver-distance]").textContent = driver.distance_label;
-  card.querySelector("[data-driver-eta]").textContent = `about ${driver.eta_minutes} min`;
-}
+const POLL_MS = 30000;
 
 export function initOrderConfirmedPolling() {
   const container = document.querySelector("[data-confirmed-card]");
@@ -31,6 +22,8 @@ export function initOrderConfirmedPolling() {
     if (!data.driver) return;
 
     fillDriverCard(container.querySelector("[data-driver-card]"), data.driver);
+    const label = container.querySelector("[data-driver-label]");
+    if (label) label.hidden = false;
     const searching = container.querySelector("[data-searching-banner]");
     if (searching) searching.hidden = true;
     container.dataset.assigned = "true";

@@ -2,11 +2,13 @@
 
 from flask import Blueprint, abort, g, jsonify
 
-from app import money
+from app import timeutil
+from app.customer import presentation
 from app.db import get_db
 from app.labels import order_status_label
 from app.queries import drivers as driver_queries
 from app.queries import orders as order_queries
+from app.queries import tracking as tracking_queries
 from app.security import limiter, require_admin
 
 bp = Blueprint("api", __name__)
@@ -26,26 +28,6 @@ def admin_live():
     )
 
 
-def _initials(name):
-    words = name.split()
-    return "".join(word[0] for word in words[:2]).upper()
-
-
-def _driver_payload(order):
-    if order["driver_id"] is None:
-        return None
-    distance = f"{float(money.from_db(order['distance_km'])):.1f}"
-    return {
-        "name": order["driver_name"],
-        "initials": _initials(order["driver_name"]),
-        "vehicle_no": order["vehicle_no"],
-        "rating_label": f"{float(order['driver_rating']):.1f}",
-        "eta_minutes": order["eta_minutes"],
-        "distance_label": f"{distance} km away",
-        "phone": order["driver_phone"],
-    }
-
-
 @bp.get("/api/orders/<int:order_id>/status")
 @limiter.limit("120/minute")
 def order_status(order_id):
@@ -59,8 +41,19 @@ def order_status(order_id):
         order = order_queries.find_by_id_for_user(db, order_id, user["user_id"])
     if order is None:
         abort(404)
+    now = timeutil.utcnow()
+    tracking_rows = tracking_queries.list_for_order(db, order_id)
+    track = presentation.track_order_context(order, tracking_rows, now)
     return jsonify(
         status=order["status"],
         status_label=order_status_label(order["status"]),
-        driver=_driver_payload(order),
+        driver=presentation.driver_api_payload(order),
+        steps=track["steps"],
+        eta_text=track["eta_text"],
+        eta_target=track["eta_target_iso"],
+        is_finished=track["is_finished"],
+        delivered_label=track["delivered_label"],
+        delivered_sub_label=track["delivered_sub_label"],
+        cancelled_label=track["cancelled_label"],
+        reason_label=track["reason_label"],
     )

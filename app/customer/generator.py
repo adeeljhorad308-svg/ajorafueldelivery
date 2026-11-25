@@ -39,8 +39,10 @@ def order_generator():
         days=scheduling.generator_days(now),
         slots=scheduling.generator_slots(),
         order_key=secrets.token_urlsafe(24),
-        has_active_order=order_queries.find_active_for_user(db, g.current_user["user_id"])
-        is not None,
+        prefill_litres=shared.prefill_litres(request.args, 20, 500, 250),
+        prefill_address=shared.prefill_text(request.args, "address", 200),
+        prefill_area=shared.prefill_area(request.args),
+        active_order_url=shared.active_order_url(db, g.current_user["user_id"]),
     )
 
 

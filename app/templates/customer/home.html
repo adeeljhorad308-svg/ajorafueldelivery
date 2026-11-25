@@ -17,7 +17,7 @@
 />
 {% endblock %}
 
-{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+{% block header %} {{ top_bar_customer("home", active_order_url) }} {% endblock %}
 
 {% block content %}
 <div class="home-content">
@@ -28,7 +28,12 @@
 
   <div class="home-layout">
     {% if active_order %}
-    <div class="order-card home-layout__order">
+    <div
+      class="order-card home-layout__order"
+      data-active-order-card
+      data-status-url="{{ active_order.status_api_url }}"
+      data-finished="false"
+    >
       <div class="order-card__header">
         <p class="order-card__header-label">Active order</p>
         {{ status_chip(active_order.status, active_order.status_label) }}
@@ -44,16 +49,20 @@
           </p>
         </span>
       </div>
-      {% if active_order.has_assignment %}
-      <div class="order-card__eta">
-        {{ icon("truck-fast") }}
-        <span>
-          <p class="order-card__eta-label">Arriving in</p>
-          <p class="order-card__eta-value">about {{ active_order.eta_minutes }} min</p>
-        </span>
+      <div data-active-order-eta {% if not active_order.has_assignment %}hidden{% endif %}>
+        <div class="order-card__eta">
+          {{ icon("truck-fast") }}
+          <span>
+            <p class="order-card__eta-label">Arriving in</p>
+            <p class="order-card__eta-value" data-active-order-eta-value>
+              {{ ("about " ~ active_order.eta_minutes ~ " min") if active_order.has_assignment else "" }}
+            </p>
+          </span>
+        </div>
+        <p class="order-card__driver">
+          {{ icon("user") }}<span data-active-order-driver-line>{{ active_order.driver_line if active_order.has_assignment else "" }}</span>
+        </p>
       </div>
-      <p class="order-card__driver">{{ icon("user") }}<span>{{ active_order.driver_line }}</span></p>
-      {% endif %}
       {{ button("Track order", style="brand", href=active_order.track_url, icon_name="route") }}
     </div>
     {% endif %}
@@ -90,4 +99,8 @@
 </div>
 {% endblock %}
 
-{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+{% block footer %} {{ bottom_nav("home", active_order_url) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/customer_home.js') }}"></script>
+{% endblock %}

@@ -31,6 +31,32 @@ flask --app wsgi run --debug
 
 Open http://127.0.0.1:5000
 
+## 30% checkpoint demo
+
+```
+flask --app wsgi init-db
+flask --app wsgi seed
+flask --app wsgi run --debug
+```
+
+Demo logins (password is whatever you set as `DEMO_PASSWORD` in `.env`):
+
+- `ali.raza@example.com` – has an order already On the way and one waiting on a call
+- `sana.iqbal@example.com` / `bilal.khan@example.com` – each has an open emergency request
+
+5-step demo:
+
+1. Log in as `ali.raza@example.com`, place a normal Order fuel order.
+2. Open a second browser/incognito window, log in as `sana.iqbal@example.com`, send an Emergency
+   fuel request.
+3. Place another normal order for Ali Raza right after - watch the emergency get a driver first
+   even though it was placed later (smart dispatch's priority queue).
+4. In a terminal: `flask --app wsgi demo-advance ORD-0042` (or whichever order number you placed)
+   moves it one step forward (Pending -> Assigned -> On the way -> Delivered), with a driver
+   assigned/freed and a tracking row added, same as an admin action would.
+5. Switch back to the customer's Track order page (no admin side yet) and watch the status, ETA
+   and progress steps update within 30 seconds, with no reload.
+
 ## Checks
 
 ```

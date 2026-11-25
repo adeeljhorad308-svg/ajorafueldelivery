@@ -1,0 +1,287 @@
+/* My orders (docs/FIGMA.md screen 11: 36:2872 laptop, 36:3273 tablet,
+   36:3674 mobile; empty 36:3970). */
+
+.my-orders-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+@media (min-width: 1024px) {
+  .my-orders-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: var(--space-xl) var(--space-lg);
+  }
+}
+
+.my-orders-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.my-orders-header__sub {
+  color: var(--color-text-secondary);
+}
+
+.filter-chips {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+}
+.filter-chips .chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Empty state (components/empty_state.html): shared by My orders now, and
+   any later list screen. */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  margin: 0 auto;
+  max-width: 320px;
+  text-align: center;
+}
+.empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+}
+.empty-state__icon .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-icon-muted);
+}
+.empty-state__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-text-primary);
+}
+.empty-state__message {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-muted);
+}
+
+/* Mobile order cards. */
+.order-row-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+.order-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-subtle);
+}
+.order-row__icon .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-icon-active);
+}
+.order-row__icon--emergency {
+  background: var(--color-bg-status-error-tint);
+}
+.order-row__icon--emergency .icon {
+  color: var(--color-status-error);
+}
+.order-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.order-row__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-primary);
+}
+.order-row__meta {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+.order-row__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Tablet and laptop table. */
+.order-table {
+  display: none;
+}
+@media (min-width: 600px) {
+  .order-row-list {
+    display: none;
+  }
+  .order-table {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .order-table thead {
+    background: var(--color-bg-subtle);
+  }
+  .order-table th {
+    padding: var(--space-md) var(--space-lg);
+    text-align: left;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .order-table td {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--color-border-default);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-primary);
+  }
+  .order-table__row {
+    cursor: pointer;
+  }
+  .order-table__row:hover {
+    background: var(--color-bg-page);
+  }
+  .order-table__service {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .order-table__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .order-table__icon .icon {
+    width: 12px;
+    height: 12px;
+  }
+  .order-table__chevron-col {
+    width: 40px;
+  }
+  .order-table__chevron-col .icon {
+    width: 16px;
+    height: 16px;
+    color: var(--color-icon-muted);
+  }
+  .order-table__wide-col {
+    white-space: nowrap;
+  }
+  .order-table__service-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .order-table__service-sub {
+    display: none;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+}
+/* Tablet: the order number and date fold into the Service cell's subtitle
+   instead of their own columns (docs/FIGMA.md screen 11, 36:3273). */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .order-table__wide-col {
+    display: none;
+  }
+  .order-table__service-sub {
+    display: block;
+  }
+}
+
+.my-orders-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+@media (min-width: 600px) {
+  .my-orders-footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pagination__arrow,
+.pagination__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+.pagination__arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+}
+.pagination__arrow .icon {
+  width: 20px;
+  height: 20px;
+}
+.pagination__arrow--disabled {
+  color: var(--color-text-disabled);
+  pointer-events: none;
+}
+.pagination__number--current {
+  background: var(--color-action-primary);
+  color: var(--color-text-inverse);
+}

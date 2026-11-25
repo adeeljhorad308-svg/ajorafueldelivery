@@ -1,15 +1,16 @@
-{% macro segmented_control(options) %}
+{% macro segmented_control(options, selected=None) %}
+{% set selected = selected if selected in options | map(attribute="name") | list else options[0].name %}
 <div class="segmented" role="radiogroup" aria-label="Fuel type" data-segmented>
   {% for option in options %}
   <label
-    class="segmented__option{% if loop.first %} segmented__option--selected{% endif %}"
+    class="segmented__option{% if option.name == selected %} segmented__option--selected{% endif %}"
   >
     <input
       type="radio"
       name="fuel_type"
       value="{{ option.name }}"
       data-unit-price="{{ option.unit_price }}"
-      {% if loop.first %}checked{% endif %}
+      {% if option.name == selected %}checked{% endif %}
       class="segmented__input"
     />
     <span class="segmented__label">{{ option.name }}</span>

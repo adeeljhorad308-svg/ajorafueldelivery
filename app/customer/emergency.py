@@ -48,7 +48,10 @@ def order_emergency():
         open_emergency=_open_emergency_context(
             order_queries.find_open_emergency_for_user(db, user_id)
         ),
-        has_active_order=order_queries.find_active_for_user(db, user_id) is not None,
+        prefill_litres=shared.prefill_litres(request.args, 2, 10, 5),
+        prefill_note=shared.prefill_text(request.args, "note", 200),
+        prefill_area=shared.prefill_area(request.args),
+        active_order_url=shared.active_order_url(db, user_id),
     )
 
 

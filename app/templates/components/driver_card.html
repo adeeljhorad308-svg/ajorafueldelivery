@@ -1,0 +1,40 @@
+{% from "components/icon.html" import icon %}
+
+{% macro driver_card(driver) %}
+<div class="driver-card" data-driver-card {% if not driver.assigned %}hidden{% endif %}>
+  <div class="driver-card__row">
+    <span class="driver-card__avatar" data-driver-initials>{{ driver.initials if driver.assigned else "" }}</span>
+    <span class="driver-card__info">
+      <span class="driver-card__name" data-driver-name
+        >{{ driver.driver_name if driver.assigned else "" }}</span
+      >
+      <span class="driver-card__meta"
+        >{{ icon("star") }}<span data-driver-meta
+          >{{ (driver.rating_label ~ " · " ~ driver.vehicle_no) if driver.assigned else "" }}</span
+        ></span
+      >
+    </span>
+    <a
+      class="icon-btn icon-btn--brand"
+      data-driver-call
+      href="tel:{{ driver.phone if driver.assigned else '' }}"
+      aria-label="Call driver"
+      >{{ icon("phone") }}</a
+    >
+  </div>
+  <div class="driver-card__stats">
+    <span class="driver-card__stat">
+      <span class="driver-card__stat-label">Distance</span>
+      <span class="driver-card__stat-value" data-driver-distance
+        >{{ driver.distance_label if driver.assigned else "" }}</span
+      >
+    </span>
+    <span class="driver-card__stat driver-card__stat--right">
+      <span class="driver-card__stat-label">Arriving in</span>
+      <span class="driver-card__stat-value driver-card__stat-value--eta" data-driver-eta
+        >{{ ("about " ~ driver.eta_minutes ~ " min") if driver.assigned else "" }}</span
+      >
+    </span>
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,18 @@
+{% from "components/icon.html" import icon %}
+
+{% macro status_steps(steps) %}
+<div class="status-steps" data-status-steps>
+  {% for step in steps %}
+  <div class="status-steps__row status-steps__row--{{ step.state }}" data-step="{{ step.key }}">
+    <div class="status-steps__indicator">
+      <span class="status-steps__dot">{% if step.state == "done" %}{{ icon("check") }}{% endif %}</span>
+      {% if not loop.last %}<span class="status-steps__line"></span>{% endif %}
+    </div>
+    <div class="status-steps__text">
+      <p class="status-steps__label">{{ step.label }}</p>
+      <p class="status-steps__time" data-step-time>{{ step.time_label }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}

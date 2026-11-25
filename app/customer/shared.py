@@ -5,6 +5,8 @@ from decimal import InvalidOperation
 from flask import jsonify, url_for
 
 from app import money
+from app.customer import validation
+from app.queries import orders as order_queries
 from app.queries import services as service_queries
 
 
@@ -53,3 +55,28 @@ def price_updated_response(current_price, quantity, unit_label="litre"):
 
 def confirmed_url(order_id):
     return url_for("customer.order_confirmed", order_id=order_id)
+
+
+def active_order_url(db, user_id):
+    """The customer's open order, for the bottom nav / top bar Track tab
+    (None disables it - docs/SPEC.md 'Rules for every screen')."""
+    order = order_queries.find_active_for_user(db, user_id)
+    return url_for("customer.order_track", order_id=order["order_id"]) if order else None
+
+
+def prefill_text(args, name, max_length):
+    """A trimmed, length-capped query string value for /repeat's pre-filled forms."""
+    return (args.get(name) or "").strip()[:max_length]
+
+
+def prefill_area(args):
+    area = (args.get("area") or "").strip()
+    return area if validation.is_valid_area(area) else ""
+
+
+def prefill_litres(args, minimum, maximum, default):
+    try:
+        value = int(args.get("litres"))
+    except (TypeError, ValueError):
+        return default
+    return min(maximum, max(minimum, value))
