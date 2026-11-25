@@ -1,0 +1,44 @@
+{% from "components/icon.html" import icon %}
+
+{% macro admin_topbar_mobile() %}
+<header class="admin-topbar-mobile">
+  <button
+    class="icon-btn admin-topbar-mobile__menu"
+    type="button"
+    aria-label="Open menu"
+    aria-expanded="false"
+    aria-controls="admin-sidebar"
+    data-menu-toggle
+  >
+    {{ icon("bars") }}
+  </button>
+  <a class="admin-topbar-mobile__logo" href="{{ url_for('admin.dashboard') }}">
+    <img
+      class="logo-mark"
+      src="{{ static_versioned('brand/svg/ajora-mark.svg') }}"
+      alt=""
+      width="24"
+      height="24"
+    />
+    <span>AJORA</span>
+  </a>
+  <span class="icon-btn" aria-hidden="true">{{ icon("bell") }}</span>
+</header>
+{% endmacro %}
+
+{% macro admin_topbar(title) %}
+<header class="admin-topbar">
+  <p class="admin-topbar__title">{{ title }}</p>
+  <div class="admin-topbar__right">
+    <p class="admin-topbar__date">{{ admin_today_label }}</p>
+    <span class="icon-btn icon-btn--outline" aria-label="Notifications">{{ icon("bell") }}</span>
+  </div>
+</header>
+{% endmacro %}
+
+{% macro admin_mobile_title(title) %}
+<div class="admin-mobile-title">
+  <p class="admin-mobile-title__text h3">{{ title }}</p>
+  <p class="admin-mobile-title__date caption">{{ admin_today_label }}</p>
+</div>
+{% endmacro %}

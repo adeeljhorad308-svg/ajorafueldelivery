@@ -1,7 +1,9 @@
 """8 response headers, CSRF, rate limits, sessions and the security log (docs/SECURITY.md)."""
 
 import logging
-from datetime import timedelta
+import re
+import time
+from datetime import UTC, datetime, timedelta
 from functools import wraps
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -52,11 +54,19 @@ def _set_security_headers(response):
     return response
 
 
+def _security_log_path(app):
+    return Path(app.config["LOG_DIR"]) / "security.log"
+
+
 def _init_security_log(app):
     log_dir = Path(app.config["LOG_DIR"])
     log_dir.mkdir(parents=True, exist_ok=True)
-    handler = RotatingFileHandler(log_dir / "security.log", maxBytes=1_000_000, backupCount=5)
-    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    handler = RotatingFileHandler(_security_log_path(app), maxBytes=1_000_000, backupCount=5)
+    formatter = logging.Formatter(
+        "%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    formatter.converter = time.gmtime  # log timestamps are UTC, like the rest of the app
+    handler.setFormatter(formatter)
     logger = logging.getLogger("ajora.security")
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
@@ -65,6 +75,34 @@ def _init_security_log(app):
 
 def security_logger():
     return current_app.extensions["security_logger"]
+
+
+_LOG_LINE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \S+ (.+)$")
+
+
+def count_failed_logins_today(now=None):
+    """Lines logged today (Asia/Karachi) starting 'login failed' - the admin
+    dashboard Security card (docs/SECURITY.md A09: 'Security card on
+    dashboard' reads logs/security.log, the only record of login attempts;
+    the users table only keeps each account's current streak)."""
+    now = now or timeutil.utcnow()
+    today = timeutil.to_karachi(now).date()
+    path = _security_log_path(current_app)
+    if not path.exists():
+        return 0
+    count = 0
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            match = _LOG_LINE_RE.match(line)
+            if not match:
+                continue
+            timestamp, message = match.groups()
+            if not message.startswith("login failed"):
+                continue
+            logged_at = datetime.strptime(timestamp, timeutil.SQL_FORMAT).replace(tzinfo=UTC)
+            if timeutil.to_karachi(logged_at).date() == today:
+                count += 1
+    return count
 
 
 def is_safe_next(path):

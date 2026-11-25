@@ -1,0 +1,34 @@
+/* Status chip (docs/FIGMA.md 10:345): always icon + word, never colour alone.
+   Shared by customer order screens and the admin dashboard/All orders. */
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-primary);
+}
+.status-chip .icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.status-chip--pending {
+  background: var(--color-bg-status-warning-tint);
+}
+.status-chip--assigned,
+.status-chip--on-the-way {
+  background: var(--color-bg-status-info-tint);
+}
+.status-chip--delivered {
+  background: var(--color-bg-status-success-tint);
+}
+.status-chip--cancelled,
+.status-chip--emergency {
+  background: var(--color-bg-status-error-tint);
+}

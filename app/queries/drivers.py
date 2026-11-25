@@ -47,3 +47,8 @@ def update_location(db, driver_id, latitude, longitude):
 
 def find_by_id(db, driver_id):
     return db.execute("SELECT * FROM drivers WHERE driver_id = ?", (driver_id,)).fetchone()
+
+
+def count_active(db):
+    row = db.execute("SELECT COUNT(*) AS n FROM drivers WHERE is_active = 1").fetchone()
+    return row["n"]

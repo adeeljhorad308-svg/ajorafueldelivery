@@ -14,12 +14,14 @@ Usage:
     python tools/screenshots.py /login /register  # just these paths
 """
 
+import secrets
 import sys
 import tempfile
 import threading
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
+from werkzeug.security import generate_password_hash
 from werkzeug.serving import make_server
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,11 +30,13 @@ sys.path.insert(0, str(ROOT))
 from app import create_app  # noqa: E402
 from app.db import get_db, init_db  # noqa: E402
 from app.demo_data import seed_demo  # noqa: E402
+from app.queries import users as user_queries  # noqa: E402
 
 SIZES = [("mobile", 390, 844), ("tablet", 834, 1194), ("laptop", 1440, 900)]
 OUTPUT_DIR = ROOT / "tools" / "screenshots"
 DEMO_PASSWORD = "demo-pass-1234"  # noqa: S105 (throwaway local tool database, not a secret)
 DEMO_EMAIL = "ali.raza@example.com"
+ADMIN_EMAIL = "sana.ahmed@example.com"
 JOHAR_TOWN = (31.4697, 74.2728)
 
 DEFAULT_PATHS = [
@@ -50,6 +54,9 @@ DEFAULT_PATHS = [
     "/app/order/assistance#confirm",
     "/app/orders/42/confirmed",
     "/app/orders/43/confirmed",
+    "/admin",
+    "/admin/orders",
+    "/admin/orders?from=2020-01-01&to=2020-01-02&date=custom",
 ]
 
 
@@ -77,15 +84,25 @@ def _build_seeded_app(db_path):
     )
     with app.app_context():
         init_db()
-        seed_demo(get_db(), DEMO_PASSWORD)
-        get_db().commit()
-    return app
+        db = get_db()
+        seed_demo(db, DEMO_PASSWORD)
+        admin_password = secrets.token_urlsafe(16)
+        user_queries.create_user(
+            db,
+            "Sana Ahmed",
+            ADMIN_EMAIL,
+            "03004445555",
+            generate_password_hash(admin_password, method="scrypt"),
+            "admin",
+        )
+        db.commit()
+    return app, admin_password
 
 
-def _login(page, base_url):
+def _login(page, base_url, email=DEMO_EMAIL, password=DEMO_PASSWORD):
     page.goto(f"{base_url}/login")
-    page.fill("#field-email", DEMO_EMAIL)
-    page.fill("#field-password", DEMO_PASSWORD)
+    page.fill("#field-email", email)
+    page.fill("#field-password", password)
     page.click("button[type=submit]")
     page.wait_for_load_state("networkidle")
 
@@ -126,13 +143,16 @@ CONFIRM_HANDLERS = {
 
 
 def _slug(path):
-    return path.strip("/").replace("/", "_").replace("#", "__") or "landing"
+    name = path.strip("/").replace("/", "_").replace("#", "__") or "landing"
+    for char in "?=&":
+        name = name.replace(char, "_")
+    return name
 
 
 def _capture_path(page, base_url, path):
     real_path, _, fragment = path.partition("#")
     page.goto(f"{base_url}{real_path}")
-    if real_path.startswith("/app"):
+    if real_path.startswith(("/app", "/admin")):
         page.wait_for_load_state("networkidle")
     if fragment == "confirm":
         CONFIRM_HANDLERS[real_path](page)
@@ -145,7 +165,7 @@ def _capture_path(page, base_url, path):
 def capture(paths):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
-        app = _build_seeded_app(Path(tmp) / "screenshots.db")
+        app, admin_password = _build_seeded_app(Path(tmp) / "screenshots.db")
         server = _ServerThread(app)
         server.start()
         base_url = f"http://127.0.0.1:{server.port}"
@@ -158,12 +178,25 @@ def capture(paths):
                 )
                 context.grant_permissions(["geolocation"])
                 page = context.new_page()
+                # A separate browser context (its own cookie jar) for /admin
+                # paths - the admin and the demo customer are two sessions,
+                # and /login redirects an already logged-in session away.
+                admin_context = browser.new_context()
+                admin_page = admin_context.new_page()
                 logged_in = False
+                admin_logged_in = False
                 for path in paths:
-                    if path.startswith("/app") and not logged_in:
-                        _login(page, base_url)
-                        logged_in = True
-                    _capture_path(page, base_url, path)
+                    if path.startswith("/admin"):
+                        active_page = admin_page
+                        if not admin_logged_in:
+                            _login(admin_page, base_url, ADMIN_EMAIL, admin_password)
+                            admin_logged_in = True
+                    else:
+                        active_page = page
+                        if path.startswith("/app") and not logged_in:
+                            _login(page, base_url)
+                            logged_in = True
+                    _capture_path(active_page, base_url, path)
                     print(f"saved {_slug(path)}")
                 browser.close()
         finally:

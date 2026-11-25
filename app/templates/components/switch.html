@@ -1,0 +1,13 @@
+{% macro switch(name, label, checked=False, value="1") %}
+<label class="switch">
+  <input
+    class="switch__input"
+    type="checkbox"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if checked %}checked{% endif %}
+  />
+  <span class="switch__track" aria-hidden="true"></span>
+  <span class="switch__label">{{ label }}</span>
+</label>
+{% endmacro %}

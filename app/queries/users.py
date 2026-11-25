@@ -48,3 +48,13 @@ def bump_session_version(db, user_id):
         "UPDATE users SET session_version = session_version + 1 WHERE user_id = ?",
         (user_id,),
     )
+
+
+def list_locked(db, now):
+    """Accounts still locked out right now, most recently locked first
+    (admin dashboard Security card)."""
+    return db.execute(
+        "SELECT name, locked_until FROM users WHERE locked_until IS NOT NULL "
+        "AND locked_until > ? ORDER BY locked_until DESC",
+        (now,),
+    ).fetchall()

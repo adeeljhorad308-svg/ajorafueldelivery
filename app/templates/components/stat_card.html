@@ -1,0 +1,12 @@
+{% from "components/icon.html" import icon %}
+
+{% macro stat_card(card) %}
+<div class="stat-card stat-card--{{ card.tone }}">
+  <div class="stat-card__top">
+    <p class="stat-card__label overline">{{ card.label }}</p>
+    <span class="stat-card__icon">{{ icon(card.icon) }}</span>
+  </div>
+  <p class="stat-card__value mono-stat">{{ card.value }}</p>
+  <p class="stat-card__note">{{ card.note }}</p>
+</div>
+{% endmacro %}

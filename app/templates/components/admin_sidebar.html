@@ -1,0 +1,54 @@
+{% from "components/icon.html" import icon %}
+
+{% macro admin_sidebar(active) %}
+<nav class="admin-sidebar" id="admin-sidebar" data-menu-sheet hidden aria-label="Admin">
+  <div class="admin-sidebar__top">
+    <a class="admin-sidebar__logo" href="{{ url_for('admin.dashboard') }}">
+      <img
+        class="logo-mark"
+        src="{{ static_versioned('brand/svg/ajora-mark.svg') }}"
+        alt=""
+        width="32"
+        height="32"
+      />
+      <span class="admin-sidebar__logo-text">AJORA</span>
+    </a>
+    <div class="admin-sidebar__menu">
+      {% for item in admin_sidebar_links %}
+      {% set classes = "admin-sidebar__item" ~ (" admin-sidebar__item--active" if item.key == active else "") %}
+      {% set is_emergency_item = item.key == "emergency" %}
+      {% if item.href %}
+      <a class="{{ classes }}" href="{{ item.href }}"{% if item.key == active %} aria-current="page"{% endif %}>
+        {{ icon(item.icon) }}<span class="admin-sidebar__item-label">{{ item.label }}</span>
+        {% if item.badge or is_emergency_item %}
+        <span class="admin-sidebar__badge"{% if is_emergency_item %} data-sidebar-emergency-badge{% endif %}{% if not item.badge %} hidden{% endif %}>{{ item.badge or 0 }}</span>
+        {% endif %}
+      </a>
+      {% else %}
+      <span class="{{ classes }} admin-sidebar__item--disabled">
+        {{ icon(item.icon) }}<span class="admin-sidebar__item-label">{{ item.label }}</span>
+        {% if item.badge or is_emergency_item %}
+        <span class="admin-sidebar__badge"{% if is_emergency_item %} data-sidebar-emergency-badge{% endif %}{% if not item.badge %} hidden{% endif %}>{{ item.badge or 0 }}</span>
+        {% endif %}
+      </span>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="admin-sidebar__footer">
+    <div class="admin-sidebar__who">
+      <span class="admin-sidebar__avatar">{{ admin_initials }}</span>
+      <span class="admin-sidebar__who-text">
+        <span class="admin-sidebar__name">{{ admin_name }}</span>
+        <span class="admin-sidebar__role">Admin</span>
+      </span>
+    </div>
+    <form method="post" action="{{ url_for('auth.logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <button class="admin-sidebar__item admin-sidebar__logout" type="submit">
+        {{ icon("right-from-bracket") }}<span class="admin-sidebar__item-label">Log out</span>
+      </button>
+    </form>
+  </div>
+</nav>
+{% endmacro %}

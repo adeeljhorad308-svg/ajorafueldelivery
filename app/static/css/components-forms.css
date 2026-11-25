@@ -118,3 +118,105 @@
   height: 16px;
   flex-shrink: 0;
 }
+
+/* Switch (on/off, e.g. "Emergency only", docs/FIGMA.md Switch 9:447). */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 44px;
+  cursor: pointer;
+}
+.switch__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.switch__track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  transition: background 120ms ease;
+}
+.switch__track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  transition: transform 120ms ease;
+}
+.switch__input:checked + .switch__track {
+  background: var(--color-action-primary);
+}
+.switch__input:checked + .switch__track::before {
+  transform: translateX(20px);
+}
+.switch__input:focus-visible + .switch__track {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+.switch__label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch__track,
+  .switch__track::before {
+    transition: none;
+  }
+}
+
+/* Multi-select status chips: a checkbox styled as a pill (docs/SPEC.md "chips
+   and switches instead of dropdowns when there are 5 options or fewer"). */
+.chip-checkbox {
+  display: inline-flex;
+}
+.chip-checkbox__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.chip-checkbox__label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.chip-checkbox__input:checked + .chip-checkbox__label {
+  background: var(--color-bg-brand-subtle);
+  border-color: var(--color-action-primary);
+  color: var(--color-text-brand);
+}
+.chip-checkbox__input:focus-visible + .chip-checkbox__label {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}

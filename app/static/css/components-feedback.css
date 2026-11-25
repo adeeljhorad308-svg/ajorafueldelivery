@@ -104,6 +104,16 @@
 .alert-banner--success .icon {
   color: var(--color-status-success);
 }
+.alert-banner__action {
+  flex-shrink: 0;
+  align-self: center;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-brand);
+  text-decoration: none;
+}
 
 .toast {
   display: flex;

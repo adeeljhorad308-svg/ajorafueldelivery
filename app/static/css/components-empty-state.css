@@ -1,0 +1,41 @@
+/* Empty state (components/empty_state.html): icon, one plain line and the
+   main action (CLAUDE.md: "No orders yet" + "Order fuel"). Shared by every
+   list screen, customer and admin. */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  margin: 0 auto;
+  max-width: 320px;
+  text-align: center;
+}
+.empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+}
+.empty-state__icon .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-icon-muted);
+}
+.empty-state__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-text-primary);
+}
+.empty-state__message {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-muted);
+}

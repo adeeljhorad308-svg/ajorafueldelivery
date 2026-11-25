@@ -97,3 +97,8 @@ CREATE INDEX idx_orders_emergency_status ON orders (is_emergency, status);
 CREATE INDEX idx_assignments_driver ON assignments (driver_id);
 CREATE INDEX idx_drivers_status ON drivers (status);
 CREATE INDEX idx_tracking_order ON tracking (order_id);
+-- Admin dashboard and All orders (C9): date-range filters, newest-first
+-- sorting, Due soon and Call needed lists.
+CREATE INDEX idx_orders_created_at ON orders (created_at);
+CREATE INDEX idx_orders_scheduled_at ON orders (scheduled_at);
+CREATE INDEX idx_orders_call_confirmed ON orders (call_confirmed);

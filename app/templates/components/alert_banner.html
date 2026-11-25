@@ -1,17 +1,20 @@
 {% from "components/icon.html" import icon %}
 
-{% macro alert_banner(type, title, message) %}
+{% macro alert_banner(type, title, message, action_label=None, action_href=None) %}
 {%- set alert_icons = {
   "error": "triangle-exclamation",
   "warning": "circle-exclamation",
   "info": "circle-info",
   "success": "circle-check",
 } -%}
-<div class="alert-banner alert-banner--{{ type }}" role="alert">
+<div class="alert-banner alert-banner--{{ type }}{% if action_href %} alert-banner--linked{% endif %}" role="alert">
   {{ icon(alert_icons[type]) }}
   <div class="alert-banner__text">
     <p class="alert-banner__title">{{ title }}</p>
     <p class="alert-banner__message">{{ message }}</p>
   </div>
+  {% if action_href %}
+  <a class="alert-banner__action" href="{{ action_href }}">{{ action_label }}</a>
+  {% endif %}
 </div>
 {% endmacro %}

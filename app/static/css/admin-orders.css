@@ -1,0 +1,364 @@
+/* All orders (docs/FIGMA.md screen 13: 39:714 laptop, 39:1619 tablet,
+   40:1495 mobile; no match 40:1868; filters sheet 40:1942). */
+
+.admin-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.admin-filters__bar {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+.admin-filters__search {
+  flex: 1;
+  min-width: 0;
+}
+.admin-filters__trigger {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.admin-filters__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.admin-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.admin-filters__group-label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+.admin-filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+.admin-filters__custom-range {
+  display: none;
+  gap: var(--space-md);
+}
+.admin-filters:has(#date-custom:checked) .admin-filters__custom-range {
+  display: flex;
+}
+.admin-filters__custom-range .field {
+  flex: 1;
+}
+.admin-filters__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Below 1024 px the panel is a bottom sheet / centred dialog (dialog.css
+   pattern), opened by the trigger button; from 1024 px it is always shown,
+   inline, regardless of its [hidden] attribute. */
+.admin-filters__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(11, 13, 12, 0.55);
+}
+.admin-filters__panel {
+  position: fixed;
+  z-index: 101;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-modal);
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
+}
+.admin-filters__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-filters__panel-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--color-text-primary);
+}
+
+@media (min-width: 600px) {
+  .admin-filters__panel {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    max-width: calc(100vw - 48px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-filters__trigger,
+  .admin-filters__backdrop,
+  .admin-filters__panel-header {
+    display: none;
+  }
+  .admin-filters__panel[hidden] {
+    display: flex !important;
+  }
+  .admin-filters__panel {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .admin-filters__group {
+    gap: var(--space-xs);
+  }
+  .admin-filters__custom-range {
+    width: 100%;
+  }
+  .admin-filters__actions {
+    margin-left: auto;
+  }
+}
+
+/* Table (tablet and laptop). */
+.admin-table {
+  display: none;
+}
+@media (min-width: 600px) {
+  .admin-table {
+    display: block;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .admin-table__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    height: 56px;
+    padding: 0 var(--space-lg);
+    border-top: 1px solid var(--color-border-default);
+  }
+  .admin-table__head {
+    height: 44px;
+    background: var(--color-bg-subtle);
+    border-top: none;
+  }
+  .admin-table__row--pinned {
+    background: var(--color-bg-status-error-wash);
+    border-left: 4px solid var(--color-status-error);
+    padding-left: calc(var(--space-lg) - 4px);
+  }
+  .admin-table__row--link {
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .admin-table__row--link:hover {
+    background: var(--color-bg-page);
+  }
+  .admin-table__cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-primary);
+  }
+  .admin-table__head-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .admin-table__order {
+    width: 104px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+  }
+  .admin-table__order .icon {
+    width: 14px;
+    height: 14px;
+    color: var(--color-status-error);
+    flex-shrink: 0;
+  }
+  .admin-table__customer {
+    flex: 1;
+    min-width: 120px;
+  }
+  .admin-table__customer-name {
+    font-weight: 600;
+  }
+  .admin-table__sub {
+    display: none;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+  .admin-table__service {
+    width: 130px;
+    flex-shrink: 0;
+  }
+  .admin-table__qty {
+    width: 60px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  .admin-table__amount {
+    width: 110px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  .admin-table__area {
+    width: 112px;
+    flex-shrink: 0;
+  }
+  .admin-table__status {
+    width: 132px;
+    flex-shrink: 0;
+  }
+  .admin-table__driver {
+    width: 112px;
+    flex-shrink: 0;
+  }
+  .admin-table__driver--muted {
+    color: var(--color-text-muted);
+  }
+  .admin-table__driver--warning {
+    color: var(--color-status-warning);
+    font-weight: 600;
+  }
+  .admin-table__time {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .admin-table__row--new {
+    animation: admin-row-highlight 2.4s ease;
+  }
+}
+/* Tablet: Qty/Amount fold into Service, Area/Time fold into Customer. */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .admin-table__qty,
+  .admin-table__amount,
+  .admin-table__area,
+  .admin-table__time {
+    display: none;
+  }
+  .admin-table__sub {
+    display: block;
+  }
+}
+
+@keyframes admin-row-highlight {
+  from {
+    background: var(--color-bg-highlight);
+  }
+  to {
+    background: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-table__row--new {
+    animation: none;
+  }
+}
+
+/* Mobile cards. */
+.admin-order-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.admin-order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+.admin-order-card--pinned {
+  background: var(--color-bg-status-error-wash);
+  border-left: 4px solid var(--color-status-error);
+}
+.admin-order-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.admin-order-card__order {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+.admin-order-card__order .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-status-error);
+}
+.admin-order-card__name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+.admin-order-card__meta {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.admin-order-card__meta--warning {
+  color: var(--color-status-warning);
+  font-weight: 600;
+}
+@media (min-width: 600px) {
+  .admin-order-cards {
+    display: none;
+  }
+}
+
+.admin-table-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+@media (min-width: 600px) {
+  .admin-table-footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}

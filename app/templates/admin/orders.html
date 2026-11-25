@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/button.html" import button %}
+{% from "components/field.html" import field %}
+{% from "components/switch.html" import switch %}
+{% from "components/chip.html" import chip_checkbox, chip_radio %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/empty_state.html" import empty_state %}
+{% from "components/pagination.html" import pagination %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}All orders – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-pagination.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-status-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-empty-state.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-orders.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell" data-admin-live data-live-url="{{ url_for('api.admin_live') }}">
+  {{ admin_sidebar("orders") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("All orders") }}
+      {{ admin_mobile_title("All orders") }}
+
+      <form method="get" action="{{ url_for('admin.orders') }}" class="admin-filters" id="admin-filters-form">
+        <div class="admin-filters__bar">
+          <div class="admin-filters__search">
+            {{ field("q", "Search", value=filters.search_raw, placeholder="Order no. or phone", required=False) }}
+          </div>
+          <button
+            type="button"
+            class="btn btn--outline admin-filters__trigger"
+            data-filters-toggle
+            aria-haspopup="dialog"
+            aria-controls="admin-filters-panel"
+            aria-expanded="false"
+          >
+            {{ icon("filter") }}<span>Filters{% if active_filter_count %} &middot; {{ active_filter_count }}{% endif %}</span>
+          </button>
+        </div>
+
+        <div class="admin-filters__backdrop" data-filters-backdrop hidden></div>
+        <div class="admin-filters__panel" id="admin-filters-panel" data-filters-panel hidden role="dialog" aria-label="Filters">
+          <div class="admin-filters__panel-header">
+            <p class="admin-filters__panel-title">Filters</p>
+            <button type="button" class="icon-btn" data-filters-close aria-label="Close filters">{{ icon("xmark") }}</button>
+          </div>
+
+          <div class="admin-filters__group">
+            <p class="admin-filters__group-label">Status (pick any)</p>
+            <div class="admin-filters__chips">
+              {% for value, label in status_options %}
+              {{ chip_checkbox("status", value, label, checked=(value in filters.statuses)) }}
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="admin-filters__group">
+            <p class="admin-filters__group-label">Service</p>
+            <div class="admin-filters__chips">
+              {% for value, label in service_options %}
+              {{ chip_radio("service", value, label, checked=(value == filters.service)) }}
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="admin-filters__group">
+            <p class="admin-filters__group-label">Date</p>
+            <div class="admin-filters__chips">
+              {% for value, label in date_options %}
+              {{ chip_radio("date", value, label, checked=(value == filters.date_mode), id="date-" ~ value) }}
+              {% endfor %}
+            </div>
+            <div class="admin-filters__custom-range">
+              {{ field("from", "From", type="date", value=filters.from_raw, required=False) }}
+              {{ field("to", "To", type="date", value=filters.to_raw, required=False) }}
+            </div>
+          </div>
+
+          <div class="admin-filters__group">
+            {{ switch("emergency", "Emergency only", checked=filters.emergency_only) }}
+          </div>
+
+          <div class="admin-filters__actions">
+            <a class="btn btn--subtle" href="{{ clear_url }}">Clear filters</a>
+            {{ button("Show results", style="brand", type="submit", full_width=False, data_action="apply-filters") }}
+          </div>
+        </div>
+      </form>
+
+      {% if rows %}
+      <div class="admin-table" data-admin-table>
+        <div class="admin-table__row admin-table__head">
+          <span class="admin-table__order admin-table__head-label">Order</span>
+          <span class="admin-table__customer admin-table__head-label">Customer</span>
+          <span class="admin-table__service admin-table__head-label">Service</span>
+          <span class="admin-table__qty admin-table__head-label">Qty</span>
+          <span class="admin-table__amount admin-table__head-label">Amount</span>
+          <span class="admin-table__area admin-table__head-label">Area</span>
+          <span class="admin-table__status admin-table__head-label">Status</span>
+          <span class="admin-table__driver admin-table__head-label">Driver</span>
+          <span class="admin-table__time admin-table__head-label">Time</span>
+        </div>
+        {% for row in rows %}
+        <a
+          class="admin-table__row admin-table__row--link{% if row.is_pinned %} admin-table__row--pinned{% endif %}"
+          href="{{ row.detail_url }}"
+        >
+          <span class="admin-table__order admin-table__cell">
+            {% if row.is_emergency %}{{ icon("triangle-exclamation") }}{% endif %}{{ row.order_number }}
+          </span>
+          <span class="admin-table__customer admin-table__cell">
+            <span class="admin-table__customer-name">{{ row.customer_name }}</span>
+            <span class="admin-table__sub">{{ row.customer_meta }}</span>
+          </span>
+          <span class="admin-table__service admin-table__cell">
+            {{ row.service_label }}
+            <span class="admin-table__sub">{{ row.service_meta }}</span>
+          </span>
+          <span class="admin-table__qty admin-table__cell">{{ row.quantity_label }}</span>
+          <span class="admin-table__amount admin-table__cell mono-amount">{{ row.amount_label }}</span>
+          <span class="admin-table__area admin-table__cell">{{ row.area }}</span>
+          <span class="admin-table__status">{{ status_chip(row.status, row.status_label) }}</span>
+          <span class="admin-table__driver admin-table__cell admin-table__driver--{{ row.driver_variant }}">{{ row.driver_text }}</span>
+          <span class="admin-table__time admin-table__cell">{{ row.time_label }}</span>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="admin-order-cards">
+        {% for row in rows %}
+        <a class="admin-order-card{% if row.is_pinned %} admin-order-card--pinned{% endif %}" href="{{ row.detail_url }}">
+          <div class="admin-order-card__top">
+            <span class="admin-order-card__order">
+              {% if row.is_emergency %}{{ icon("triangle-exclamation") }}{% endif %}{{ row.order_number }}
+            </span>
+            {{ status_chip(row.status, row.status_label) }}
+          </div>
+          <p class="admin-order-card__name">{{ row.customer_name }}</p>
+          <p class="admin-order-card__meta">{{ row.service_label }} &middot; {{ row.quantity_label }}</p>
+          <p class="admin-order-card__meta{% if row.driver_variant == 'warning' %} admin-order-card__meta--warning{% endif %}">
+            {{ row.area }} &middot; {{ row.driver_text }} &middot; {{ row.time_label }} &middot; {{ row.amount_label }}
+          </p>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="admin-table-footer">
+        {% if page_info.showing_label %}<p class="caption">{{ page_info.showing_label }}</p>{% endif %}
+        {{ pagination(page_info.page, page_info.total_pages, page_url) }}
+      </div>
+      {% else %}
+      {{ empty_state("filter", "No orders match these filters", "", "Clear filters", clear_url) }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_filters.js') }}"></script>
+<script type="module" src="{{ static_versioned('js/admin_live.js') }}"></script>
+{% endblock %}

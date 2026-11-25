@@ -1,4 +1,141 @@
-{% extends "base.html" %} {% block title %}Dashboard – AJORA Admin{% endblock %}
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/stat_card.html" import stat_card %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+{% from "components/button.html" import button %}
+{% from "components/status_chip.html" import status_chip %}
+
+{% block title %}Dashboard – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-status-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-dashboard.css') }}" />
+{% endblock %}
+
 {% block content %}
-<h1 class="h2">Admin dashboard</h1>
+<div class="admin-shell" data-admin-live data-live-url="{{ url_for('api.admin_live') }}">
+  {{ admin_sidebar("dashboard") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Dashboard") }}
+      {{ admin_mobile_title("Dashboard") }}
+
+      <div class="dashboard-page">
+        {% if emergency_bar %}
+        {{ alert_banner("error", emergency_bar.title, emergency_bar.message, "Open", emergency_bar.action_href) }}
+        {% endif %}
+
+        <div class="stat-cards" data-stat-cards>
+          {% for card in stat_cards %}
+          {{ stat_card(card) }}
+          {% endfor %}
+        </div>
+
+        <div class="dashboard-lower">
+          <div class="latest-orders" data-latest-orders data-max-emergency-id="{{ max_emergency_id }}">
+            <div class="latest-orders__header">
+              <p class="h4">Latest orders</p>
+              {{ button("View all orders", style="outline", href=url_for("admin.orders"), full_width=False, small=True) }}
+            </div>
+            <div class="latest-orders__head-row">
+              <span class="latest-orders__order latest-orders__head-label">Order</span>
+              <span class="latest-orders__customer latest-orders__head-label">Customer</span>
+              <span class="latest-orders__service latest-orders__head-label">Service</span>
+              <span class="latest-orders__amount latest-orders__head-label">Amount</span>
+              <span class="latest-orders__status latest-orders__head-label">Status</span>
+              <span class="latest-orders__time latest-orders__head-label">Time</span>
+            </div>
+            <div data-latest-orders-body>
+              {% for row in latest_orders %}
+              <a
+                class="latest-orders__row{% if row.is_pinned %} latest-orders__row--pinned{% endif %}"
+                href="{{ row.detail_url }}"
+                data-order-id="{{ row.order_id }}"
+              >
+                <span class="latest-orders__order latest-orders__cell">
+                  {% if row.is_emergency %}{{ icon("triangle-exclamation") }}{% endif %}{{ row.order_number }}
+                </span>
+                <span class="latest-orders__customer latest-orders__cell">{{ row.customer_name }}</span>
+                <span class="latest-orders__service latest-orders__cell">{{ row.service_label }}</span>
+                <span class="latest-orders__amount latest-orders__cell mono-amount">{{ row.amount_label }}</span>
+                <span class="latest-orders__status">{{ status_chip(row.status, row.status_label) }}</span>
+                <span class="latest-orders__time latest-orders__cell">{{ row.time_label }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="dashboard-right">
+            <div class="dashboard-card">
+              <div class="dashboard-card__header">
+                {{ icon("clock") }}
+                <p class="dashboard-card__title h4">Due soon</p>
+                <span class="dashboard-card__count" data-due-soon-count>{{ due_soon_count }}</span>
+              </div>
+              {% if due_soon %}
+              {% for item in due_soon %}
+              <div class="dashboard-list-item">
+                <div class="dashboard-list-item__text">
+                  <p class="dashboard-list-item__title">{{ item.title }}</p>
+                  <p class="dashboard-list-item__meta">{{ item.meta }}</p>
+                </div>
+                {{ button("Assign", style="outline", href=item.detail_url, full_width=False, small=True) }}
+              </div>
+              {% endfor %}
+              {% else %}
+              <p class="caption">Nothing scheduled in the next hour.</p>
+              {% endif %}
+            </div>
+
+            <div class="dashboard-card{% if call_needed %} dashboard-card--warning{% endif %}">
+              <div class="dashboard-card__header">
+                {{ icon("phone") }}
+                <p class="dashboard-card__title h4">Call needed</p>
+                <span class="dashboard-card__count" data-call-needed-count>{{ call_needed_count }}</span>
+              </div>
+              {% if call_needed %}
+              {% for item in call_needed %}
+              <div class="dashboard-list-item">
+                <div class="dashboard-list-item__text">
+                  <p class="dashboard-list-item__title">{{ item.title }}</p>
+                  <p class="dashboard-list-item__meta">{{ item.meta }}</p>
+                </div>
+                {{ button("Mark call done", style="outline", href=item.detail_url, full_width=False, small=True) }}
+              </div>
+              {% endfor %}
+              {% else %}
+              <p class="caption">No calls waiting.</p>
+              {% endif %}
+            </div>
+
+            <div class="dashboard-card{% if security.is_alert %} dashboard-card--alert{% endif %}">
+              <div class="dashboard-card__header">
+                {{ icon("shield-halved") }}
+                <p class="dashboard-card__title h4">Security today</p>
+              </div>
+              <div class="security-numbers">
+                <div>
+                  <p class="security-number__label">Failed logins</p>
+                  <p class="security-number__value mono-stat">{{ security.failed_logins }}</p>
+                </div>
+                <div>
+                  <p class="security-number__label">Locked accounts</p>
+                  <p class="security-number__value mono-stat{% if security.is_alert %} security-number__value--alert{% endif %}">{{ security.locked_count }}</p>
+                </div>
+              </div>
+              <p class="security-card__message">{{ security.message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_live.js') }}"></script>
 {% endblock %}

@@ -1,3 +1,35 @@
 {% macro quick_chip(label, value) %}
 <button type="button" class="chip" data-litres-chip="{{ value }}">{{ label }}</button>
 {% endmacro %}
+
+{% macro chip_checkbox(name, value, label, checked=False, id=None) %}
+{%- set slug = value | lower | replace(" ", "-") -%}
+{%- set input_id = id or (name ~ "-" ~ slug) -%}
+<span class="chip-checkbox">
+  <input
+    class="chip-checkbox__input"
+    type="checkbox"
+    id="{{ input_id }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if checked %}checked{% endif %}
+  />
+  <label class="chip-checkbox__label" for="{{ input_id }}">{{ label }}</label>
+</span>
+{% endmacro %}
+
+{% macro chip_radio(name, value, label, checked=False, id=None) %}
+{%- set slug = (value or "all") | lower | replace(" ", "-") -%}
+{%- set input_id = id or (name ~ "-" ~ slug) -%}
+<span class="chip-checkbox">
+  <input
+    class="chip-checkbox__input"
+    type="radio"
+    id="{{ input_id }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if checked %}checked{% endif %}
+  />
+  <label class="chip-checkbox__label" for="{{ input_id }}">{{ label }}</label>
+</span>
+{% endmacro %}

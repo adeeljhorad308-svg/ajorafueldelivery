@@ -76,3 +76,25 @@ def format_weekday_day_month(dt):
     """'Tue 24 Nov' in Asia/Karachi (scheduled delivery slot text)."""
     local = to_karachi(dt)
     return f"{_WEEKDAYS[local.weekday()]} {local.day} {_MONTHS[local.month - 1]}"
+
+
+def format_weekday_date(dt):
+    """'Sun, 22 Nov 2026' in Asia/Karachi (admin top bar)."""
+    local = to_karachi(dt)
+    return f"{_WEEKDAYS[local.weekday()]}, {format_date(dt)}"
+
+
+def format_day_month(dt):
+    """'19 Nov' in Asia/Karachi (admin tables, rows older than today)."""
+    local = to_karachi(dt)
+    return f"{local.day} {_MONTHS[local.month - 1]}"
+
+
+def is_same_karachi_day(first, second):
+    return to_karachi(first).date() == to_karachi(second).date()
+
+
+def start_of_karachi_day(dt):
+    """UTC-aware instant for local midnight on dt's Asia/Karachi calendar day."""
+    local_date = to_karachi(dt).date()
+    return from_karachi_date_and_hour(local_date, 0)
