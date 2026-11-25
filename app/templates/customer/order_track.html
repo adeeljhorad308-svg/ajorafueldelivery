@@ -15,6 +15,14 @@
 <div class="confirmed-page">
   <p class="h3">Track order</p>
   <p class="body">{{ order_number }} &middot; {{ status }}</p>
+  {% if driver.assigned %}
+  <p class="body-strong">
+    {{ driver.driver_name }} &middot; {{ driver.vehicle_no }} &middot; {{ driver.distance_label }}
+  </p>
+  <p class="body">Arriving in about {{ driver.eta_minutes }} min</p>
+  {% elif status == "Pending" %}
+  <p class="body">Searching for a driver. We will assign one shortly.</p>
+  {% endif %}
   <p class="body confirmed-page__note">
     This is a placeholder tracking page; the full Track order screen lands in a later session.
   </p>

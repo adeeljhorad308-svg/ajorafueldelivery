@@ -17,6 +17,14 @@
   <p class="body">{{ order_number }} &middot; {{ service_name }} {{ quantity_label }}</p>
   <p class="body-strong mono-amount">{{ total_label }}</p>
   <p class="body">Cash on delivery &middot; {{ address }}</p>
+  {% if driver.assigned %}
+  <p class="body-strong">
+    {{ driver.driver_name }} &middot; {{ driver.vehicle_no }} &middot; {{ driver.distance_label }}
+  </p>
+  <p class="body">Arriving in about {{ driver.eta_minutes }} min</p>
+  {% else %}
+  <p class="body">Searching for a driver. We will assign one shortly.</p>
+  {% endif %}
   <p class="body confirmed-page__note">
     This is a placeholder confirmation page; the full Order confirmed screen lands in a later
     session.

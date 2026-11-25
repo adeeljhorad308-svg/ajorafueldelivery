@@ -8,7 +8,7 @@ from decimal import Decimal
 
 from werkzeug.security import generate_password_hash
 
-from app import timeutil
+from app import dispatch, timeutil
 from app.areas import AREAS, area_names
 from app.money import to_db
 from app.queries import assignments as assignment_queries
@@ -159,13 +159,14 @@ def _insert_ali_petrol_order(db, ali_id, petrol_service_id, driver_id, now):
         longitude=lng,
         created_at=timeutil.to_sql(created_at),
     )
+    distance_km = Decimal("4.2")
     assignment_queries.create_assignment(
         db,
         order_id,
         driver_id,
-        eta_minutes=13,
+        eta_minutes=dispatch.eta_minutes(distance_km, assigned_at),
         assigned_at=timeutil.to_sql(assigned_at),
-        distance_km=Decimal("4.2"),
+        distance_km=distance_km,
     )
     tracking_queries.add_tracking(db, order_id, "Pending", timeutil.to_sql(created_at), lat, lng)
     tracking_queries.add_tracking(db, order_id, "Assigned", timeutil.to_sql(assigned_at), lat, lng)

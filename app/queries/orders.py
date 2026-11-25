@@ -119,3 +119,16 @@ def find_by_id_for_user(db, order_id, user_id):
         f"{_ORDER_WITH_ASSIGNMENT} WHERE orders.order_id = ? AND orders.user_id = ?",  # noqa: S608
         (order_id, user_id),
     ).fetchone()
+
+
+def list_pending_asap(db):
+    """Orders waiting for dispatch: not scheduled, and not an above-200 L
+    order still waiting on the admin's call."""
+    return db.execute(
+        "SELECT * FROM orders WHERE status = 'Pending' AND scheduled_at IS NULL "
+        "AND call_confirmed = 1"
+    ).fetchall()
+
+
+def update_status(db, order_id, status):
+    db.execute("UPDATE orders SET status = ? WHERE order_id = ?", (status, order_id))

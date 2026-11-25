@@ -6,7 +6,7 @@ from decimal import InvalidOperation
 
 from flask import Blueprint, abort, g, jsonify, render_template, request, url_for
 
-from app import money, timeutil
+from app import dispatch, money, timeutil
 from app.areas import area_names
 from app.customer import presentation, validation
 from app.db import get_db
@@ -152,6 +152,7 @@ def _place_fuel_order(db, service, litres, payload, order_key):
     latitude = payload.get("latitude")
     longitude = payload.get("longitude")
     total = money.from_db(money.from_db(service["unit_price"]) * litres)
+    now = timeutil.utcnow()
     try:
         order_id = order_queries.insert_order(
             db,
@@ -167,7 +168,18 @@ def _place_fuel_order(db, service, litres, payload, order_key):
             note=note,
         )
         tracking_queries.add_tracking(
-            db, order_id, "Pending", timeutil.to_sql(timeutil.utcnow()), latitude, longitude
+            db, order_id, "Pending", timeutil.to_sql(now), latitude, longitude
+        )
+        dispatch.dispatch_order(
+            db,
+            {
+                "order_id": order_id,
+                "latitude": latitude,
+                "longitude": longitude,
+                "area": area,
+                "is_emergency": 0,
+            },
+            now,
         )
         db.commit()
     except sqlite3.IntegrityError:
@@ -177,6 +189,19 @@ def _place_fuel_order(db, service, litres, payload, order_key):
             raise
         return jsonify(status="ok", redirect=_confirmed_url(existing["order_id"]))
     return jsonify(status="ok", redirect=_confirmed_url(order_id))
+
+
+def _driver_context(order):
+    if order["driver_id"] is None:
+        return {"assigned": False}
+    distance = f"{float(money.from_db(order['distance_km'])):.1f}"
+    return {
+        "assigned": True,
+        "driver_name": order["driver_name"],
+        "vehicle_no": order["vehicle_no"],
+        "eta_minutes": order["eta_minutes"],
+        "distance_label": f"{distance} km away",
+    }
 
 
 @bp.get("/app/orders/<int:order_id>/confirmed")
@@ -193,6 +218,7 @@ def order_confirmed(order_id):
         quantity_label=f"{int(round(order['quantity']))} L",
         total_label=money.format_pkr(money.from_db(order["total_amount"])),
         address=order["address"],
+        driver=_driver_context(order),
     )
 
 
@@ -207,4 +233,5 @@ def order_track(order_id):
         "customer/order_track.html",
         order_number=f"ORD-{order['order_id']:04d}",
         status=order["status"],
+        driver=_driver_context(order),
     )

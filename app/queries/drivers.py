@@ -26,3 +26,13 @@ def count_by_status(db, status):
         "SELECT COUNT(*) AS n FROM drivers WHERE status = ? AND is_active = 1", (status,)
     ).fetchone()
     return row["n"]
+
+
+def list_available(db):
+    return db.execute(
+        "SELECT * FROM drivers WHERE status = 'Available' AND is_active = 1"
+    ).fetchall()
+
+
+def set_status(db, driver_id, status):
+    db.execute("UPDATE drivers SET status = ? WHERE driver_id = ?", (status, driver_id))
