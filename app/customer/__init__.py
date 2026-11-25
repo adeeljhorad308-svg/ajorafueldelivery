@@ -154,6 +154,9 @@ def _place_fuel_order(db, service, litres, payload, order_key):
     total = money.from_db(money.from_db(service["unit_price"]) * litres)
     now = timeutil.utcnow()
     try:
+        # IMMEDIATE takes the write lock before dispatch reads free drivers, so a
+        # second near-simultaneous order can't see the same driver as still free.
+        db.execute("BEGIN IMMEDIATE")
         order_id = order_queries.insert_order(
             db,
             user_id=g.current_user["user_id"],
