@@ -15,10 +15,18 @@ function trapFocus(panel, event) {
   }
 }
 
+function quantityText(summary, unitPrice, formatPkr) {
+  if (summary.quantityTextForUnit) return summary.quantityTextForUnit(unitPrice, formatPkr);
+  return `${summary.litres} L × ${formatPkr(unitPrice)}`;
+}
+
 function fillDialog(dialog, summary, formatPkr) {
   dialog.querySelector("[data-confirm-service]").textContent = summary.fuel_type;
-  dialog.querySelector("[data-confirm-quantity]").textContent =
-    `${summary.litres} L × ${formatPkr(summary.unitPrice)}`;
+  dialog.querySelector("[data-confirm-quantity]").textContent = quantityText(
+    summary,
+    summary.unitPrice,
+    formatPkr,
+  );
   dialog.querySelector("[data-confirm-deliver]").textContent = summary.deliverTo;
   dialog.querySelector("[data-confirm-total]").textContent = formatPkr(summary.total);
   dialog.querySelector("[data-price-banner]").hidden = true;
@@ -41,9 +49,26 @@ function showPriceUpdate(dialog, data, summary, formatPkr) {
   banner.hidden = false;
   banner.querySelector(".alert-banner__message").textContent =
     `${summary.fuel_type} is now ${data.formatted_price}. Your new total is below.`;
-  dialog.querySelector("[data-confirm-quantity]").textContent =
-    `${summary.litres} L × ${formatPkr(parseFloat(data.unit_price))}`;
+  dialog.querySelector("[data-confirm-quantity]").textContent = quantityText(
+    summary,
+    parseFloat(data.unit_price),
+    formatPkr,
+  );
   dialog.querySelector("[data-confirm-total]").textContent = data.formatted_total;
+}
+
+function defaultRequestBody(summary) {
+  return {
+    fuel_type: summary.fuel_type,
+    litres: summary.litres,
+    address: summary.address,
+    area: summary.area,
+    note: summary.note,
+    latitude: summary.latitude,
+    longitude: summary.longitude,
+    order_key: summary.orderKey,
+    price_snapshot: summary.priceSnapshot,
+  };
 }
 
 async function submitOrder(form, dialog, options) {
@@ -54,17 +79,7 @@ async function submitOrder(form, dialog, options) {
     response = await fetch(options.endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRFToken": summary.csrfToken },
-      body: JSON.stringify({
-        fuel_type: summary.fuel_type,
-        litres: summary.litres,
-        address: summary.address,
-        area: summary.area,
-        note: summary.note,
-        latitude: summary.latitude,
-        longitude: summary.longitude,
-        order_key: summary.orderKey,
-        price_snapshot: summary.priceSnapshot,
-      }),
+      body: JSON.stringify((options.buildRequestBody || defaultRequestBody)(summary)),
     });
   } catch {
     setPlacing(dialog, false);
@@ -85,9 +100,10 @@ async function submitOrder(form, dialog, options) {
     showPriceUpdate(dialog, data, summary, options.formatPkr);
     return;
   }
+  if (options.handleCustomError && options.handleCustomError(dialog, data, response)) return;
   const errorEl = dialog.querySelector("[data-confirm-form-error]");
   errorEl.hidden = false;
-  errorEl.textContent = Object.values(data.errors || {})[0] || "Something went wrong. Try again.";
+  errorEl.textContent = Object.values(data.errors || {})[0] || data.message || "Something went wrong. Try again.";
 }
 
 export function initConfirmOrderDialog(form, options) {

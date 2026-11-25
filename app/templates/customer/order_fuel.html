@@ -10,6 +10,7 @@
 {% from "components/stepper.html" import stepper %}
 {% from "components/chip.html" import quick_chip %}
 {% from "components/action_bar.html" import action_bar %}
+{% from "customer/_confirm_order_dialog.html" import confirm_order_dialog %}
 
 {% block title %}Order fuel – AJORA{% endblock %}
 {% block extra_css %}
@@ -153,7 +154,7 @@
   </div>
 
   {{ action_bar("") }}
-  {% include "customer/_confirm_order_dialog.html" %}
+  {{ confirm_order_dialog() }}
 </div>
 {% endblock %}
 

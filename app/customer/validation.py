@@ -7,6 +7,13 @@ MAX_FUEL_LITRES = 100
 MAX_ADDRESS_LENGTH = 200
 MAX_NOTE_LENGTH = 200
 
+EMERGENCY_LITRES_CHOICES = (2, 5, 10)
+MIN_GENERATOR_LITRES = 20
+MAX_GENERATOR_LITRES = 500
+GENERATOR_CALL_THRESHOLD = 200
+GENERATOR_TYPES = ("Generator", "Tractor or harvester", "Tube well")
+VEHICLE_TYPES = ("Motorcycle", "Car", "Rickshaw", "Van or pickup")
+
 
 def parse_litres(raw):
     """Return an int litres value, or None if not a plain whole number."""
@@ -32,3 +39,19 @@ def is_valid_note(note):
 
 def is_valid_area(area):
     return area in area_names()
+
+
+def is_valid_emergency_litres(litres):
+    return litres in EMERGENCY_LITRES_CHOICES
+
+
+def is_valid_generator_litres(litres):
+    return litres is not None and MIN_GENERATOR_LITRES <= litres <= MAX_GENERATOR_LITRES
+
+
+def is_valid_generator_type(value):
+    return value in GENERATOR_TYPES
+
+
+def is_valid_vehicle_type(value):
+    return value in VEHICLE_TYPES

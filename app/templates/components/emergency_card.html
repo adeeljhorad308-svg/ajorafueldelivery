@@ -1,7 +1,7 @@
 {% from "components/icon.html" import icon %}
 
-{% macro emergency_card() %}
-<a class="emergency-card" href="/app/order/emergency">
+{% macro emergency_card(href="/app/order/emergency") %}
+<a class="emergency-card" href="{{ href }}">
   <span class="emergency-card__icon">{{ icon("triangle-exclamation") }}</span>
   <span class="emergency-card__text">
     <span class="emergency-card__title">Emergency fuel</span>

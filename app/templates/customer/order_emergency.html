@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/icon_button.html" import icon_button %}
+{% from "components/button.html" import button %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+{% from "components/segmented_control.html" import segmented_control %}
+{% from "components/action_bar.html" import action_bar %}
+{% from "customer/_confirm_order_dialog.html" import confirm_order_dialog %}
+
+{% block title %}Emergency fuel – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-controls.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-emergency.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+
+{% block content %}
+<div class="order-page emergency-page">
+  <div class="emergency-card-form">
+    <div class="order-header">
+      {{ icon_button("arrow-left", "Back to home", style="outline", href=url_for('customer.home')) }}
+      <div>
+        <p class="order-header__title">Emergency fuel</p>
+        <p class="order-header__sub order-header__sub--full">
+          We need your location to send the nearest driver.
+        </p>
+      </div>
+    </div>
+
+    {% if open_emergency %}
+    <div class="alert-banner alert-banner--error" role="alert">
+      {{ icon("triangle-exclamation") }}
+      <div class="alert-banner__text">
+        <p class="alert-banner__title">Emergency already open</p>
+        <p class="alert-banner__message">
+          {{ open_emergency.order_number }} is {{ open_emergency.status_phrase }}. You can send a
+          new request after it is delivered.
+        </p>
+      </div>
+      <a class="emergency-page__track-link" href="{{ open_emergency.track_url }}">Track it</a>
+    </div>
+    {% endif %}
+
+    <form id="order-emergency-form" novalidate data-order-emergency {% if open_emergency %}data-disabled{% endif %}>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" data-csrf-token />
+      <input type="hidden" name="order_key" value="{{ order_key }}" data-order-key />
+      <input
+        type="hidden"
+        name="price_snapshot"
+        value="{{ fuel_options[0].unit_price }}"
+        data-price-snapshot
+      />
+
+      <div
+        class="location-card location-card--off"
+        data-location-card
+        data-state="off"
+      >
+        <span class="location-card__icon" data-location-icon>{{ icon("location-crosshairs") }}</span>
+        <span class="location-card__text">
+          <span class="location-card__title" data-location-title>Location is off</span>
+          <span class="location-card__message" data-location-message
+            >Pick your area and type your address.</span
+          >
+        </span>
+        <button class="btn btn--outline btn--small" type="button" data-location-action {% if open_emergency %}disabled{% endif %}>
+          <span data-location-action-label>Try again</span>
+        </button>
+      </div>
+      <input type="hidden" name="latitude" data-latitude />
+      <input type="hidden" name="longitude" data-longitude />
+
+      <div class="order-field-group" data-area-fallback hidden>
+        <label class="order-field-group__label" for="field-area">Area</label>
+        <div class="field__box field__box--select">
+          <select class="field__input field__select" id="field-area" name="area" {% if open_emergency %}disabled{% endif %}>
+            <option value="">Choose your area</option>
+            {% for area in areas %}
+            <option value="{{ area }}">{{ area }}</option>
+            {% endfor %}
+          </select>
+          {{ icon("chevron-down") }}
+        </div>
+        <p class="field__error" data-error="area" hidden>
+          {{ icon("circle-exclamation") }}<span>We need your location to send the nearest driver</span>
+        </p>
+      </div>
+
+      <div class="order-field-group">
+        <p class="order-field-group__label">Fuel type</p>
+        {{ segmented_control(fuel_options) }}
+      </div>
+
+      <div class="order-field-group">
+        <p class="order-field-group__label">Litres</p>
+        <input type="hidden" name="litres" value="5" data-litres-value />
+        <div class="quick-chips">
+          {% for value in (2, 5, 10) %}
+          <button
+            type="button"
+            class="chip{% if value == 5 %} chip--selected{% endif %}"
+            data-litres-chip="{{ value }}"
+            {% if open_emergency %}disabled{% endif %}
+          >{{ value }} L</button>
+          {% endfor %}
+        </div>
+        <p class="order-field-group__helper">Emergency orders are limited to 10 litres.</p>
+        <p class="field__error" data-error="litres" hidden>
+          {{ icon("circle-exclamation") }}<span>Emergency orders are limited to 10 litres</span>
+        </p>
+      </div>
+
+      <div class="order-field-group">
+        <label class="order-field-group__label" for="field-note">Your vehicle and where it is</label>
+        <div class="field__box">
+          <input
+            class="field__input"
+            type="text"
+            id="field-note"
+            name="note"
+            maxlength="200"
+            placeholder="White Corolla near exit 4"
+            {% if open_emergency %}disabled{% endif %}
+          />
+        </div>
+        <p class="field__error" data-error="note" hidden>
+          {{ icon("circle-exclamation") }}<span>Tell us your vehicle and where it is</span>
+        </p>
+      </div>
+
+      <p class="phone-note">{{ icon("phone") }}<span>The driver will call {{ phone }}</span></p>
+
+      <div class="emergency-inline-submit">
+        <div class="emergency-total">
+          <span>Total &middot; cash on delivery</span>
+          <span class="mono-stat" data-total-display></span>
+        </div>
+        {{ button("Send emergency request", style="danger", type="button", data_action="open-confirm", icon_name="triangle-exclamation", disabled=open_emergency is not none) }}
+        <p class="order-summary__note">Emergency orders go to the top of the queue.</p>
+      </div>
+    </form>
+  </div>
+
+  {{ action_bar("", button_label="Send emergency request", style="danger", icon_name="triangle-exclamation") }}
+  {{ confirm_order_dialog(emergency=True, phone=phone) }}
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_emergency.js') }}"></script>
+{% endblock %}

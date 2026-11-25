@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/icon_button.html" import icon_button %}
+{% from "components/button.html" import button %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+{% from "components/action_bar.html" import action_bar %}
+{% from "customer/_confirm_order_dialog.html" import confirm_order_dialog %}
+
+{% block title %}Vehicle assistance – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-controls.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-assistance.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+
+{% block content %}
+<div class="order-page">
+  <div class="order-content">
+    <div class="order-header">
+      {{ icon_button("arrow-left", "Back to home", style="outline", href=url_for('customer.home')) }}
+      <div>
+        <p class="order-header__title">Vehicle assistance</p>
+        <p class="order-header__sub order-header__sub--full">
+          Help where your vehicle is. Pay cash when the job is done.
+        </p>
+      </div>
+    </div>
+
+    <form id="order-assistance-form" novalidate data-order-assistance>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" data-csrf-token />
+      <input type="hidden" name="order_key" value="{{ order_key }}" data-order-key />
+      <input type="hidden" name="price_snapshot" value="{{ services[0].unit_price }}" data-price-snapshot />
+      <input type="hidden" name="latitude" data-latitude />
+      <input type="hidden" name="longitude" data-longitude />
+      <input type="hidden" name="service" value="{{ preset_service }}" data-service-value />
+
+      <div class="order-field-group">
+        <p class="order-field-group__label">Service</p>
+        <div class="service-pick-grid">
+          {% for service in services %}
+          <button
+            type="button"
+            class="service-pick-card{% if service.name == preset_service %} service-pick-card--selected{% endif %}"
+            data-service-card="{{ service.name }}"
+            data-unit-price="{{ service.unit_price }}"
+          >
+            <span class="service-pick-card__icon">{{ icon(service.icon) }}</span>
+            <span class="service-pick-card__name">{{ service.name }}</span>
+            <span class="service-pick-card__price">{{ service.price_label }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="order-columns">
+        <div class="order-form">
+          <div class="order-field-group">
+            <p class="order-field-group__label">Vehicle type</p>
+            <div class="quick-chips vehicle-type-chips">
+              {% for type in vehicle_types %}
+              <button
+                type="button"
+                class="chip{% if loop.first %} chip--selected{% endif %}"
+                data-vehicle-chip="{{ type }}"
+              >{{ type }}</button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="vehicle_type" value="{{ vehicle_types[0] }}" data-vehicle-type />
+            <p class="field__error" data-error="vehicle_type" hidden>
+              {{ icon("circle-exclamation") }}<span>Choose your vehicle type</span>
+            </p>
+          </div>
+
+          <div class="order-field-group">
+            <p class="order-field-group__label">When</p>
+            <div class="quick-chips timing-chips">
+              <button type="button" class="chip chip--selected" data-timing-chip="now">Now</button>
+              <button type="button" class="chip" data-timing-chip="scheduled">Pick a time</button>
+            </div>
+            <p class="order-field-group__helper" data-now-helper>
+              Battery and tyre help usually reach you in 20-30 minutes.
+            </p>
+            <div class="assistance-schedule" data-assistance-schedule hidden>
+              <p class="order-field-group__helper">Today</p>
+              <div class="quick-chips assistance-slot-chips">
+                {% for slot in car_wash_slots %}
+                <button
+                  type="button"
+                  class="chip{% if not slot.available %} chip--disabled{% endif %}"
+                  data-slot-chip="{{ slot.value }}"
+                  data-slot-available="{{ slot.available | lower }}"
+                >{{ slot.label }}</button>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="slot" value="" data-slot-value />
+              <p class="field__error" data-error="timing" hidden>
+                {{ icon("circle-exclamation") }}<span data-timing-error-text>Pick a time</span>
+              </p>
+            </div>
+            <input type="hidden" name="timing" value="now" data-timing-value />
+          </div>
+
+          <div class="order-field-group">
+            <div
+              class="location-card location-card--off"
+              data-location-card
+              data-state="off"
+            >
+              <span class="location-card__icon" data-location-icon>{{ icon("location-crosshairs") }}</span>
+              <span class="location-card__text">
+                <span class="location-card__title" data-location-title>Location is off</span>
+                <span class="location-card__message" data-location-message
+                  >Pick your area and type your address.</span
+                >
+              </span>
+              <button class="btn btn--outline btn--small" type="button" data-location-action>
+                <span data-location-action-label>Try again</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="order-field-group">
+            <label class="order-field-group__label" for="field-address">Address</label>
+            <div class="field__box field__box--with-icon">
+              {{ icon("location-dot") }}
+              <input
+                class="field__input"
+                type="text"
+                id="field-address"
+                name="address"
+                maxlength="200"
+                placeholder="55-B Model Town, near Link Road"
+              />
+            </div>
+            <p class="field__error" data-error="address" hidden>
+              {{ icon("circle-exclamation") }}<span>Add your address so the driver can find you</span>
+            </p>
+          </div>
+
+          <div class="area-landmark">
+            <div class="order-field-group">
+              <label class="order-field-group__label" for="field-area">Area</label>
+              <div class="field__box field__box--select">
+                <select class="field__input field__select" id="field-area" name="area">
+                  <option value="">Choose your area</option>
+                  {% for area in areas %}
+                  <option value="{{ area }}">{{ area }}</option>
+                  {% endfor %}
+                </select>
+                {{ icon("chevron-down") }}
+              </div>
+              <p class="field__error" data-error="area" hidden>
+                {{ icon("circle-exclamation") }}<span>Pick your area</span>
+              </p>
+            </div>
+            <div class="order-field-group">
+              <label class="order-field-group__label" for="field-note">What is the problem? (optional)</label>
+              <div class="field__box">
+                <input
+                  class="field__input"
+                  type="text"
+                  id="field-note"
+                  name="note"
+                  maxlength="200"
+                  placeholder="Car will not start"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="order-summary">
+          <p class="order-summary__title overline">ORDER SUMMARY</p>
+          <div class="order-summary__row"><span>Service</span><span data-summary-service></span></div>
+          <div class="order-summary__row"><span>Vehicle</span><span data-summary-vehicle></span></div>
+          <div class="order-summary__row"><span>When</span><span data-summary-when></span></div>
+          <div class="order-summary__row">
+            <span>Price</span><span class="mono-amount" data-summary-price></span>
+          </div>
+          <div class="order-summary__row"><span>Payment</span><span>Cash on delivery</span></div>
+          <div class="order-summary__row"><span>Where</span><span data-summary-deliver>&mdash;</span></div>
+          <hr class="order-summary__divider" />
+          <div class="order-summary__total">
+            <span>Total</span><span class="mono-stat" data-total-display></span>
+          </div>
+          {{ button("Review order", style="brand", type="button", data_action="open-confirm") }}
+          <p class="order-summary__note">Parts like a new battery are priced on the spot before any work.</p>
+        </aside>
+      </div>
+    </form>
+  </div>
+
+  {{ action_bar("") }}
+  {{ confirm_order_dialog() }}
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_assistance.js') }}"></script>
+{% endblock %}

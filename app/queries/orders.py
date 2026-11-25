@@ -38,13 +38,15 @@ def insert_order(
     longitude,
     note,
     is_emergency=0,
+    call_confirmed=1,
+    scheduled_at=None,
 ):
     cursor = db.execute(
         """
         INSERT INTO orders
             (user_id, service_id, order_key, quantity, total_amount, address, area,
-             latitude, longitude, note, is_emergency, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
+             latitude, longitude, note, is_emergency, call_confirmed, scheduled_at, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
         """,
         (
             user_id,
@@ -58,9 +60,19 @@ def insert_order(
             longitude,
             note,
             is_emergency,
+            call_confirmed,
+            scheduled_at,
         ),
     )
     return cursor.lastrowid
+
+
+def find_open_emergency_for_user(db, user_id):
+    return db.execute(
+        "SELECT * FROM orders WHERE user_id = ? AND is_emergency = 1 "
+        "AND status IN ('Pending', 'Assigned', 'On the Way') LIMIT 1",
+        (user_id,),
+    ).fetchone()
 
 
 _ORDER_WITH_SERVICE = """
@@ -74,7 +86,8 @@ _ORDER_WITH_ASSIGNMENT = """
     SELECT orders.*, services.name AS service_name, services.unit_price AS unit_price,
            services.unit AS service_unit, assignments.driver_id AS driver_id,
            assignments.eta_minutes AS eta_minutes, assignments.distance_km AS distance_km,
-           drivers.name AS driver_name, drivers.vehicle_no AS vehicle_no
+           drivers.name AS driver_name, drivers.vehicle_no AS vehicle_no,
+           drivers.rating AS driver_rating, drivers.phone AS driver_phone
     FROM orders
     JOIN services ON services.service_id = orders.service_id
     LEFT JOIN assignments ON assignments.order_id = orders.order_id
@@ -118,6 +131,14 @@ def find_by_id_for_user(db, order_id, user_id):
     return db.execute(
         f"{_ORDER_WITH_ASSIGNMENT} WHERE orders.order_id = ? AND orders.user_id = ?",  # noqa: S608
         (order_id, user_id),
+    ).fetchone()
+
+
+def find_by_id(db, order_id):
+    """Admin lookup: any order, no owner filter."""
+    return db.execute(
+        f"{_ORDER_WITH_ASSIGNMENT} WHERE orders.order_id = ?",  # noqa: S608
+        (order_id,),
     ).fetchone()
 
 

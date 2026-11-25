@@ -1,6 +1,7 @@
 {% from "components/icon.html" import icon %}
 {% from "components/alert_banner.html" import alert_banner %}
 
+{% macro confirm_order_dialog(emergency=False, phone=None) %}
 <div class="dialog-backdrop" data-confirm-backdrop hidden></div>
 <div
   class="dialog-panel"
@@ -13,7 +14,9 @@
 >
   <div class="dialog-panel__handle"></div>
   <div class="dialog-panel__header">
-    <p class="dialog-panel__title" id="confirm-order-title">Confirm your order</p>
+    <p class="dialog-panel__title" id="confirm-order-title">
+      {% if emergency %}Send emergency request?{% else %}Confirm your order{% endif %}
+    </p>
     <button
       class="icon-btn dialog-panel__close"
       type="button"
@@ -29,12 +32,19 @@
   </div>
 
   <div class="dialog-details">
-    <div class="dialog-details__row"><span>Service</span><span data-confirm-service></span></div>
+    <div class="dialog-details__row">
+      <span>{% if emergency %}Fuel{% else %}Service{% endif %}</span><span data-confirm-service></span>
+    </div>
     <div class="dialog-details__row">
       <span>Quantity</span><span class="mono-amount" data-confirm-quantity></span>
     </div>
+    {% if emergency %}
+    <div class="dialog-details__row"><span>Location</span><span data-confirm-deliver></span></div>
+    <div class="dialog-details__row"><span>Driver will call</span><span>{{ phone }}</span></div>
+    {% else %}
     <div class="dialog-details__row"><span>Payment</span><span>Cash on delivery</span></div>
     <div class="dialog-details__row"><span>Deliver to</span><span data-confirm-deliver></span></div>
+    {% endif %}
   </div>
   <hr class="dialog-divider" />
   <div class="dialog-total">
@@ -46,16 +56,24 @@
 
   <div class="dialog-actions">
     <button
-      class="btn btn--brand"
+      class="btn {% if emergency %}btn--danger{% else %}btn--brand{% endif %}"
       type="button"
       data-action="confirm-order"
-      data-loading-text="Placing order&hellip;"
+      data-loading-text="{% if emergency %}Sending&hellip;{% else %}Placing order&hellip;{% endif %}"
     >
-      <span>Confirm order</span>
+      {% if emergency %}{{ icon("triangle-exclamation") }}{% endif %}
+      <span>{% if emergency %}Send emergency request{% else %}Confirm order{% endif %}</span>
     </button>
     <button class="btn btn--outline" type="button" data-action="close-confirm">
       <span>Edit</span>
     </button>
   </div>
-  <p class="dialog-note">We check the price again and send the nearest free driver.</p>
+  <p class="dialog-note">
+    {% if emergency %}
+    Your request goes to the top of the queue and the nearest free driver is sent.
+    {% else %}
+    We check the price again and send the nearest free driver.
+    {% endif %}
+  </p>
 </div>
+{% endmacro %}

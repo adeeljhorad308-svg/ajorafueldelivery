@@ -37,6 +37,12 @@ def to_karachi(dt):
     return dt.astimezone(KARACHI)
 
 
+def from_karachi_date_and_hour(date_value, hour):
+    """UTC-aware datetime for a Karachi wall-clock date and hour (delivery slot picker)."""
+    local = datetime(date_value.year, date_value.month, date_value.day, hour, 0, tzinfo=KARACHI)
+    return local.astimezone(UTC)
+
+
 _MONTHS = (
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 )  # fmt: skip
@@ -61,3 +67,12 @@ def format_time(dt):
 def format_datetime(dt):
     """'05 Oct 2026, 7:40 pm' in Asia/Karachi."""
     return f"{format_date(dt)}, {format_time(dt)}"
+
+
+_WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def format_weekday_day_month(dt):
+    """'Tue 24 Nov' in Asia/Karachi (scheduled delivery slot text)."""
+    local = to_karachi(dt)
+    return f"{_WEEKDAYS[local.weekday()]} {local.day} {_MONTHS[local.month - 1]}"

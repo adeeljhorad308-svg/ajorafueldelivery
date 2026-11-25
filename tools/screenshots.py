@@ -42,6 +42,14 @@ DEFAULT_PATHS = [
     "/app",
     "/app/order/fuel",
     "/app/order/fuel#confirm",
+    "/app/order/emergency",
+    "/app/order/emergency#confirm",
+    "/app/order/generator",
+    "/app/order/generator#confirm",
+    "/app/order/assistance",
+    "/app/order/assistance#confirm",
+    "/app/orders/42/confirmed",
+    "/app/orders/43/confirmed",
 ]
 
 
@@ -82,11 +90,39 @@ def _login(page, base_url):
     page.wait_for_load_state("networkidle")
 
 
-def _open_confirm_dialog(page):
+def _open_fuel_confirm(page):
     page.fill("#field-address", "House 12, Block C, Johar Town")
     page.select_option("#field-area", "Johar Town")
     page.click('.order-summary [data-action="open-confirm"]')
     page.wait_for_selector("#confirm-order-dialog:not([hidden])")
+
+
+def _open_emergency_confirm(page):
+    page.fill("#field-note", "White Corolla near exit 4")
+    page.click('.emergency-inline-submit [data-action="open-confirm"]')
+    page.wait_for_selector("#confirm-order-dialog:not([hidden])")
+
+
+def _open_generator_confirm(page):
+    page.fill("#field-address", "Farm 7, Mauza Kot, Raiwind Road")
+    page.select_option("#field-area", "Township")
+    page.click('.order-summary [data-action="open-confirm"]')
+    page.wait_for_selector("#confirm-order-dialog:not([hidden])")
+
+
+def _open_assistance_confirm(page):
+    page.fill("#field-address", "55-B Model Town, near Link Road")
+    page.select_option("#field-area", "Model Town")
+    page.click('.order-summary [data-action="open-confirm"]')
+    page.wait_for_selector("#confirm-order-dialog:not([hidden])")
+
+
+CONFIRM_HANDLERS = {
+    "/app/order/fuel": _open_fuel_confirm,
+    "/app/order/emergency": _open_emergency_confirm,
+    "/app/order/generator": _open_generator_confirm,
+    "/app/order/assistance": _open_assistance_confirm,
+}
 
 
 def _slug(path):
@@ -99,7 +135,7 @@ def _capture_path(page, base_url, path):
     if real_path.startswith("/app"):
         page.wait_for_load_state("networkidle")
     if fragment == "confirm":
-        _open_confirm_dialog(page)
+        CONFIRM_HANDLERS[real_path](page)
     name = _slug(path)
     for size_name, width, height in SIZES:
         page.set_viewport_size({"width": width, "height": height})

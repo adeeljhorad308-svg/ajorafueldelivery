@@ -1,38 +1,122 @@
 {% extends "base.html" %}
+{% from "components/icon.html" import icon %}
 {% from "components/button.html" import button %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/status_chip.html" import status_chip %}
 {% from "components/top_bar_customer.html" import top_bar_customer %}
 {% from "components/bottom_nav.html" import bottom_nav %}
 
 {% block title %}Order confirmed – AJORA{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-card.css') }}" />
 <link rel="stylesheet" href="{{ static_versioned('css/order-confirmed.css') }}" />
 {% endblock %}
 
 {% block header %} {{ top_bar_customer("home", True) }} {% endblock %}
 
 {% block content %}
-<div class="confirmed-page">
-  <p class="h3">Order confirmed</p>
-  <p class="body">{{ order_number }} &middot; {{ service_name }} {{ quantity_label }}</p>
-  <p class="body-strong mono-amount">{{ total_label }}</p>
-  <p class="body">Cash on delivery &middot; {{ address }}</p>
-  {% if driver.assigned %}
-  <p class="body-strong">
-    {{ driver.driver_name }} &middot; {{ driver.vehicle_no }} &middot; {{ driver.distance_label }}
-  </p>
-  <p class="body">Arriving in about {{ driver.eta_minutes }} min</p>
-  {% else %}
-  <p class="body">Searching for a driver. We will assign one shortly.</p>
-  {% endif %}
-  <p class="body confirmed-page__note">
-    This is a placeholder confirmation page; the full Order confirmed screen lands in a later
-    session.
-  </p>
-  <div class="confirmed-page__actions">
-    {{ button("Back to home", style="brand", href=url_for('customer.home')) }}
+<div class="order-confirmed-page">
+  <div
+    class="confirmed-card"
+    data-confirmed-card
+    data-status-url="{{ order.status_api_url }}"
+    data-assigned="{{ driver.assigned | lower }}"
+  >
+    <div class="confirmed-header">
+      <span class="confirmed-check" data-confirmed-check>{{ icon("check") }}</span>
+      <div>
+        <p class="h3">Order placed</p>
+        <p class="body confirmed-header__meta">{{ order.order_number }} &middot; {{ order.placed_label }}</p>
+        {{ status_chip(order.status, order.status_label) }}
+      </div>
+    </div>
+
+    <div class="confirmed-columns">
+      <div class="confirmed-order-summary">
+        <p class="overline confirmed-order-summary__title">YOUR ORDER</p>
+        <div class="order-summary__row"><span>Service</span><span>{{ order.service_line }}</span></div>
+        <div class="order-summary__row">
+          <span>Total</span><span class="mono-amount">{{ order.total_label }}</span>
+        </div>
+        <div class="order-summary__row"><span>Payment</span><span>Cash on delivery</span></div>
+        <div class="order-summary__row"><span>Deliver to</span><span>{{ order.address }}</span></div>
+      </div>
+
+      <div class="confirmed-driver-area">
+        <div class="driver-card" data-driver-card {% if not driver.assigned %}hidden{% endif %}>
+          <p class="overline driver-card__label">YOUR DRIVER</p>
+          <div class="driver-card__row">
+            <span class="driver-card__avatar" data-driver-initials
+              >{{ driver.initials if driver.assigned else "" }}</span
+            >
+            <span class="driver-card__info">
+              <span class="driver-card__name" data-driver-name
+                >{{ driver.driver_name if driver.assigned else "" }}</span
+              >
+              <span class="driver-card__meta"
+                >{{ icon("star") }}<span data-driver-meta
+                  >{{ (driver.rating_label ~ " · " ~ driver.vehicle_no) if driver.assigned else "" }}</span
+                ></span
+              >
+            </span>
+            <a
+              class="icon-btn icon-btn--brand"
+              data-driver-call
+              href="tel:{{ driver.phone if driver.assigned else '' }}"
+              aria-label="Call driver"
+              >{{ icon("phone") }}</a
+            >
+          </div>
+          <div class="driver-card__stats">
+            <span class="driver-card__stat">
+              <span class="driver-card__stat-label">Distance</span>
+              <span class="driver-card__stat-value" data-driver-distance
+                >{{ driver.distance_label if driver.assigned else "" }}</span
+              >
+            </span>
+            <span class="driver-card__stat driver-card__stat--right">
+              <span class="driver-card__stat-label">Arriving in</span>
+              <span class="driver-card__stat-value driver-card__stat-value--eta" data-driver-eta
+                >{{ ("about " ~ driver.eta_minutes ~ " min") if driver.assigned else "" }}</span
+              >
+            </span>
+          </div>
+        </div>
+
+        <div data-searching-banner {% if not order.show_searching %}hidden{% endif %}>
+          {{ alert_banner("warning", "Searching for a driver", "We will assign one shortly. This page updates by itself every 30 seconds.") }}
+        </div>
+
+        {% if order.show_call_needed %}
+        <div>
+          {{ alert_banner("info", "Our team will call you shortly to confirm", "Orders above 200 litres are confirmed by phone before the driver leaves.") }}
+        </div>
+        {% endif %}
+
+        {% if order.show_scheduled %}
+        <div class="info-card">
+          {{ icon("calendar-days") }}
+          <div class="info-card__text">
+            <p class="info-card__title">{{ order.scheduled_label }}</p>
+            <p class="info-card__message">A driver is assigned from the Due soon list before the slot.</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="confirmed-actions">
+      {{ button("Track order", style="brand", href=url_for('customer.order_track', order_id=order.order_id), icon_name="route", full_width=False) }}
+      {{ button("Back to home", style="outline", href=url_for('customer.home'), full_width=False) }}
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block footer %} {{ bottom_nav("home", True) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_confirmed.js') }}"></script>
+{% endblock %}

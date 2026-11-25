@@ -1,6 +1,7 @@
-/* Minimal placeholder styling for Order confirmed / Track order (full screens
-   land in a later session). */
+/* Order confirmed (docs/FIGMA.md screen 9: 34:2211 laptop, 34:2331 tablet,
+   34:2464 mobile; states 34:2577 searching, 34:2677 scheduled/call). */
 
+/* Track order (screen 10) still uses this simple placeholder shell. */
 .confirmed-page {
   display: flex;
   flex-direction: column;
@@ -14,4 +15,249 @@
 }
 .confirmed-page__actions {
   margin-top: var(--space-lg);
+}
+
+.order-confirmed-page {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+@media (min-width: 1024px) {
+  .order-confirmed-page {
+    padding-top: var(--space-2xl);
+  }
+}
+
+.confirmed-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+  max-width: 720px;
+}
+@media (min-width: 600px) {
+  .confirmed-card {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+  }
+}
+
+.confirmed-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+.confirmed-header__meta {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.confirmed-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-subtle);
+}
+.confirmed-check .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-icon-active);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .confirmed-check {
+    animation: confirmed-check-in 500ms ease-out;
+  }
+  @keyframes confirmed-check-in {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+.confirmed-columns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+@media (min-width: 600px) {
+  .confirmed-columns {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .confirmed-order-summary,
+  .confirmed-driver-area {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.confirmed-order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+}
+.confirmed-order-summary__title {
+  color: var(--color-text-muted);
+}
+
+.confirmed-driver-area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.driver-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
+   user-agent style (author origin beats UA origin regardless of selector
+   specificity) while no driver is assigned yet. */
+.driver-card[hidden] {
+  display: none;
+}
+.driver-card__label {
+  color: var(--color-text-muted);
+}
+.driver-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.driver-card__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-subtle);
+  color: var(--color-text-brand);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+}
+.driver-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.driver-card__name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-primary);
+}
+.driver-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.driver-card__meta .icon {
+  width: 12px;
+  height: 12px;
+  color: var(--color-status-warning);
+}
+.driver-card__stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border-default);
+}
+.driver-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.driver-card__stat--right {
+  align-items: flex-end;
+  text-align: right;
+}
+.driver-card__stat-label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.driver-card__stat-value {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+.driver-card__stat-value--eta {
+  color: var(--color-text-brand);
+}
+
+.info-card {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  padding: var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.info-card .icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-icon-active);
+}
+.info-card__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.info-card__message {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.confirmed-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.confirmed-actions .btn {
+  width: 100%;
+}
+@media (min-width: 600px) {
+  .confirmed-actions {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+  .confirmed-actions .btn {
+    width: auto;
+  }
 }

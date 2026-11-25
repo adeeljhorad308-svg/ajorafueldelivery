@@ -19,10 +19,16 @@ def _karachi(hour):
     return datetime(2026, 6, 15, hour, 0, 0, tzinfo=KARACHI)
 
 
+_driver_sequence = iter(range(100_000))
+
+
 def _make_driver(db, name="Driver", status="Available", area="DHA", is_active=1, phone=None):
     lat, lng = AREAS[area]
-    phone = phone or f"0300{abs(hash(name)) % 10_000_000:07d}"
-    vehicle_no = f"LEA-{abs(hash(name)) % 10000:04d}"
+    # A counter, not hash(name), for uniqueness: Python's string hash is
+    # randomized per process, so a run of 50+ drivers could collide by chance.
+    n = next(_driver_sequence)
+    phone = phone or f"0300{n:07d}"
+    vehicle_no = f"LEA-{n:04d}"
     return driver_queries.create_driver(
         db, name, phone, vehicle_no, area, status, lat, lng, Decimal("4.5"), is_active
     )

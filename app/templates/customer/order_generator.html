@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/icon_button.html" import icon_button %}
+{% from "components/button.html" import button %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/top_bar_customer.html" import top_bar_customer %}
+{% from "components/bottom_nav.html" import bottom_nav %}
+{% from "components/segmented_control.html" import segmented_control %}
+{% from "components/stepper.html" import stepper %}
+{% from "components/chip.html" import quick_chip %}
+{% from "components/action_bar.html" import action_bar %}
+{% from "customer/_confirm_order_dialog.html" import confirm_order_dialog %}
+
+{% block title %}Generator and machinery fuel – AJORA{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/customer-nav.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-fuel.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-order-controls.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/order-generator.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+{% endblock %}
+
+{% block header %} {{ top_bar_customer("home", has_active_order) }} {% endblock %}
+
+{% block content %}
+<div class="order-page">
+  <div class="order-content">
+    <div class="order-header">
+      {{ icon_button("arrow-left", "Back to home", style="outline", href=url_for('customer.home')) }}
+      <div>
+        <p class="order-header__title">Generator and machinery fuel</p>
+        <p class="order-header__sub order-header__sub--full">
+          Diesel or petrol for generators, tractors and tube wells. 20 to 500 litres.
+        </p>
+      </div>
+    </div>
+
+    <form id="order-generator-form" class="order-columns" novalidate data-order-generator>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" data-csrf-token />
+      <input type="hidden" name="order_key" value="{{ order_key }}" data-order-key />
+      <input
+        type="hidden"
+        name="price_snapshot"
+        value="{{ fuel_options[0].unit_price }}"
+        data-price-snapshot
+      />
+      <input type="hidden" name="latitude" data-latitude />
+      <input type="hidden" name="longitude" data-longitude />
+
+      <div class="order-form">
+        <div class="order-field-group">
+          <p class="order-field-group__label">What is it for</p>
+          <div class="quick-chips generator-type-chips">
+            {% for type in generator_types %}
+            <button
+              type="button"
+              class="chip{% if type == preset_type %} chip--selected{% endif %}"
+              data-type-chip="{{ type }}"
+            >{{ type }}</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="generator_type" value="{{ preset_type }}" data-generator-type />
+          <p class="field__error" data-error="generator_type" hidden>
+            {{ icon("circle-exclamation") }}<span>Choose what the fuel is for</span>
+          </p>
+        </div>
+
+        <div class="order-field-group">
+          <p class="order-field-group__label">Fuel type</p>
+          {{ segmented_control(fuel_options) }}
+        </div>
+
+        <div class="order-field-group">
+          <p class="order-field-group__label">Litres</p>
+          <div class="order-litres-controls">
+            {{ stepper("litres", 250, 20, 500, 10) }}
+            <div class="quick-chips">
+              {{ quick_chip("50 L", 50) }} {{ quick_chip("100 L", 100) }} {{ quick_chip("200 L", 200) }}
+            </div>
+          </div>
+          <p class="order-field-group__helper">Between 20 and 500 litres. Steps of 10.</p>
+          <p class="field__error" data-error="litres" hidden>
+            {{ icon("circle-exclamation") }}<span>Between 20 and 500 litres</span>
+          </p>
+        </div>
+
+        <div data-call-banner hidden>
+          {{ alert_banner("warning", "Our team will call you", "For more than 200 litres our team will call you to confirm before the driver leaves.") }}
+        </div>
+
+        <div class="order-field-group">
+          <p class="order-field-group__label">Delivery time</p>
+          <div class="quick-chips timing-chips">
+            <button type="button" class="chip chip--selected" data-timing-chip="asap">As soon as possible</button>
+            <button type="button" class="chip" data-timing-chip="scheduled">Pick a day and time</button>
+          </div>
+
+          <div class="generator-schedule" data-generator-schedule hidden>
+            <p class="order-field-group__helper">Day</p>
+            <div class="quick-chips generator-day-chips">
+              {% for day in days %}
+              <button
+                type="button"
+                class="chip{% if loop.first %} chip--selected{% endif %}"
+                data-day-chip="{{ day.value }}"
+              >{{ day.label }}</button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="day" value="{{ days[0].value }}" data-day-value />
+
+            <p class="order-field-group__helper">2-hour slot</p>
+            <div class="quick-chips generator-slot-chips">
+              {% for slot in slots %}
+              <button
+                type="button"
+                class="chip{% if loop.index == 3 %} chip--selected{% endif %}"
+                data-slot-chip="{{ slot.value }}"
+              >{{ slot.label }}</button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="slot" value="{{ slots[2].value }}" data-slot-value />
+          </div>
+          <input type="hidden" name="timing" value="asap" data-timing-value />
+          <p class="field__error" data-error="timing" hidden>
+            {{ icon("circle-exclamation") }}<span>Pick a day and a 2-hour slot</span>
+          </p>
+        </div>
+
+        <div class="order-field-group">
+          <label class="order-field-group__label" for="field-address">Site address</label>
+          <div class="field__box field__box--with-icon">
+            {{ icon("location-dot") }}
+            <input
+              class="field__input"
+              type="text"
+              id="field-address"
+              name="address"
+              maxlength="200"
+              placeholder="Farm 7, Mauza Kot, Raiwind Road"
+            />
+          </div>
+          <p class="field__error" data-error="address" hidden>
+            {{ icon("circle-exclamation") }}<span>Add the site address so the driver can find it</span>
+          </p>
+        </div>
+
+        <div class="area-landmark">
+          <div class="order-field-group">
+            <label class="order-field-group__label" for="field-area">Area</label>
+            <div class="field__box field__box--select">
+              <select class="field__input field__select" id="field-area" name="area">
+                <option value="">Choose your area</option>
+                {% for area in areas %}
+                <option value="{{ area }}">{{ area }}</option>
+                {% endfor %}
+              </select>
+              {{ icon("chevron-down") }}
+            </div>
+            <p class="field__error" data-error="area" hidden>
+              {{ icon("circle-exclamation") }}<span>Pick the area</span>
+            </p>
+          </div>
+          <button class="btn btn--outline generator-location-button" type="button" data-location-action>
+            {{ icon("location-crosshairs") }}<span data-location-action-label>Use my location (optional)</span>
+          </button>
+        </div>
+      </div>
+
+      <aside class="order-summary">
+        <p class="order-summary__title overline">ORDER SUMMARY</p>
+        <div class="order-summary__row"><span>For</span><span data-summary-type></span></div>
+        <div class="order-summary__row"><span>Fuel</span><span data-summary-fuel></span></div>
+        <div class="order-summary__row"><span>Quantity</span><span data-summary-quantity></span></div>
+        <div class="order-summary__row">
+          <span>Price</span><span class="mono-amount" data-summary-price></span>
+        </div>
+        <div class="order-summary__row"><span>Delivery</span><span data-summary-delivery></span></div>
+        <div class="order-summary__row"><span>Payment</span><span>Cash on delivery</span></div>
+        <hr class="order-summary__divider" />
+        <div class="order-summary__total">
+          <span>Total</span><span class="mono-stat" data-total-display></span>
+        </div>
+        {{ button("Review order", style="brand", type="button", data_action="open-confirm") }}
+        <p class="order-summary__note">Our team calls you to confirm before the driver leaves.</p>
+      </aside>
+    </form>
+  </div>
+
+  {{ action_bar("") }}
+  {{ confirm_order_dialog() }}
+</div>
+{% endblock %}
+
+{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/order_generator.js') }}"></script>
+{% endblock %}

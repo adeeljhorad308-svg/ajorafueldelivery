@@ -1,11 +1,17 @@
-{% macro action_bar(total_label, button_label="Review order") %}
+{% from "components/icon.html" import icon %}
+
+{% macro action_bar(total_label, button_label="Review order", style="brand", icon_name=None) %}
 <div class="action-bar">
   <div class="action-bar__summary">
     <p class="action-bar__caption">Total &middot; cash on delivery</p>
     <p class="action-bar__total mono-stat" data-total-display>{{ total_label }}</p>
   </div>
-  <button class="btn btn--brand action-bar__button" type="button" data-action="open-confirm">
-    <span>{{ button_label }}</span>
+  <button
+    class="btn btn--{{ style }} action-bar__button"
+    type="button"
+    data-action="open-confirm"
+  >
+    {% if icon_name %}{{ icon(icon_name) }}{% endif %}<span>{{ button_label }}</span>
   </button>
 </div>
 {% endmacro %}

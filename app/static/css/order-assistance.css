@@ -1,0 +1,83 @@
+/* Vehicle assistance page (docs/FIGMA.md screen 8: 33:1867 laptop, 33:2094
+   tablet, 33:2381 mobile). Reuses order-fuel.css's two-column layout below
+   the service-pick grid; this file adds the grid and chip wrapping. */
+
+.service-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+@media (min-width: 600px) {
+  .service-pick-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.service-pick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+}
+.service-pick-card--selected {
+  border: 2px solid var(--color-border-brand);
+  background: var(--color-bg-brand-subtle);
+}
+.service-pick-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-subtle);
+}
+.service-pick-card__icon .icon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-icon-active);
+}
+.service-pick-card__name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+}
+.service-pick-card__price {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-muted);
+}
+
+.vehicle-type-chips,
+.timing-chips,
+.assistance-slot-chips {
+  flex-wrap: wrap;
+}
+.vehicle-type-chips .chip,
+.timing-chips .chip,
+.assistance-slot-chips .chip {
+  flex: none;
+}
+
+.assistance-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
+   user-agent style (author origin beats UA origin regardless of selector
+   specificity) when JS toggles this panel. */
+.assistance-schedule[hidden] {
+  display: none;
+}

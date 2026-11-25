@@ -1,0 +1,38 @@
+/* Generator and machinery fuel page (docs/FIGMA.md screen 7: 28:1259 laptop,
+   28:1495 tablet, 28:1743 mobile). Reuses order-fuel.css's two-column layout;
+   this file only adds the type/day/slot chip grids and the call banner. */
+
+.generator-type-chips,
+.timing-chips,
+.generator-day-chips,
+.generator-slot-chips {
+  flex-wrap: wrap;
+}
+.generator-type-chips .chip,
+.timing-chips .chip,
+.generator-day-chips .chip,
+.generator-slot-chips .chip {
+  flex: none;
+}
+
+.generator-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
+   user-agent style (author origin beats UA origin regardless of selector
+   specificity) when JS toggles this panel. */
+.generator-schedule[hidden] {
+  display: none;
+}
+
+.generator-location-button {
+  align-self: flex-start;
+}
+@media (min-width: 600px) {
+  .area-landmark {
+    align-items: flex-end;
+  }
+}
