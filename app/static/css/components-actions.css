@@ -215,12 +215,6 @@
   background: var(--color-bg-surface);
   border-bottom: 1px solid var(--color-border-default);
 }
-/* An unconditional `display` here would otherwise outrank the `[hidden]`
-   attribute's user-agent style (author origin beats UA origin regardless of
-   selector specificity), leaving the sheet stuck open. */
-.menu-sheet[hidden] {
-  display: none;
-}
 .menu-sheet__link {
   padding: var(--space-sm) 0;
   min-height: 44px;

@@ -191,7 +191,9 @@
 </div>
 {% endblock %}
 
-{% block footer %} {{ bottom_nav("home", has_active_order) }} {% endblock %}
+{% block footer %}
+<div class="order-form-bottom-nav">{{ bottom_nav("home", has_active_order) }}</div>
+{% endblock %}
 
 {% block scripts %}
 <script type="module" src="{{ static_versioned('js/order_generator.js') }}"></script>

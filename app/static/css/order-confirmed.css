@@ -129,12 +129,6 @@
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
 }
-/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
-   user-agent style (author origin beats UA origin regardless of selector
-   specificity) while no driver is assigned yet. */
-.driver-card[hidden] {
-  display: none;
-}
 .driver-card__label {
   color: var(--color-text-muted);
 }

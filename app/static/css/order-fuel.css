@@ -19,6 +19,12 @@
   flex-direction: column;
   gap: 20px;
   padding: var(--space-lg);
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+@media (min-width: 600px) {
+  .order-content {
+    padding-bottom: var(--space-lg);
+  }
 }
 @media (min-width: 1024px) {
   .order-content {
@@ -110,13 +116,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-}
-/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
-   user-agent style (author origin beats UA origin regardless of selector
-   specificity) on groups shown/hidden by JS, such as Emergency fuel's area
-   fallback. */
-.order-field-group[hidden] {
-  display: none;
 }
 .order-field-group__label {
   font-family: var(--font-sans);
@@ -245,15 +244,29 @@
   color: var(--color-text-secondary);
 }
 
+/* docs/FIGMA.md: order-form screens use the fixed Action bar instead of the
+   bottom tabs on mobile; tablet and laptop keep the tabs (Action bar hides
+   itself from 600px below). */
+.order-form-bottom-nav {
+  display: none;
+}
+@media (min-width: 600px) {
+  .order-form-bottom-nav {
+    display: contents;
+  }
+}
+
 .action-bar {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-lg);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-md) var(--space-lg) calc(var(--space-md) + env(safe-area-inset-bottom));
   background: var(--color-bg-surface);
   border-top: 1px solid var(--color-border-default);
   box-shadow: var(--shadow-raised);

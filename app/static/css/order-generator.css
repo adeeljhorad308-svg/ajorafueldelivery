@@ -21,12 +21,6 @@
   gap: var(--space-sm);
   margin-top: var(--space-md);
 }
-/* `display: flex` above would otherwise outrank the `[hidden]` attribute's
-   user-agent style (author origin beats UA origin regardless of selector
-   specificity) when JS toggles this panel. */
-.generator-schedule[hidden] {
-  display: none;
-}
 
 .generator-location-button {
   align-self: flex-start;

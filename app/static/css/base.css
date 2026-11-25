@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+/* Author `display` rules otherwise outrank the `[hidden]` attribute's
+   user-agent style (author origin beats UA origin regardless of selector
+   specificity). This one global rule means no screen-specific CSS file
+   needs its own `[hidden]` override again. */
+[hidden] {
+  display: none !important;
+}
+
 h1,
 h2,
 h3,
