@@ -21,16 +21,6 @@ _ADMIN_JOIN_ONLY = (
     "JOIN users ON users.user_id = orders.user_id"
 )
 
-# Filters' "service" value -> SQL condition. Groups the DB's individual
-# service rows into the few categories the filter chips show (CLAUDE.md:
-# chips/switches over dropdowns for 5 options or fewer).
-SERVICE_CATEGORY_CLAUSES = {
-    "fuel": "services.name IN ('Petrol', 'Diesel')",
-    "generator": "services.name = 'Generator fuel'",
-    "assistance": "services.category = 'Assistance'",
-    "emergency": "orders.is_emergency = 1",
-}
-
 _ADMIN_ORDER_BY = (
     " ORDER BY CASE WHEN orders.is_emergency = 1 AND orders.status IN "
     "('Pending', 'Assigned', 'On the Way') THEN 0 ELSE 1 END, orders.created_at DESC, "
@@ -48,9 +38,9 @@ def _admin_where(filters):
         placeholders = ", ".join("?" for _ in filters["statuses"])
         clauses.append(f"orders.status IN ({placeholders})")
         params.extend(filters["statuses"])
-    service_clause = SERVICE_CATEGORY_CLAUSES.get(filters.get("service"))
-    if service_clause:
-        clauses.append(service_clause)
+    if filters.get("service"):
+        clauses.append("orders.service_id = ?")
+        params.append(filters["service"])
     if filters.get("emergency_only"):
         clauses.append("orders.is_emergency = 1")
     if filters.get("date_from"):

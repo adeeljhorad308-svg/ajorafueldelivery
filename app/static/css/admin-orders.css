@@ -41,6 +41,24 @@
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
+/* Service filter: a real <select> from 1024 px (docs/FIGMA.md 39:714), a
+   chip list below it inside the mobile/tablet Filters sheet - admin_filters.js
+   disables whichever one is hidden so only one "service" value is submitted. */
+.admin-filters__service-select {
+  display: none;
+}
+.admin-filters__service-chips {
+  display: flex;
+}
+@media (min-width: 1024px) {
+  .admin-filters__service-select {
+    display: flex;
+  }
+  .admin-filters__service-chips {
+    display: none;
+  }
+}
+
 .admin-filters__custom-range {
   display: none;
   gap: var(--space-md);

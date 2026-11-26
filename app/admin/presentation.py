@@ -15,13 +15,6 @@ from app.queries import admin_orders as order_queries
 ALL_ORDERS_PER_PAGE = 20
 DASHBOARD_LIST_LIMIT = 5
 
-SERVICE_FILTER_OPTIONS = (
-    ("", "All services"),
-    ("fuel", "Fuel"),
-    ("emergency", "Emergency fuel"),
-    ("generator", "Generator and machinery"),
-    ("assistance", "Assistance"),
-)
 DATE_FILTER_OPTIONS = (
     ("today", "Today"),
     ("7days", "7 days"),
@@ -41,6 +34,13 @@ def sidebar_href(endpoint, **kwargs):
 
 def status_filter_options():
     return [(status, order_status_label(status)) for status in ALLOWED_STATUSES]
+
+
+def service_filter_options(services):
+    """Real services from the database for the All orders Service filter
+    (docs/FIGMA.md 39:714) - Emergency has its own switch, so it is not a
+    choice here even though it shares the Petrol/Diesel service rows."""
+    return [("", "All services")] + [(row["service_id"], row["name"]) for row in services]
 
 
 def _delta_note(today_count, yesterday_count):

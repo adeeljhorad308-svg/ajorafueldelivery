@@ -24,3 +24,9 @@ def find_by_id(db, service_id):
 
 def list_active(db):
     return db.execute("SELECT * FROM services WHERE available = 1 ORDER BY service_id").fetchall()
+
+
+def list_all(db):
+    """Every service, active or not - the All orders Service filter needs to
+    match historical orders placed against a service since turned off."""
+    return db.execute("SELECT * FROM services ORDER BY name").fetchall()

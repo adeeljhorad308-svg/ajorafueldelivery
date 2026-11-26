@@ -175,6 +175,69 @@ def test_filters_combine_status_service_and_emergency(app, client, make_user):
     assert "ORD-0003" not in body
 
 
+def test_service_filter_lists_real_services_not_categories(app, client, make_user):
+    """docs/FIGMA.md 39:714 / fix(c9): the Service filter must offer the real
+    rows from the services table (Petrol, Diesel, ...), not the old fuel /
+    emergency / generator / assistance categories - Emergency already has its
+    own switch."""
+    make_user(email="admin@example.com", password=PASSWORD, phone="03000000001", role="admin")
+    with app.app_context():
+        db = get_db()
+        service_queries.create_service(db, "Petrol", "Fuel", "litre", Decimal("252.00"))
+        service_queries.create_service(db, "Diesel", "Fuel", "litre", Decimal("258.00"))
+        service_queries.create_service(db, "Generator fuel", "Fuel", "litre", Decimal("258.00"))
+        service_queries.create_service(
+            db, "Battery help", "Assistance", "service", Decimal("1500.00")
+        )
+        db.commit()
+    _login_as_admin(client, app)
+
+    body = client.get("/admin/orders").data.decode()
+    assert "All services" in body
+    assert "Petrol" in body
+    assert "Diesel" in body
+    assert "Generator fuel" in body
+    assert "Battery help" in body
+    assert "Fuel</" not in body
+    assert "Assistance</" not in body
+    assert "Emergency fuel</" not in body
+
+
+def test_filter_by_real_service_id_only_matches_that_service(app, client, make_user):
+    petrol_id = _seed_petrol(app)
+    make_user(email="admin@example.com", password=PASSWORD, phone="03000000001", role="admin")
+    user_id = make_user(email="cust@example.com", password=PASSWORD)
+
+    with app.app_context():
+        db = get_db()
+        diesel_id = service_queries.create_service(db, "Diesel", "Fuel", "litre", Decimal("258.00"))
+        _make_order(db, user_id, petrol_id, "k-petrol")
+        _make_order(db, user_id, diesel_id, "k-diesel")
+        db.commit()
+
+    _login_as_admin(client, app)
+    response = client.get(f"/admin/orders?service={petrol_id}")
+    assert response.status_code == 200
+    body = response.data.decode()
+    assert "ORD-0001" in body
+    assert "ORD-0002" not in body
+
+
+def test_unknown_service_id_filter_is_ignored(app, client, make_user):
+    service_id = _seed_petrol(app)
+    make_user(email="admin@example.com", password=PASSWORD, phone="03000000001", role="admin")
+    user_id = make_user(email="cust@example.com", password=PASSWORD)
+    with app.app_context():
+        db = get_db()
+        _make_order(db, user_id, service_id, "k1")
+        db.commit()
+
+    _login_as_admin(client, app)
+    response = client.get("/admin/orders?service=999999")
+    assert response.status_code == 200
+    assert "ORD-0001" in response.data.decode()
+
+
 def test_open_emergency_is_always_pinned_first(app, client, make_user):
     service_id = _seed_petrol(app)
     make_user(email="admin@example.com", password=PASSWORD, phone="03000000001", role="admin")

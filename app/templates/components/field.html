@@ -28,6 +28,25 @@
 </div>
 {% endmacro %}
 
+{% macro select_field(name, label, options, value="", required=False) %}
+<div class="field">
+  <label class="label" for="field-{{ name }}">{{ label }}</label>
+  <div class="field__box field__box--select">
+    <select
+      class="field__input field__select"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      {% if required %}required{% endif %}
+    >
+      {% for option_value, option_label in options %}
+      <option value="{{ option_value }}" {% if option_value|string == value|string %}selected{% endif %}>{{ option_label }}</option>
+      {% endfor %}
+    </select>
+    {{ icon("chevron-down", "icon field__select-chevron") }}
+  </div>
+</div>
+{% endmacro %}
+
 {% macro password_field(name, label, placeholder="", error="", helper="", autocomplete="current-password") %}
 <div class="field{% if error %} field--error{% endif %}">
   <label class="label" for="field-{{ name }}">{{ label }}</label>

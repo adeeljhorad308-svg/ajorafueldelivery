@@ -10,6 +10,7 @@ from app.admin import presentation
 from app.db import get_db
 from app.queries import admin_orders as order_queries
 from app.queries import drivers as driver_queries
+from app.queries import services as service_queries
 from app.queries import users as user_queries
 from app.security import count_failed_logins_today, require_admin
 
@@ -144,7 +145,9 @@ def dashboard():
 def orders():
     db = get_db()
     now = timeutil.utcnow()
-    parsed = filter_parsing.parse_order_filters(request.args, now)
+    services = service_queries.list_all(db)
+    service_ids = tuple(row["service_id"] for row in services)
+    parsed = filter_parsing.parse_order_filters(request.args, now, service_ids=service_ids)
 
     total_count = order_queries.count_admin_filtered(db, parsed)
     page_info = presentation.all_orders_pagination(total_count, parsed["page"])
@@ -159,7 +162,7 @@ def orders():
         filters=parsed,
         active_filter_count=filter_parsing.active_filter_count(parsed),
         status_options=presentation.status_filter_options(),
-        service_options=presentation.SERVICE_FILTER_OPTIONS,
+        service_options=presentation.service_filter_options(services),
         date_options=presentation.DATE_FILTER_OPTIONS,
         page_url=lambda n: url_for("admin.orders", **filter_parsing.query_args(parsed, page=n)),
         clear_url=url_for("admin.orders"),

@@ -23,6 +23,23 @@
   padding-right: 48px;
 }
 
+.field__box--select {
+  padding-right: var(--space-lg);
+}
+.field__select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 24px;
+}
+.field__select-chevron {
+  position: absolute;
+  right: var(--space-lg);
+  width: 16px;
+  height: 16px;
+  color: var(--color-icon-muted);
+  pointer-events: none;
+}
+
 .field__input {
   flex: 1;
   min-width: 0;

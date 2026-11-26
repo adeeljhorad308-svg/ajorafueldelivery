@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "components/icon.html" import icon %}
 {% from "components/button.html" import button %}
-{% from "components/field.html" import field %}
+{% from "components/field.html" import field, select_field %}
 {% from "components/switch.html" import switch %}
 {% from "components/chip.html" import chip_checkbox, chip_radio %}
 {% from "components/status_chip.html" import status_chip %}
@@ -61,11 +61,14 @@
             </div>
           </div>
 
-          <div class="admin-filters__group">
+          <div class="admin-filters__group admin-filters__service-select">
+            {{ select_field("service", "Service", service_options, value=(filters.service or "")) }}
+          </div>
+          <div class="admin-filters__group admin-filters__service-chips">
             <p class="admin-filters__group-label">Service</p>
             <div class="admin-filters__chips">
               {% for value, label in service_options %}
-              {{ chip_radio("service", value, label, checked=(value == filters.service)) }}
+              {{ chip_radio("service", value, label, checked=((value or None) == filters.service), id="service-" ~ loop.index) }}
               {% endfor %}
             </div>
           </div>

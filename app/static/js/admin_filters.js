@@ -47,4 +47,25 @@ export function initAdminFiltersSheet() {
   document.querySelector("[data-filters-close]")?.addEventListener("click", close);
 }
 
+/** Only one "service" control may submit: the desktop <select> from 1024 px,
+ * the mobile/tablet chip list below that (CSS shows/hides the matching one -
+ * see admin-orders.css). Disabled fields are left out of the GET query string. */
+export function initServiceFilterToggle() {
+  const select = document.querySelector("select[name='service']");
+  const chips = document.querySelectorAll("input[name='service']");
+  if (!select || chips.length === 0) return;
+  const desktopQuery = window.matchMedia("(min-width: 1024px)");
+
+  function sync(isDesktop) {
+    select.disabled = !isDesktop;
+    chips.forEach((chip) => {
+      chip.disabled = isDesktop;
+    });
+  }
+
+  sync(desktopQuery.matches);
+  desktopQuery.addEventListener("change", (event) => sync(event.matches));
+}
+
 initAdminFiltersSheet();
+initServiceFilterToggle();

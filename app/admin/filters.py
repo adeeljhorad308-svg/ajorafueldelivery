@@ -8,7 +8,6 @@ from datetime import date, timedelta
 from app import timeutil
 
 ALLOWED_STATUSES = ("Pending", "Assigned", "On the Way", "Delivered", "Cancelled")
-ALLOWED_SERVICES = ("fuel", "emergency", "generator", "assistance")
 ALLOWED_DATES = ("today", "7days", "30days", "custom")
 DEFAULT_DATE = "30days"
 PER_PAGE = 20
@@ -58,12 +57,12 @@ def _date_bounds(mode, from_raw, to_raw, now):
     return timeutil.to_sql(now - timedelta(days=30)), None
 
 
-def parse_order_filters(args, now=None):
+def parse_order_filters(args, now=None, service_ids=()):
     now = now or timeutil.utcnow()
     statuses = tuple(value for value in args.getlist("status") if value in ALLOWED_STATUSES)
-    service = args.get("service") or ""
-    if service not in ALLOWED_SERVICES:
-        service = ""
+    service = args.get("service", type=int)
+    if service not in service_ids:
+        service = None
     date_mode = args.get("date") or DEFAULT_DATE
     if date_mode not in ALLOWED_DATES:
         date_mode = DEFAULT_DATE
