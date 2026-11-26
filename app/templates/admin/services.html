@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/switch.html" import switch %}
+{% from "components/chip.html" import chip_radio %}
+{% from "components/alert_banner.html" import alert_banner %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}Services and prices – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-driver-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-admin-dialog-form.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-services.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  {{ admin_sidebar("services") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Services and prices") }}
+      {{ admin_mobile_title("Services and prices") }}
+
+      {{ alert_banner("warning", "Fuel prices must match the latest government rate", price_reminder or "") }}
+
+      <div class="services-header">
+        <p class="h4">{{ summary.summary_label }}</p>
+        <button type="button" class="btn btn--brand services-header__add" data-dialog-open="dialog-add-service">
+          {{ icon("plus") }}<span>Add service</span>
+        </button>
+      </div>
+
+      {% if rows %}
+      <div class="services-table">
+        <div class="services-table__row services-table__head">
+          <span class="services-table__service services-table__head-label">Service</span>
+          <span class="services-table__category services-table__head-label">Category</span>
+          <span class="services-table__unit services-table__head-label">Unit</span>
+          <span class="services-table__price services-table__head-label">Price (PKR)</span>
+          <span class="services-table__available services-table__head-label">Available</span>
+          <span class="services-table__edit"></span>
+        </div>
+        {% for row in rows %}
+        <div class="services-table__row">
+          <span class="services-table__service services-table__cell">
+            <span class="services-table__icon">{{ icon(row.icon) }}</span>{{ row.name }}
+          </span>
+          <span class="services-table__category services-table__cell">{{ row.category }}</span>
+          <span class="services-table__unit services-table__cell">{{ row.unit_label }}</span>
+          <span class="services-table__price services-table__cell mono-amount">{{ row.price_number_label }}</span>
+          <span class="services-table__available services-table__cell">
+            <form method="post" action="{{ row.update_url }}" data-service-form data-loading-text="Saving…">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <input type="hidden" name="name" value="{{ row.name }}" />
+              <input type="hidden" name="category" value="{{ row.category }}" />
+              <input type="hidden" name="unit" value="{{ row.unit }}" />
+              <input type="hidden" name="unit_price" value="{{ row.unit_price_plain }}" />
+              <label class="switch">
+                <input
+                  class="switch__input"
+                  type="checkbox"
+                  name="available"
+                  value="1"
+                  {% if row.available %}checked{% endif %}
+                  data-service-toggle
+                  data-turnoff-dialog="{{ row.turnoff_dialog_id }}"
+                />
+                <span class="switch__track" aria-hidden="true"></span>
+                <span class="switch__label">{{ "On" if row.available else "Off" }}</span>
+              </label>
+            </form>
+          </span>
+          <span class="services-table__edit">
+            <button type="button" class="btn btn--outline btn--small" data-dialog-open="{{ row.edit_dialog_id }}">
+              {{ icon("pen") }}<span>Edit</span>
+            </button>
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="services-cards">
+        {% for row in rows %}
+        <div class="services-card">
+          <span class="services-card__icon">{{ icon(row.icon) }}</span>
+          <span class="services-card__text">
+            <span class="body-strong">{{ row.name }}</span>
+            <span class="caption">{{ row.card_meta }}</span>
+          </span>
+          <form method="post" action="{{ row.update_url }}" data-service-form data-loading-text="Saving…">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="name" value="{{ row.name }}" />
+            <input type="hidden" name="category" value="{{ row.category }}" />
+            <input type="hidden" name="unit" value="{{ row.unit }}" />
+            <input type="hidden" name="unit_price" value="{{ row.unit_price_plain }}" />
+            <label class="switch">
+              <input
+                class="switch__input"
+                type="checkbox"
+                name="available"
+                value="1"
+                {% if row.available %}checked{% endif %}
+                data-service-toggle
+                data-turnoff-dialog="{{ row.turnoff_dialog_id }}"
+              />
+              <span class="switch__track" aria-hidden="true"></span>
+            </label>
+          </form>
+          <button type="button" class="icon-btn icon-btn--outline" data-dialog-open="{{ row.edit_dialog_id }}" aria-label="Edit {{ row.name }}">
+            {{ icon("pen") }}
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-dialog-backdrop hidden></div>
+
+{% macro service_form_fields(values, errors) %}
+<div class="field{% if errors.name %} field--error{% endif %}">
+  <label class="label" for="field-name-{{ values.dialog_suffix }}">Name</label>
+  <div class="field__box">
+    <input
+      class="field__input"
+      type="text"
+      id="field-name-{{ values.dialog_suffix }}"
+      name="name"
+      value="{{ values.name }}"
+      maxlength="50"
+      required
+    />
+  </div>
+  {% if errors.name %}
+  <p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.name }}</span></p>
+  {% endif %}
+</div>
+
+<div class="form-row">
+  <div class="field">
+    <p class="label">Category</p>
+    <div class="chip-group">
+      {{ chip_radio("category", "Fuel", "Fuel", checked=(values.category == "Fuel"), id="category-fuel-" ~ values.dialog_suffix) }}
+      {{ chip_radio("category", "Assistance", "Assistance", checked=(values.category == "Assistance"), id="category-assistance-" ~ values.dialog_suffix) }}
+    </div>
+  </div>
+  <div class="field">
+    <p class="label">Unit</p>
+    <div class="chip-group">
+      {{ chip_radio("unit", "litre", "litre", checked=(values.unit == "litre"), id="unit-litre-" ~ values.dialog_suffix) }}
+      {{ chip_radio("unit", "service", "service", checked=(values.unit == "service"), id="unit-service-" ~ values.dialog_suffix) }}
+    </div>
+  </div>
+</div>
+
+<div class="field{% if errors.unit_price %} field--error{% endif %}">
+  <label class="label" for="field-price-{{ values.dialog_suffix }}">Price in PKR (per {{ values.unit }})</label>
+  <div class="field__box">
+    <input
+      class="field__input"
+      type="text"
+      inputmode="decimal"
+      id="field-price-{{ values.dialog_suffix }}"
+      name="unit_price"
+      value="{{ values.unit_price }}"
+      required
+    />
+  </div>
+  {% if errors.unit_price %}
+  <p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.unit_price }}</span></p>
+  {% endif %}
+</div>
+
+<div class="form-row form-row--switch">
+  <span class="body-strong">Available to customers</span>
+  {{ switch("available", "", checked=values.available) }}
+</div>
+<p class="caption">Off hides it from customers at once</p>
+{% endmacro %}
+
+{% set add_values = form_values if open_dialog == "dialog-add-service" else {"name": "", "category": "Fuel", "unit": "litre", "unit_price": "", "available": 1} %}
+{% set add_values = dict(add_values, dialog_suffix="add") %}
+<div class="dialog-panel" id="dialog-add-service" data-dialog role="dialog" aria-modal="true" aria-labelledby="dialog-add-service-title" {% if open_dialog != "dialog-add-service" %}hidden{% endif %}>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="dialog-add-service-title">Add service</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <form method="post" action="{{ url_for('admin.service_create') }}" data-loading-text="Adding…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    {{ service_form_fields(add_values, form_errors if open_dialog == "dialog-add-service" else {}) }}
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand"><span>Add service</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+</div>
+
+{% for row in rows %}
+{% set edit_values = form_values if open_dialog == row.edit_dialog_id else {"name": row.name, "category": row.category, "unit": row.unit, "unit_price": row.unit_price_plain, "available": row.available} %}
+{% set edit_values = dict(edit_values, dialog_suffix="edit-" ~ row.service_id) %}
+<div class="dialog-panel" id="{{ row.edit_dialog_id }}" data-dialog role="dialog" aria-modal="true" aria-labelledby="{{ row.edit_dialog_id }}-title" {% if open_dialog != row.edit_dialog_id %}hidden{% endif %}>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="{{ row.edit_dialog_id }}-title">Edit service</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <form method="post" action="{{ row.update_url }}" data-loading-text="Saving…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    {{ service_form_fields(edit_values, form_errors if open_dialog == row.edit_dialog_id else {}) }}
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand"><span>Save changes</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+</div>
+{% endfor %}
+
+{% for dialog in turnoff_dialogs %}
+<div class="dialog-panel" id="{{ dialog.dialog_id }}" data-dialog role="dialog" aria-modal="true" aria-labelledby="{{ dialog.dialog_id }}-title" hidden>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="{{ dialog.dialog_id }}-title">{{ dialog.title }}</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <p class="body">{{ dialog.message }}</p>
+  <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ dialog.info_message }}</p></div>
+  <form method="post" action="{{ dialog.submit_url }}" data-loading-text="Turning off…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="available" value="0" />
+    {% set off_row = rows | selectattr("turnoff_dialog_id", "equalto", dialog.dialog_id) | first %}
+    <input type="hidden" name="name" value="{{ off_row.name }}" />
+    <input type="hidden" name="category" value="{{ off_row.category }}" />
+    <input type="hidden" name="unit" value="{{ off_row.unit }}" />
+    <input type="hidden" name="unit_price" value="{{ off_row.unit_price_plain }}" />
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--danger"><span>Turn off</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Keep on</span></button>
+    </div>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_services.js') }}"></script>
+{% endblock %}

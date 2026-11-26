@@ -39,6 +39,20 @@ def mark_completed(db, assign_id, completed_at):
     )
 
 
+def count_open_by_driver(db):
+    """driver_id -> count of that driver's open (Assigned/On the Way) orders
+    - the Drivers screen's Orders column, one query instead of one per row."""
+    rows = db.execute(
+        """
+        SELECT assignments.driver_id AS driver_id, COUNT(*) AS n
+        FROM assignments JOIN orders ON orders.order_id = assignments.order_id
+        WHERE orders.status IN ('Assigned', 'On the Way')
+        GROUP BY assignments.driver_id
+        """
+    ).fetchall()
+    return {row["driver_id"]: row["n"] for row in rows}
+
+
 def update_assignment(db, order_id, driver_id, eta_minutes, assigned_at, distance_km=None):
     """Change driver (pop-up 2): update the existing row in place rather than
     inserting a new one (CLAUDE.md: assign_id stays 1:1 with order_id)."""

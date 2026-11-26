@@ -1,0 +1,21 @@
+/* Two-field rows and chip pairs reused by the Services and Drivers add/edit
+   pop-ups (docs/FIGMA.md pop-ups 5-6: Category/Unit, Phone/Vehicle number,
+   Status). Shared because both screens' dialogs need the same layout. */
+
+.form-row {
+  display: flex;
+  gap: var(--space-lg);
+}
+.form-row > .field {
+  flex: 1;
+  min-width: 0;
+}
+.form-row--switch {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chip-group {
+  display: flex;
+  gap: var(--space-sm);
+}

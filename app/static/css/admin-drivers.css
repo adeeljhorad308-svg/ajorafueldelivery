@@ -1,0 +1,173 @@
+/* Drivers (docs/FIGMA.md screen 18: 47:4092 laptop, 47:4701 tablet, 47:4982
+   mobile; pop-up 6 47:5127, edit 47:5512, remove refused 47:5720). Reuses
+   .services-header (admin-services.css) for the title/Add button row. */
+
+.drivers-table {
+  display: none;
+}
+@media (min-width: 600px) {
+  .drivers-table {
+    display: block;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .drivers-table__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-height: 56px;
+    padding: var(--space-sm) var(--space-lg);
+    border-top: 1px solid var(--color-border-default);
+  }
+  .drivers-table__head {
+    height: 44px;
+    background: var(--color-bg-subtle);
+    border-top: none;
+  }
+  .drivers-table__cell {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-primary);
+  }
+  .drivers-table__head-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .drivers-table__name {
+    width: 160px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-weight: 600;
+  }
+  .drivers-table__phone,
+  .drivers-table__vehicle {
+    width: 110px;
+    flex-shrink: 0;
+  }
+  .drivers-table__area {
+    flex: 1;
+    min-width: 90px;
+  }
+  .drivers-table__status {
+    width: 100px;
+    flex-shrink: 0;
+  }
+  .drivers-table__orders,
+  .drivers-table__rating {
+    width: 64px;
+    flex-shrink: 0;
+  }
+  .drivers-table__rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .drivers-table__rating .icon {
+    width: 14px;
+    height: 14px;
+    color: var(--color-status-warning);
+  }
+  .drivers-table__duty {
+    width: 60px;
+    flex-shrink: 0;
+  }
+  .drivers-table__actions {
+    width: 88px;
+    flex-shrink: 0;
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: flex-end;
+  }
+}
+/* Tablet: narrower than laptop by more than the icon rail takes back, so
+   Phone and Rating fold away rather than forcing the row to scroll
+   sideways (docs/SPEC.md: tables never scroll sideways). */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .drivers-table__phone,
+  .drivers-table__rating {
+    display: none;
+  }
+  .drivers-table__name {
+    width: 120px;
+  }
+  .drivers-table__vehicle {
+    width: 84px;
+  }
+  .drivers-table__area {
+    min-width: 64px;
+  }
+  .drivers-table__status {
+    width: 84px;
+  }
+  .drivers-table__orders {
+    width: 46px;
+  }
+  .drivers-table__duty {
+    width: 48px;
+  }
+}
+
+/* Mobile cards. */
+.drivers-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.drivers-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.drivers-card__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.drivers-card__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.drivers-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.drivers-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.drivers-card__rating .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-status-warning);
+}
+.drivers-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.drivers-card__actions form {
+  margin-right: auto;
+}
+@media (min-width: 600px) {
+  .drivers-cards {
+    display: none;
+  }
+}

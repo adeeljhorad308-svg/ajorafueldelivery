@@ -171,6 +171,8 @@ def orders():
 
 from app.admin import (  # noqa: E402, F401
     customers,
+    drivers,
     emergency,
     order_detail,
 )
+from app.admin import services as services_routes  # noqa: E402, F401

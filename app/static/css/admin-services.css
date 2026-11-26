@@ -1,0 +1,140 @@
+/* Services and prices (docs/FIGMA.md screen 17: 46:3411 laptop, 46:3876
+   tablet, 46:4143 mobile; pop-up 5 46:4352, add with errors 46:4612, turn
+   off confirm 46:4788). */
+
+.services-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+.services-header__add {
+  flex-shrink: 0;
+}
+
+/* Table (tablet and laptop). */
+.services-table {
+  display: none;
+}
+@media (min-width: 600px) {
+  .services-table {
+    display: block;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .services-table__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-height: 56px;
+    padding: var(--space-sm) var(--space-lg);
+    border-top: 1px solid var(--color-border-default);
+  }
+  .services-table__head {
+    height: 44px;
+    background: var(--color-bg-subtle);
+    border-top: none;
+  }
+  .services-table__cell {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-primary);
+  }
+  .services-table__head-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .services-table__service {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-weight: 600;
+  }
+  .services-table__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-brand-subtle);
+    color: var(--color-icon-active);
+  }
+  .services-table__icon .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .services-table__category {
+    width: 110px;
+    flex-shrink: 0;
+  }
+  .services-table__unit {
+    width: 100px;
+    flex-shrink: 0;
+  }
+  .services-table__price {
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .services-table__available {
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .services-table__edit {
+    width: 96px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+}
+
+/* Mobile cards. */
+.services-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.services-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.services-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-subtle);
+  color: var(--color-icon-active);
+}
+.services-card__icon .icon {
+  width: 16px;
+  height: 16px;
+}
+.services-card__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+@media (min-width: 600px) {
+  .services-cards {
+    display: none;
+  }
+}

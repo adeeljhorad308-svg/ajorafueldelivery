@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/switch.html" import switch %}
+{% from "components/field.html" import select_field %}
+{% from "components/chip.html" import chip_radio %}
+{% from "components/dot_chip.html" import dot_chip %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}Drivers – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-driver-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-dot-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-admin-dialog-form.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-drivers.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  {{ admin_sidebar("drivers") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Drivers") }}
+      {{ admin_mobile_title("Drivers") }}
+
+      <div class="services-header">
+        <p class="h4">{{ summary.summary_label }}</p>
+        <button type="button" class="btn btn--brand services-header__add" data-dialog-open="dialog-add-driver">
+          {{ icon("plus") }}<span>Add driver</span>
+        </button>
+      </div>
+
+      {% if rows %}
+      <div class="drivers-table">
+        <div class="drivers-table__row drivers-table__head">
+          <span class="drivers-table__name drivers-table__head-label">Name</span>
+          <span class="drivers-table__phone drivers-table__head-label">Phone</span>
+          <span class="drivers-table__vehicle drivers-table__head-label">Vehicle</span>
+          <span class="drivers-table__area drivers-table__head-label">Area</span>
+          <span class="drivers-table__status drivers-table__head-label">Status</span>
+          <span class="drivers-table__orders drivers-table__head-label">Orders</span>
+          <span class="drivers-table__rating drivers-table__head-label">Rating</span>
+          <span class="drivers-table__duty drivers-table__head-label">On duty</span>
+          <span class="drivers-table__actions"></span>
+        </div>
+        {% for row in rows %}
+        <div class="drivers-table__row">
+          <span class="drivers-table__name drivers-table__cell">
+            <span class="driver-card__avatar">{{ row.initials }}</span>{{ row.name }}
+          </span>
+          <span class="drivers-table__phone drivers-table__cell mono-amount">{{ row.phone_label }}</span>
+          <span class="drivers-table__vehicle drivers-table__cell mono-amount">{{ row.vehicle_no }}</span>
+          <span class="drivers-table__area drivers-table__cell">{{ row.area }}</span>
+          <span class="drivers-table__status">{{ dot_chip(row.status_label, row.status_tone) }}</span>
+          <span class="drivers-table__orders drivers-table__cell">{{ row.open_orders }}</span>
+          <span class="drivers-table__rating drivers-table__cell">{{ icon("star") }}{{ row.rating_label }}</span>
+          <span class="drivers-table__duty">
+            <form method="post" action="{{ row.update_url }}" data-driver-form data-loading-text="Saving…">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <input type="hidden" name="name" value="{{ row.name }}" />
+              <input type="hidden" name="phone" value="{{ row.phone }}" />
+              <input type="hidden" name="vehicle_no" value="{{ row.vehicle_no }}" />
+              <input type="hidden" name="area" value="{{ row.area }}" />
+              <input type="hidden" name="status" value="Off Duty" />
+              <label class="switch">
+                <input
+                  class="switch__input"
+                  type="checkbox"
+                  name="status"
+                  value="Available"
+                  {% if row.on_duty %}checked{% endif %}
+                  {% if not row.can_toggle %}disabled{% endif %}
+                  data-driver-toggle
+                />
+                <span class="switch__track" aria-hidden="true"></span>
+              </label>
+            </form>
+          </span>
+          <span class="drivers-table__actions">
+            <button type="button" class="icon-btn icon-btn--outline" data-dialog-open="{{ row.edit_dialog_id }}" aria-label="Edit {{ row.name }}">{{ icon("pen") }}</button>
+            <button type="button" class="icon-btn icon-btn--outline" data-dialog-open="{{ row.remove_dialog_id }}" aria-label="Remove {{ row.name }}">{{ icon("xmark") }}</button>
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="caption">Busy is set by the system when a driver gets an order. The On duty switch only moves a driver between Available and Off duty.</p>
+
+      <div class="drivers-cards">
+        {% for row in rows %}
+        <div class="drivers-card">
+          <div class="drivers-card__top">
+            <span class="driver-card__avatar">{{ row.initials }}</span>
+            <span class="drivers-card__text">
+              <span class="body-strong">{{ row.name }}</span>
+              <span class="caption">{{ row.vehicle_no }} · {{ row.area }}</span>
+            </span>
+            {{ dot_chip(row.status_label, row.status_tone) }}
+          </div>
+          <p class="caption drivers-card__meta">
+            {{ row.phone_label }} · {{ row.open_orders_label }} ·
+            <span class="drivers-card__rating">{{ icon("star") }}{{ row.rating_label }}</span>
+          </p>
+          <div class="drivers-card__actions">
+            <form method="post" action="{{ row.update_url }}" data-driver-form data-loading-text="Saving…">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <input type="hidden" name="name" value="{{ row.name }}" />
+              <input type="hidden" name="phone" value="{{ row.phone }}" />
+              <input type="hidden" name="vehicle_no" value="{{ row.vehicle_no }}" />
+              <input type="hidden" name="area" value="{{ row.area }}" />
+              <input type="hidden" name="status" value="Off Duty" />
+              <label class="switch">
+                <input
+                  class="switch__input"
+                  type="checkbox"
+                  name="status"
+                  value="Available"
+                  {% if row.on_duty %}checked{% endif %}
+                  {% if not row.can_toggle %}disabled{% endif %}
+                  data-driver-toggle
+                />
+                <span class="switch__track" aria-hidden="true"></span>
+                <span class="switch__label">On duty</span>
+              </label>
+            </form>
+            <button type="button" class="icon-btn icon-btn--outline" data-dialog-open="{{ row.edit_dialog_id }}" aria-label="Edit {{ row.name }}">{{ icon("pen") }}</button>
+            <button type="button" class="icon-btn icon-btn--outline" data-dialog-open="{{ row.remove_dialog_id }}" aria-label="Remove {{ row.name }}">{{ icon("xmark") }}</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-dialog-backdrop hidden></div>
+
+{% macro driver_form_fields(values, errors, suffix, status_locked) %}
+<div class="field{% if errors.name %} field--error{% endif %}">
+  <label class="label" for="field-name-{{ suffix }}">Full name</label>
+  <div class="field__box">
+    <input class="field__input" type="text" id="field-name-{{ suffix }}" name="name" value="{{ values.name }}" maxlength="60" required />
+  </div>
+  {% if errors.name %}<p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.name }}</span></p>{% endif %}
+</div>
+
+<div class="form-row">
+  <div class="field{% if errors.phone %} field--error{% endif %}">
+    <label class="label" for="field-phone-{{ suffix }}">Phone</label>
+    <div class="field__box">
+      <input class="field__input" type="tel" id="field-phone-{{ suffix }}" name="phone" value="{{ values.phone }}" placeholder="0300-1234567" required />
+    </div>
+    {% if errors.phone %}
+    <p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.phone }}</span></p>
+    {% endif %}
+  </div>
+  <div class="field{% if errors.vehicle_no %} field--error{% endif %}">
+    <label class="label" for="field-vehicle-{{ suffix }}">Vehicle number</label>
+    <div class="field__box">
+      <input class="field__input" type="text" id="field-vehicle-{{ suffix }}" name="vehicle_no" value="{{ values.vehicle_no }}" placeholder="LEA-1234" required />
+    </div>
+    {% if errors.vehicle_no %}
+    <p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.vehicle_no }}</span></p>
+    {% else %}
+    <p class="field__helper">Like LEA-1234</p>
+    {% endif %}
+  </div>
+</div>
+
+{{ select_field("area", "Area", area_options, value=values.area) }}
+{% if errors.area %}
+<p class="field__error" role="alert">{{ icon("circle-exclamation") }}<span>{{ errors.area }}</span></p>
+{% else %}
+<p class="field__helper">Sets the starting location for dispatch</p>
+{% endif %}
+
+<div class="field">
+  <p class="label">Status</p>
+  <div class="chip-group">
+    {{ chip_radio("status", "Available", "Available", checked=(values.status == "Available"), id="status-available-" ~ suffix) }}
+    {{ chip_radio("status", "Off Duty", "Off duty", checked=(values.status == "Off Duty"), id="status-offduty-" ~ suffix) }}
+  </div>
+  {% if status_locked %}<p class="field__helper">Busy is set by the system and can't be changed here.</p>{% endif %}
+</div>
+{% endmacro %}
+
+{% set add_values = form_values if open_dialog == "dialog-add-driver" else {"name": "", "phone": "", "vehicle_no": "", "area": "", "status": "Available"} %}
+<div class="dialog-panel" id="dialog-add-driver" data-dialog role="dialog" aria-modal="true" aria-labelledby="dialog-add-driver-title" {% if open_dialog != "dialog-add-driver" %}hidden{% endif %}>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <div>
+      <p class="dialog-panel__title" id="dialog-add-driver-title">Add driver</p>
+      <p class="caption">The driver joins smart dispatch as soon as they are Available.</p>
+    </div>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <form method="post" action="{{ url_for('admin.driver_create') }}" data-loading-text="Adding…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    {{ driver_form_fields(add_values, form_errors if open_dialog == "dialog-add-driver" else {}, "add", False) }}
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand"><span>Add driver</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+</div>
+
+{% for row in rows %}
+{% set edit_values = form_values if open_dialog == row.edit_dialog_id else {"name": row.name, "phone": row.phone_label, "vehicle_no": row.vehicle_no, "area": row.area, "status": row.status} %}
+<div class="dialog-panel" id="{{ row.edit_dialog_id }}" data-dialog role="dialog" aria-modal="true" aria-labelledby="{{ row.edit_dialog_id }}-title" {% if open_dialog != row.edit_dialog_id %}hidden{% endif %}>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="{{ row.edit_dialog_id }}-title">Edit driver</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <form method="post" action="{{ row.update_url }}" data-loading-text="Saving…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    {{ driver_form_fields(edit_values, form_errors if open_dialog == row.edit_dialog_id else {}, "edit-" ~ row.driver_id, row.status == "Busy") }}
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand"><span>Save changes</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+</div>
+{% endfor %}
+
+{% for dialog in remove_dialogs %}
+<div class="dialog-panel" id="{{ dialog.dialog_id }}" data-dialog role="dialog" aria-modal="true" aria-labelledby="{{ dialog.dialog_id }}-title" hidden>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="{{ dialog.dialog_id }}-title">{{ dialog.title }}</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  {% if dialog.refused %}
+  <div class="info-card info-card--warning">
+    {{ icon("triangle-exclamation") }}
+    <div>
+      <p class="info-card__title">{{ dialog.warning_title }}</p>
+      <p class="info-card__message">{{ dialog.warning_message }}</p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    <a class="btn btn--brand" href="{{ dialog.first_order_url }}"><span>Open {{ dialog.first_order_number }}</span></a>
+    <button type="button" class="btn btn--outline" data-dialog-close><span>Close</span></button>
+  </div>
+  {% else %}
+  <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ dialog.info_message }}</p></div>
+  <form method="post" action="{{ dialog.remove_url }}" data-loading-text="Removing…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--danger"><span>Remove driver</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_drivers.js') }}"></script>
+{% endblock %}

@@ -119,3 +119,12 @@
   color: var(--color-text-secondary);
   margin: 0;
 }
+
+/* Remove-refused (docs/FIGMA.md pop-up 6, 47:5720): same card, warning tint. */
+.info-card--warning {
+  background: var(--color-bg-status-warning-tint);
+  border-color: var(--color-status-warning);
+}
+.info-card--warning .icon {
+  color: var(--color-status-warning);
+}

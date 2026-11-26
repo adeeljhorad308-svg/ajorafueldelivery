@@ -52,3 +52,34 @@ def find_by_id(db, driver_id):
 def count_active(db):
     row = db.execute("SELECT COUNT(*) AS n FROM drivers WHERE is_active = 1").fetchone()
     return row["n"]
+
+
+def list_active_all(db):
+    """Every active driver, name order - admin Drivers screen."""
+    return db.execute("SELECT * FROM drivers WHERE is_active = 1 ORDER BY name").fetchall()
+
+
+def find_by_phone(db, phone):
+    return db.execute("SELECT * FROM drivers WHERE phone = ?", (phone,)).fetchone()
+
+
+def find_by_vehicle_no_excluding(db, vehicle_no, driver_id):
+    return db.execute(
+        "SELECT * FROM drivers WHERE vehicle_no = ? AND driver_id != ?", (vehicle_no, driver_id)
+    ).fetchone()
+
+
+def update_driver(db, driver_id, name, phone, vehicle_no, area, status):
+    """Edit (pop-up 6): area is a label only here - it sets the starting
+    location just once, at creation (create_driver); moving it afterwards
+    would make live dispatch distances wrong for a driver who has since
+    travelled, so latitude/longitude are never touched by an edit."""
+    db.execute(
+        "UPDATE drivers SET name = ?, phone = ?, vehicle_no = ?, area = ?, status = ? "
+        "WHERE driver_id = ?",
+        (name, phone, vehicle_no, area, status, driver_id),
+    )
+
+
+def soft_remove(db, driver_id):
+    db.execute("UPDATE drivers SET is_active = 0 WHERE driver_id = ?", (driver_id,))

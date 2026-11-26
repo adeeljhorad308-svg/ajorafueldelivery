@@ -72,6 +72,13 @@ DEFAULT_PATHS = [
     "/admin/emergency",
     "/admin/customers",
     "/admin/customers/1",  # Ali Raza: pop-up 4 customer panel
+    "/admin/services",
+    "/admin/services#add-service",  # pop-up 5: add
+    "/admin/services#edit-service-1",  # pop-up 5: edit (Petrol)
+    "/admin/drivers",
+    "/admin/drivers#add-driver",  # pop-up 6: add
+    "/admin/drivers#edit-driver-1",  # pop-up 6: edit (Ahmed Raza)
+    "/admin/drivers#remove-driver-1",  # pop-up 6: remove refused (Ahmed Raza is Busy)
 ]
 
 
@@ -180,7 +187,7 @@ def _capture_path(page, base_url, path):
         page.wait_for_load_state("networkidle")
     if fragment == "confirm":
         CONFIRM_HANDLERS[real_path](page)
-    elif fragment and real_path.startswith("/admin/orders/"):
+    elif fragment and real_path.startswith(("/admin/orders/", "/admin/services", "/admin/drivers")):
         _open_admin_dialog(page, fragment)
     name = _slug(path)
     for size_name, width, height in SIZES:
