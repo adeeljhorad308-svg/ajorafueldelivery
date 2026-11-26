@@ -57,6 +57,18 @@ DEFAULT_PATHS = [
     "/admin",
     "/admin/orders",
     "/admin/orders?from=2020-01-01&to=2020-01-02&date=custom",
+    "/admin/orders/36",  # Assigned, single stop
+    "/admin/orders/36#assign",  # pop-up 2: change driver
+    "/admin/orders/36#status-on-the-way",  # pop-up 3: simple status move
+    "/admin/orders/36#cancel",  # pop-up 3: cancel with reason
+    "/admin/orders/42",  # On the way, multi-stop route
+    "/admin/orders/71",  # Pending, no driver
+    "/admin/orders/71#assign",  # pop-up 2: assign a driver
+    "/admin/orders/46",  # Pending + Emergency, no driver free
+    "/admin/orders/46#assign",
+    "/admin/orders/43",  # Pending + Call needed
+    "/admin/orders/1",  # Delivered (read-only)
+    "/admin/orders/7",  # Cancelled (read-only)
 ]
 
 
@@ -142,6 +154,15 @@ CONFIRM_HANDLERS = {
 }
 
 
+def _open_admin_dialog(page, fragment):
+    """Order details (C10) pop-ups 2/3: fragment names the dialog id suffix,
+    e.g. "#assign" opens #dialog-assign, "#status-on-the-way" opens
+    #dialog-status-on-the-way, "#cancel" opens #dialog-cancel."""
+    dialog_id = f"dialog-{fragment}"
+    page.click(f'[data-dialog-open="{dialog_id}"]')
+    page.wait_for_selector(f"#{dialog_id}:not([hidden])")
+
+
 def _slug(path):
     name = path.strip("/").replace("/", "_").replace("#", "__") or "landing"
     for char in "?=&":
@@ -156,6 +177,8 @@ def _capture_path(page, base_url, path):
         page.wait_for_load_state("networkidle")
     if fragment == "confirm":
         CONFIRM_HANDLERS[real_path](page)
+    elif fragment and real_path.startswith("/admin/orders/"):
+        _open_admin_dialog(page, fragment)
     name = _slug(path)
     for size_name, width, height in SIZES:
         page.set_viewport_size({"width": width, "height": height})

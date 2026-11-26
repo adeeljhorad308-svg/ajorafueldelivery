@@ -32,3 +32,6 @@
 .status-chip--emergency {
   background: var(--color-bg-status-error-tint);
 }
+.status-chip--call-needed {
+  background: var(--color-bg-status-warning-tint);
+}

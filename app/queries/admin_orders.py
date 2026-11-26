@@ -6,9 +6,14 @@ OPEN_STATUSES = ("Pending", "Assigned", "On the Way")
 
 _ADMIN_ORDER_SELECT = """
     SELECT orders.*, services.name AS service_name, services.category AS service_category,
-           services.unit AS service_unit, users.name AS customer_name,
-           users.phone AS customer_phone, assignments.driver_id AS driver_id,
-           assignments.eta_minutes AS eta_minutes, drivers.name AS driver_name
+           services.unit AS service_unit, services.unit_price AS unit_price,
+           users.name AS customer_name, users.phone AS customer_phone,
+           assignments.assign_id AS assign_id, assignments.driver_id AS driver_id,
+           assignments.eta_minutes AS eta_minutes, assignments.distance_km AS distance_km,
+           assignments.assigned_at AS assigned_at, assignments.completed_at AS completed_at,
+           drivers.name AS driver_name, drivers.phone AS driver_phone,
+           drivers.vehicle_no AS driver_vehicle_no, drivers.rating AS driver_rating,
+           drivers.latitude AS driver_latitude, drivers.longitude AS driver_longitude
     FROM orders
     JOIN services ON services.service_id = orders.service_id
     JOIN users ON users.user_id = orders.user_id
@@ -210,3 +215,20 @@ def list_call_needed(db, limit):
 def count_call_needed(db):
     row = db.execute("SELECT COUNT(*) AS n FROM orders WHERE call_confirmed = 0").fetchone()
     return row["n"]
+
+
+def list_open_orders_for_driver(db, driver_id):
+    """A driver's open stops (Order details' route list, Stop X of N) - every
+    order assigned to them that is not yet finished."""
+    return db.execute(
+        """
+        SELECT orders.order_id, orders.latitude, orders.longitude, orders.area,
+               services.name AS service_name, services.unit AS service_unit,
+               orders.quantity
+        FROM orders
+        JOIN assignments ON assignments.order_id = orders.order_id
+        JOIN services ON services.service_id = orders.service_id
+        WHERE assignments.driver_id = ? AND orders.status IN ('Assigned', 'On the Way')
+        """,
+        (driver_id,),
+    ).fetchall()

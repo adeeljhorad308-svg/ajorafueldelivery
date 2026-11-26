@@ -115,7 +115,7 @@ def _service_label(order_row):
     return "Emergency fuel" if order_row["is_emergency"] else order_row["service_name"]
 
 
-def _quantity_label(order_row):
+def quantity_label(order_row):
     """All orders' Qty column (docs/FIGMA.md 39:714): just the count for a
     one-off service - "1 service" is the customer-side wording
     (app/customer/presentation.py), not this narrower admin column's."""
@@ -124,7 +124,7 @@ def _quantity_label(order_row):
     return f"{int(round(order_row['quantity']))} L"
 
 
-def _generator_word(order_row):
+def generator_word(order_row):
     """Due soon / Call needed show the generator subtype ("Tube well",
     "Tractor or harvester") instead of the service name - every order above
     the 200 L call threshold is a generator/machinery order."""
@@ -163,7 +163,7 @@ def admin_order_row(order_row, now):
     dict - only the template decides which fields to show)."""
     created_at = timeutil.from_sql(order_row["created_at"])
     driver_text, driver_variant = _driver_display(order_row)
-    quantity_label = _quantity_label(order_row)
+    qty_label = quantity_label(order_row)
     amount_label = money.format_pkr(money.from_db(order_row["total_amount"]))
     time_label = _row_time_label(created_at, now)
     area = order_row["area"] or "—"
@@ -177,7 +177,7 @@ def admin_order_row(order_row, now):
         "customer_name": order_row["customer_name"],
         "customer_phone": phone.format_phone(order_row["customer_phone"]),
         "service_label": _service_label(order_row),
-        "quantity_label": quantity_label,
+        "quantity_label": qty_label,
         "amount_label": amount_label,
         "area": area,
         "status": chip_status,
@@ -188,7 +188,7 @@ def admin_order_row(order_row, now):
         "driver_variant": driver_variant,
         "time_label": time_label,
         "customer_meta": f"{area} · {time_label}",
-        "service_meta": f"{quantity_label} · {amount_label}",
+        "service_meta": f"{qty_label} · {amount_label}",
         "card_meta": f"{area} · {driver_text} · {time_label} · {amount_label}",
         "detail_url": url_for("admin.order_detail", order_id=order_row["order_id"]),
     }
@@ -200,8 +200,8 @@ def due_soon_item(order_row, now):
     slot_label = timeutil.format_time(scheduled_at)
     return {
         "title": (
-            f"ORD-{order_row['order_id']:04d} · {_generator_word(order_row)} "
-            f"{_quantity_label(order_row)}"
+            f"ORD-{order_row['order_id']:04d} · {generator_word(order_row)} "
+            f"{quantity_label(order_row)}"
         ),
         "meta": f"{order_row['customer_name']} · {slot_label} · in {minutes_until} min",
         "detail_url": url_for("admin.order_detail", order_id=order_row["order_id"]),
@@ -211,8 +211,8 @@ def due_soon_item(order_row, now):
 def call_needed_item(order_row):
     return {
         "title": (
-            f"ORD-{order_row['order_id']:04d} · {_generator_word(order_row)} "
-            f"{_quantity_label(order_row)}"
+            f"ORD-{order_row['order_id']:04d} · {generator_word(order_row)} "
+            f"{quantity_label(order_row)}"
         ),
         "meta": f"{order_row['customer_name']} · {phone.format_phone(order_row['customer_phone'])}",
         "detail_url": url_for("admin.order_detail", order_id=order_row["order_id"]),

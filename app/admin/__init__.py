@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 
-from flask import Blueprint, abort, g, render_template, request, url_for
+from flask import Blueprint, g, render_template, request, url_for
 
 from app import money, timeutil
 from app.admin import filters as filter_parsing
@@ -169,13 +169,4 @@ def orders():
     )
 
 
-@bp.get("/admin/orders/<int:order_id>")
-def order_detail(order_id):
-    db = get_db()
-    order_row = order_queries.find_admin_by_id(db, order_id)
-    if order_row is None:
-        abort(404)
-    return render_template(
-        "admin/order_detail_placeholder.html",
-        order=presentation.admin_order_row(order_row, timeutil.utcnow()),
-    )
+from app.admin import order_detail  # noqa: E402, F401

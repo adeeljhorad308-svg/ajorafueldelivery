@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/icon_button.html" import icon_button %}
+{% from "components/button.html" import button %}
+{% from "components/field.html" import field %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}{{ header.order_number }} – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-dashboard.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-status-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-driver-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-order-detail.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  {{ admin_sidebar("orders") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Order details") }}
+      {{ admin_mobile_title("Order details") }}
+
+      <div class="order-detail{% if next_step.has_moves %} order-detail--fixed-bar{% endif %}">
+        <div class="order-detail__header">
+          {{ icon_button("arrow-left", "Back to all orders", style="outline", href=url_for("admin.orders")) }}
+          <div>
+            <p class="h2">{{ header.order_number }}</p>
+            <p class="body order-detail__placed">{{ header.placed_label }}</p>
+          </div>
+        </div>
+
+        <div class="order-detail__badges">
+          {{ status_chip(header.status, header.status_label) }}
+          {% if header.is_emergency %}{{ status_chip("Emergency", "Emergency") }}{% endif %}
+          {% if header.show_call_needed %}{{ status_chip("Call needed", "Call needed") }}{% endif %}
+        </div>
+        {% if header.show_call_needed %}
+        <form
+          method="post"
+          action="{{ url_for('admin.order_call_done', order_id=header.order_id) }}"
+          class="order-detail__call-done-form"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <input type="hidden" name="stale_token" value="{{ stale_token }}" />
+          {{ button("Mark call done", style="brand", icon_name="check", full_width=False) }}
+        </form>
+        {% endif %}
+
+        <div class="order-detail__columns">
+          <div class="order-detail__side">
+            <div class="dashboard-card">
+              <div class="order-detail__side-header">
+                <p class="overline">Driver</p>
+                {% if driver.assigned and driver.can_change %}
+                <button type="button" class="btn btn--outline btn--small" data-dialog-open="dialog-assign">
+                  Change driver
+                </button>
+                {% endif %}
+              </div>
+
+              {% if driver.assigned %}
+              <div class="driver-card__row">
+                <span class="driver-card__avatar">{{ driver.initials }}</span>
+                <span class="driver-card__info">
+                  <span class="driver-card__name">{{ driver.driver_name }}</span>
+                  <span class="driver-card__meta"
+                    >{{ icon("star") }}<span>{{ driver.rating_label }} · {{ driver.vehicle_no }}</span></span
+                  >
+                </span>
+                <a class="icon-btn icon-btn--brand" href="tel:{{ driver.phone }}" aria-label="Call driver">
+                  {{ icon("phone") }}
+                </a>
+              </div>
+              <div class="driver-card__stats">
+                {% if driver.delivered %}
+                <span class="driver-card__stat">
+                  <span class="driver-card__stat-label">Status</span>
+                  <span class="driver-card__stat-value">Delivered</span>
+                </span>
+                <span class="driver-card__stat driver-card__stat--right">
+                  <span class="driver-card__stat-label">Delivered at</span>
+                  <span class="driver-card__stat-value driver-card__stat-value--eta">{{ driver.delivered_at_label }}</span>
+                </span>
+                {% else %}
+                <span class="driver-card__stat">
+                  <span class="driver-card__stat-label">Distance</span>
+                  <span class="driver-card__stat-value">{{ driver.distance_label }}</span>
+                </span>
+                <span class="driver-card__stat driver-card__stat--right">
+                  <span class="driver-card__stat-label">Arriving in</span>
+                  <span class="driver-card__stat-value driver-card__stat-value--eta">about {{ driver.eta_minutes }} min</span>
+                </span>
+                {% endif %}
+              </div>
+
+              {% if route %}
+              <div class="order-detail__route">
+                <p class="overline order-detail__route-title">
+                  {{ icon("route") }}<span>Route · {{ route.current_position_label }}</span>
+                </p>
+                {% for stop in route.stops %}
+                <div class="order-detail__stop{% if stop.is_current %} order-detail__stop--current{% endif %}">
+                  <span class="order-detail__stop-number">{{ loop.index }}</span>
+                  <span class="order-detail__stop-text">
+                    <span class="body-strong">{{ stop.order_number }} · {{ stop.area }}</span>
+                    <span class="caption">{{ stop.subtitle }}</span>
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+              {% else %}
+              <div class="info-card">
+                {{ icon("circle-info") }}
+                <div>
+                  <p class="info-card__title">{{ driver.message_title }}</p>
+                  <p class="info-card__message">{{ driver.message_body }}</p>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="dashboard-card order-detail__status-actions{% if next_step.has_moves %} order-detail__status-actions--has-moves{% endif %}">
+              <p class="overline order-detail__card-title">Next step</p>
+              {% if next_step.subtext %}<p class="caption">{{ next_step.subtext }}</p>{% endif %}
+              {% if next_step.has_moves %}
+              <div class="order-detail__move-buttons">
+                {% for move in next_step.moves %}
+                <button
+                  type="button"
+                  class="btn btn--{{ move.style }}"
+                  data-dialog-open="{{ move.dialog_id }}"
+                  {% if move.disabled %}disabled{% endif %}
+                >
+                  {% if move.icon %}{{ icon(move.icon) }}{% endif %}<span>{{ move.label }}</span>
+                </button>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="dashboard-card">
+              <p class="overline">Tracking history</p>
+              <ul class="order-detail__tracking">
+                {% for row in tracking %}
+                <li class="order-detail__tracking-item">
+                  <span class="caption order-detail__tracking-time">{{ row.time_label }}</span>
+                  <span class="order-detail__tracking-body">
+                    <p class="body-strong">{{ row.status_label }}</p>
+                    {% if row.subtext %}<p class="caption">{{ row.subtext }}</p>{% endif %}
+                  </span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <div class="order-detail__main">
+            <div class="dashboard-card">
+              <div class="order-detail__group">
+                <p class="overline">Order</p>
+                {% for label, value in order_info.rows %}
+                <div class="order-detail__row">
+                  <span>{{ label }}</span>
+                  <span{% if label == "Amount" %} class="mono-amount"{% endif %}>{{ value }}</span>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="order-detail__group">
+                <p class="overline">Customer</p>
+                <div class="order-detail__customer-row">
+                  <span class="driver-card__avatar">{{ customer.name[:1] | upper }}</span>
+                  <span class="order-detail__customer-info">
+                    <span class="body-strong">{{ customer.name }}</span>
+                    <span class="caption">{{ customer.phone_label }}</span>
+                  </span>
+                  <a class="btn btn--outline btn--small" href="{{ customer.call_href }}">
+                    {{ icon("phone") }}<span>Call</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="order-detail__group">
+                <p class="overline">Location</p>
+                {% for label, value in location.rows %}
+                <div class="order-detail__row"><span>{{ label }}</span><span>{{ value }}</span></div>
+                {% endfor %}
+                {% if not location.is_emergency %}
+                {% if location.coordinates %}
+                <div class="order-detail__row">
+                  <span>Coordinates</span>
+                  <span class="order-detail__coordinates mono-amount">
+                    {{ location.coordinates }}
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--outline"
+                      data-copy-value="{{ location.coordinates }}"
+                      aria-label="Copy coordinates"
+                    >
+                      {{ icon("copy") }}
+                    </button>
+                  </span>
+                </div>
+                {% else %}
+                <p class="caption">{{ location.no_gps_caption }}</p>
+                {% endif %}
+                {% endif %}
+              </div>
+
+              {% if order_info.note %}
+              <div class="order-detail__group">
+                <p class="overline">Note from customer</p>
+                <p class="body">{{ order_info.note }}</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-dialog-backdrop hidden></div>
+
+{% if "dialog-assign" in dialogs %}
+{% set assign = dialogs["dialog-assign"] %}
+<div class="dialog-panel" id="dialog-assign" data-dialog role="dialog" aria-modal="true" aria-labelledby="dialog-assign-title" hidden>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <div>
+      <p class="dialog-panel__title" id="dialog-assign-title">{{ assign.title }}</p>
+      <p class="caption">{{ assign.subtitle }}</p>
+    </div>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+
+  {% if assign.has_drivers %}
+  <form method="post" action="{{ url_for('admin.order_assign', order_id=header.order_id) }}" data-loading-text="Assigning…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="stale_token" value="{{ stale_token }}" />
+    <div class="driver-pick-list">
+      {% for row in assign.drivers %}
+      <label class="driver-pick" {% if row.extra %}hidden data-driver-extra{% endif %}>
+        <input
+          class="driver-pick__input"
+          type="radio"
+          name="driver_id"
+          value="{{ row.driver_id }}"
+          {% if row.selected %}checked{% endif %}
+          data-driver-radio
+          data-driver-name="{{ row.name }}"
+        />
+        <span class="driver-pick__avatar">{{ row.initials }}</span>
+        <span class="driver-pick__info">
+          <span class="driver-pick__name-row">
+            <span class="driver-pick__name">{{ row.name }}</span>
+            {% if row.recommended %}<span class="driver-pick__badge">Recommended</span>{% endif %}
+          </span>
+          <span class="driver-pick__meta">{{ icon("star") }}<span>{{ row.rating_label }} · {{ row.area }}</span></span>
+        </span>
+        <span class="driver-pick__stats">
+          <span class="driver-pick__distance">{{ row.distance_label }}</span>
+          <span class="driver-pick__eta">{{ row.eta_label }}</span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+    {% if assign.extra_count %}
+    <button type="button" class="btn btn--subtle" data-show-all-drivers>Show all available ({{ assign.extra_count }})</button>
+    {% endif %}
+    {% if assign.info_message %}
+    <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ assign.info_message }}</p></div>
+    {% endif %}
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand" data-assign-submit><span>{{ assign.default_label }}</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Cancel</span></button>
+    </div>
+  </form>
+  {% else %}
+  <div class="dialog-empty">
+    <span class="dialog-empty__icon">{{ icon("id-card") }}</span>
+    <p class="h4">No driver is free right now</p>
+    <p class="caption">All {{ assign.total_drivers }} drivers are on a delivery. The first one to finish will show here.</p>
+  </div>
+  <div class="dialog-actions">
+    {{ button("Check again", style="brand", href=url_for("admin.order_detail", order_id=header.order_id)) }}
+    <button type="button" class="btn btn--outline" data-dialog-close><span>Close</span></button>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if "dialog-cancel" in dialogs %}
+{% set cancel = dialogs["dialog-cancel"] %}
+<div class="dialog-panel" id="dialog-cancel" data-dialog role="dialog" aria-modal="true" aria-labelledby="dialog-cancel-title" hidden>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="dialog-cancel-title">{{ cancel.title }}</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <form method="post" action="{{ url_for('admin.order_status', order_id=header.order_id) }}" data-loading-text="Cancelling…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="stale_token" value="{{ stale_token }}" />
+    <input type="hidden" name="new_status" value="Cancelled" />
+
+    <div class="status-move-chips">
+      {{ status_chip(cancel.from_status, cancel.from_label) }}{{ icon("chevron-right") }}{{ status_chip("Cancelled", "Cancelled") }}
+    </div>
+
+    <p class="label">Reason (required)</p>
+    <div class="cancel-reason-list">
+      {% for value, label in cancel.reasons %}
+      <label class="cancel-reason">
+        <input
+          class="cancel-reason__input"
+          type="radio"
+          name="cancel_reason"
+          value="{{ value }}"
+          {% if loop.first %}checked{% endif %}
+          data-cancel-reason
+        />
+        <span>{{ label }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <div data-cancel-other-field hidden>
+      {{ field("cancel_reason_other", "Reason", placeholder="Type the reason", required=False, maxlength=cancel.other_max_length) }}
+    </div>
+
+    <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ cancel.info_message }}</p></div>
+
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--danger"><span>Cancel order</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>Keep order</span></button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% for dialog_id, move_dialog in dialogs.items() %}
+{% if dialog_id.startswith("dialog-status-") %}
+<div class="dialog-panel" id="{{ dialog_id }}" data-dialog role="dialog" aria-modal="true" aria-labelledby="{{ dialog_id }}-title" hidden>
+  <div class="dialog-panel__handle"></div>
+  <div class="dialog-panel__header">
+    <p class="dialog-panel__title" id="{{ dialog_id }}-title">{{ move_dialog.title }}</p>
+    <button class="icon-btn dialog-panel__close" type="button" data-dialog-close aria-label="Close">{{ icon("xmark") }}</button>
+  </div>
+  <div class="status-move-chips">
+    {{ status_chip(move_dialog.from_status, move_dialog.from_label) }}{{ icon("chevron-right") }}{{ status_chip(move_dialog.to_status, move_dialog.to_label) }}
+  </div>
+  <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ move_dialog.info_message }}</p></div>
+  <form method="post" action="{{ url_for('admin.order_status', order_id=header.order_id) }}" data-loading-text="Saving…">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="stale_token" value="{{ stale_token }}" />
+    <input type="hidden" name="new_status" value="{{ move_dialog.to_status }}" />
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn--brand"><span>{{ move_dialog.confirm_label }}</span></button>
+      <button type="button" class="btn btn--outline" data-dialog-close><span>{{ move_dialog.keep_label }}</span></button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_order_detail.js') }}"></script>
+{% endblock %}

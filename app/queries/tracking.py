@@ -14,3 +14,13 @@ def list_for_order(db, order_id):
     return db.execute(
         "SELECT * FROM tracking WHERE order_id = ? ORDER BY updated_at", (order_id,)
     ).fetchall()
+
+
+def latest_id_for_order(db, order_id):
+    """The order's newest tracking row id - Order details' stale-update guard
+    (CLAUDE.md: refuse a status/assign POST if the order changed since the
+    page was opened)."""
+    row = db.execute(
+        "SELECT MAX(track_id) AS track_id FROM tracking WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    return row["track_id"]

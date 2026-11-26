@@ -4,7 +4,7 @@ from flask import Flask, jsonify, render_template
 from flask_compress import Compress
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app import cli, db, security
+from app import applog, cli, db, security
 from app.admin import bp as admin_bp
 from app.api import bp as api_bp
 from app.auth import bp as auth_bp
@@ -25,6 +25,7 @@ def create_app(config_overrides=None):
 
     db.init_app(app)
     security.init_security(app)
+    applog.init_app_log(app)
     init_caching(app)
     init_errors(app)
     cli.init_app(app)

@@ -202,3 +202,14 @@ def list_pending_asap(db):
 
 def update_status(db, order_id, status):
     db.execute("UPDATE orders SET status = ? WHERE order_id = ?", (status, order_id))
+
+
+def mark_call_confirmed(db, order_id):
+    db.execute("UPDATE orders SET call_confirmed = 1 WHERE order_id = ?", (order_id,))
+
+
+def cancel(db, order_id, cancel_reason):
+    db.execute(
+        "UPDATE orders SET status = 'Cancelled', cancel_reason = ? WHERE order_id = ?",
+        (cancel_reason, order_id),
+    )

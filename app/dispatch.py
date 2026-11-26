@@ -47,7 +47,9 @@ def eta_minutes(distance_km, dt):
     return math.ceil(float(distance_km) / speed * 60 + EXTRA_MINUTES)
 
 
-def _order_location(order_row):
+def order_location(order_row):
+    """The order's own coordinates, or its area's centre when none were
+    captured (shared by dispatch and Order details' route list)."""
     if order_row["latitude"] is not None and order_row["longitude"] is not None:
         return order_row["latitude"], order_row["longitude"]
     return area_centre(order_row["area"])
@@ -75,7 +77,7 @@ def dispatch_order(db, order_row, now=None):
     drivers = driver_queries.list_available(db)
     if not drivers:
         return None
-    lat, lon = _order_location(order_row)
+    lat, lon = order_location(order_row)
     driver, distance = _nearest_driver(drivers, lat, lon)
     distance_km = Decimal(str(distance)).quantize(Decimal("0.01"))
     eta = eta_minutes(distance_km, now)
@@ -89,6 +91,62 @@ def dispatch_order(db, order_row, now=None):
     tracking_queries.add_tracking(db, order_row["order_id"], "Assigned", assigned_at, lat, lon)
 
     return {"driver_id": driver["driver_id"], "eta_minutes": eta, "distance_km": distance_km}
+
+
+def rank_available_drivers(db, order_row, now=None):
+    """Every Available driver, nearest first - Order details' Assign/change
+    driver pop-up (3 nearest shown, "Show all available" opens the rest)."""
+    now = now or timeutil.utcnow()
+    lat, lon = order_location(order_row)
+    ranked = []
+    for driver in driver_queries.list_available(db):
+        distance_km = Decimal(str(haversine_km(lat, lon, driver["latitude"], driver["longitude"])))
+        distance_km = distance_km.quantize(Decimal("0.01"))
+        ranked.append(
+            {
+                "driver": driver,
+                "distance_km": distance_km,
+                "eta_minutes": eta_minutes(distance_km, now),
+            }
+        )
+    ranked.sort(key=lambda row: row["distance_km"])
+    return ranked
+
+
+def assign_driver(db, order_row, driver_id, now=None):
+    """Admin-picked assign/change driver (pop-up 2) - like dispatch_order but
+    for a chosen driver instead of the automatic nearest pick. Does not
+    commit, so the caller runs it inside its own transaction."""
+    now = now or timeutil.utcnow()
+    driver = driver_queries.find_by_id(db, driver_id)
+    lat, lon = order_location(order_row)
+    distance_km = Decimal(str(haversine_km(lat, lon, driver["latitude"], driver["longitude"])))
+    distance_km = distance_km.quantize(Decimal("0.01"))
+    eta = eta_minutes(distance_km, now)
+    assigned_at = timeutil.to_sql(now)
+
+    existing = assignment_queries.find_by_order_id(db, order_row["order_id"])
+    old_driver_id = existing["driver_id"] if existing else None
+    if existing:
+        assignment_queries.update_assignment(
+            db, order_row["order_id"], driver_id, eta, assigned_at, distance_km=distance_km
+        )
+    else:
+        assignment_queries.create_assignment(
+            db, order_row["order_id"], driver_id, eta, assigned_at, distance_km=distance_km
+        )
+    order_queries.update_status(db, order_row["order_id"], "Assigned")
+    driver_queries.set_status(db, driver_id, "Busy")
+    if old_driver_id is not None and old_driver_id != driver_id:
+        driver_queries.set_status(db, old_driver_id, "Available")
+    tracking_queries.add_tracking(db, order_row["order_id"], "Assigned", assigned_at, lat, lon)
+
+    return {
+        "driver_id": driver_id,
+        "eta_minutes": eta,
+        "distance_km": distance_km,
+        "old_driver_id": old_driver_id,
+    }
 
 
 def _priority_queue(orders):
