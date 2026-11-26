@@ -26,7 +26,10 @@
       {{ admin_topbar("Order details") }}
       {{ admin_mobile_title("Order details") }}
 
-      <div class="order-detail{% if next_step.has_moves %} order-detail--fixed-bar{% endif %}">
+      <div
+        class="order-detail{% if next_step.has_moves %} order-detail--fixed-bar{% endif %}"
+        {% if auto_open_dialog %}data-open-dialog="{{ auto_open_dialog }}"{% endif %}
+      >
         <div class="order-detail__header">
           {{ icon_button("arrow-left", "Back to all orders", style="outline", href=url_for("admin.orders")) }}
           <div>

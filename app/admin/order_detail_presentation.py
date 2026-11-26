@@ -3,7 +3,7 @@ Order details and pop-ups 2/3 show (docs/SPEC.md screen 14, docs/FIGMA.md
 41:1797-41:2855, 42:2169-42:2814). No SQL, no Flask request object."""
 
 from app import dispatch, money, phone, timeutil
-from app.admin.presentation import generator_word, quantity_label
+from app.admin.presentation import generator_word, initials, quantity_label
 from app.customer import scheduling
 from app.customer.validation import GENERATOR_TYPES
 from app.labels import order_status_label
@@ -151,11 +151,6 @@ def location_info(order_row):
     }
 
 
-def _initials(name):
-    parts = name.split()
-    return "".join(part[0] for part in parts[:2]).upper()
-
-
 def _driver_not_assigned_message(order_row):
     if order_row["status"] == "Cancelled":
         return ("This order was cancelled.", "No driver was assigned.")
@@ -179,7 +174,7 @@ def driver_panel(order_row):
     distance_km = money.from_db(order_row["distance_km"]) if order_row["distance_km"] else None
     return {
         "assigned": True,
-        "initials": _initials(order_row["driver_name"]),
+        "initials": initials(order_row["driver_name"]),
         "driver_name": order_row["driver_name"],
         "rating_label": f"{float(order_row['driver_rating']):.1f}",
         "vehicle_no": order_row["driver_vehicle_no"],

@@ -2,9 +2,10 @@
 
 from datetime import timedelta
 
-from flask import Blueprint, abort, g, jsonify, request, url_for
+from flask import Blueprint, abort, g, jsonify, request
 
 from app import money, timeutil
+from app.admin.emergency_presentation import emergency_card
 from app.customer import presentation
 from app.db import get_db
 from app.labels import order_status_label
@@ -42,11 +43,8 @@ def admin_live():
             "call_needed": admin_order_queries.count_call_needed(db),
             "new_emergencies": [
                 {
-                    "order_id": row["order_id"],
-                    "order_number": f"ORD-{row['order_id']:04d}",
-                    "customer_name": row["customer_name"],
+                    **emergency_card(row, now),
                     "amount_label": money.format_pkr(money.from_db(row["total_amount"])),
-                    "detail_url": url_for("admin.order_detail", order_id=row["order_id"]),
                 }
                 for row in new_rows
             ],

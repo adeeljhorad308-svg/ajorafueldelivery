@@ -6,9 +6,9 @@ from app.admin.order_detail_presentation import (
     CANCEL_OTHER_MAX_LENGTH,
     CANCEL_REASONS,
     NEXT_MOVES,
-    _initials,
     order_number,
 )
+from app.admin.presentation import initials
 from app.labels import order_status_label
 
 
@@ -16,7 +16,7 @@ def _driver_row(ranked_entry):
     driver = ranked_entry["driver"]
     return {
         "driver_id": driver["driver_id"],
-        "initials": _initials(driver["name"]),
+        "initials": initials(driver["name"]),
         "name": driver["name"],
         "area": driver["area"] or "—",
         "rating_label": f"{float(driver['rating']):.1f}",

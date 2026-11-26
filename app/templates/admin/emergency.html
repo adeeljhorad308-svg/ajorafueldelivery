@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/empty_state.html" import empty_state %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}Emergency requests – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-status-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-empty-state.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-emergency.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell" data-admin-live data-live-url="{{ url_for('api.admin_live') }}">
+  {{ admin_sidebar("emergency") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Emergency requests") }}
+      {{ admin_mobile_title("Emergency requests") }}
+
+      <div class="emergency-summary" data-emergency-summary>
+        {% if header_title %}<p class="h4" data-emergency-title>{{ header_title }}</p>{% endif %}
+        <p class="caption" data-emergency-caption>{{ header_caption }}</p>
+      </div>
+
+      {% if cards %}
+      <div class="emergency-cards" data-emergency-cards data-max-emergency-id="{{ max_emergency_id }}">
+        {% for card in cards %}
+        <div
+          class="emergency-card{% if card.is_overdue %} emergency-card--overdue{% endif %}"
+          data-emergency-card
+          data-order-id="{{ card.order_id }}"
+          data-created-at="{{ card.created_at_iso }}"
+        >
+          <div class="emergency-card__top">
+            <span class="emergency-card__timer">{{ icon("clock") }}<span data-emergency-timer>{{ card.waiting_label }}</span></span>
+            <span class="emergency-card__spacer"></span>
+            {{ status_chip(card.status, card.status_label) }}
+          </div>
+          <p class="emergency-card__overdue" data-emergency-overdue-label {% if not card.is_overdue %}hidden{% endif %}>{{ card.overdue_label }}</p>
+          <div class="emergency-card__order">
+            <p class="h4">{{ card.title }}</p>
+            <p class="caption">{{ card.placed_meta }}</p>
+          </div>
+          <div class="emergency-card__customer">
+            <span class="driver-card__avatar">{{ card.customer_initials }}</span>
+            <span class="emergency-card__who">
+              <span class="body-strong">{{ card.customer_name }}</span>
+              <span class="caption mono-amount">{{ card.customer_phone_label }}</span>
+            </span>
+            <a class="btn btn--outline btn--small" href="{{ card.call_href }}">{{ icon("phone") }}<span>Call</span></a>
+          </div>
+          <div class="emergency-card__fact">{{ icon("location-dot") }}<span>{{ card.address_line }}</span></div>
+          {% if card.vehicle_note %}
+          <div class="emergency-card__fact">{{ icon("circle-info") }}<span>{{ card.vehicle_note }}</span></div>
+          {% endif %}
+          <div class="emergency-card__fact emergency-card__fact--muted">
+            {{ icon("user") }}<span>{{ "Driver: " ~ card.driver_name if card.driver_name else "Driver: not assigned" }}</span>
+          </div>
+          <div class="emergency-card__actions">
+            <a class="btn btn--brand" href="{{ card.detail_url }}?open=assign">{{ icon("user-check") }}<span>Assign driver</span></a>
+            <a class="btn btn--outline" href="{{ card.detail_url }}"><span>Open</span></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      {{ empty_state("circle-check", "No open emergencies", "New requests appear here at once and the Emergency badge turns red.", tone="success") }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_live.js') }}"></script>
+<script type="module" src="{{ static_versioned('js/admin_emergency.js') }}"></script>
+{% endblock %}

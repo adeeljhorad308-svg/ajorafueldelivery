@@ -1,58 +1,4 @@
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled])';
-
-function trapFocus(panel, event) {
-  if (event.key !== "Tab") return;
-  const focusable = Array.from(panel.querySelectorAll(FOCUSABLE));
-  if (focusable.length === 0) return;
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
-}
-
-function initDialogs() {
-  const backdrop = document.querySelector("[data-dialog-backdrop]");
-  if (!backdrop) return;
-  let openPanel = null;
-  let opener = null;
-
-  function onKeydown(event) {
-    if (event.key === "Escape") close();
-    if (openPanel) trapFocus(openPanel, event);
-  }
-
-  function close() {
-    if (openPanel) openPanel.hidden = true;
-    backdrop.hidden = true;
-    openPanel = null;
-    document.removeEventListener("keydown", onKeydown);
-    if (opener) opener.focus();
-  }
-
-  function open(id, trigger) {
-    const panel = document.getElementById(id);
-    if (!panel) return;
-    opener = trigger;
-    openPanel = panel;
-    panel.hidden = false;
-    backdrop.hidden = false;
-    document.addEventListener("keydown", onKeydown);
-    panel.querySelector(FOCUSABLE)?.focus();
-  }
-
-  document.querySelectorAll("[data-dialog-open]").forEach((trigger) => {
-    trigger.addEventListener("click", () => open(trigger.dataset.dialogOpen, trigger));
-  });
-  document.querySelectorAll("[data-dialog-close]").forEach((button) => {
-    button.addEventListener("click", close);
-  });
-  backdrop.addEventListener("click", close);
-}
+import { initDialogs } from "./admin_dialogs.js";
 
 function initShowAllDrivers() {
   document.querySelectorAll("[data-show-all-drivers]").forEach((trigger) => {
@@ -100,7 +46,13 @@ function initCopyButtons() {
   });
 }
 
-initDialogs();
+function initAutoOpen(dialogs) {
+  const target = document.querySelector("[data-open-dialog]");
+  if (target) dialogs.open(target.dataset.openDialog);
+}
+
+const dialogs = initDialogs();
+initAutoOpen(dialogs);
 initShowAllDrivers();
 initDriverPick();
 initCancelOtherReason();

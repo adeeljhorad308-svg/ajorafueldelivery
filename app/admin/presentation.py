@@ -23,6 +23,13 @@ DATE_FILTER_OPTIONS = (
 )
 
 
+def initials(name):
+    """Two-letter avatar initials, shared by every admin screen that shows a
+    person as a circle (driver/customer rows and panels, Order details)."""
+    parts = name.split()
+    return "".join(part[0] for part in parts[:2]).upper()
+
+
 def sidebar_href(endpoint, **kwargs):
     """None while a sidebar page's route doesn't exist yet (later sessions),
     so the sidebar never guesses a URL or crashes url_for (CLAUDE.md design

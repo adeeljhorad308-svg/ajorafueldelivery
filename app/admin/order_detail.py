@@ -91,6 +91,14 @@ def order_detail(order_id):
     db = get_db()
     order_row = _load_order_or_404(db, order_id)
     next_step_data = next_step(order_row)
+    dialogs = _build_dialogs(db, order_row, next_step_data["moves"])
+    # Emergency requests' "Assign driver" button links here with ?open=assign
+    # so the two screens still take the two taps docs/SPEC.md promises
+    # (Assign driver -> pop-up 2) even though the dialog itself only exists
+    # on this page.
+    auto_open_dialog = "dialog-assign" if request.args.get("open") == "assign" else None
+    if auto_open_dialog not in dialogs:
+        auto_open_dialog = None
     return render_template(
         "admin/order_detail.html",
         header=header(order_row),
@@ -101,7 +109,8 @@ def order_detail(order_id):
         route=route_stops(db, order_row),
         tracking=tracking_history(tracking_queries.list_for_order(db, order_id), order_row),
         next_step=next_step_data,
-        dialogs=_build_dialogs(db, order_row, next_step_data["moves"]),
+        dialogs=dialogs,
+        auto_open_dialog=auto_open_dialog,
         stale_token=tracking_queries.latest_id_for_order(db, order_id),
     )
 

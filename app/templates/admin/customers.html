@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/field.html" import field %}
+{% from "components/dot_chip.html" import dot_chip %}
+{% from "components/status_chip.html" import status_chip %}
+{% from "components/empty_state.html" import empty_state %}
+{% from "components/pagination.html" import pagination %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}Customers – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-pagination.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-dot-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-status-chip.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-empty-state.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-driver-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-customers.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  {{ admin_sidebar("customers") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Customers") }}
+      {{ admin_mobile_title("Customers") }}
+
+      <form method="get" action="{{ url_for('admin.customers') }}" id="customers-search-form">
+        {{ field("q", "Search", value=search, placeholder="Name, email or phone", required=False) }}
+      </form>
+
+      <div class="customers-summary">
+        <p class="body">{{ total_count }} customer{{ "" if total_count == 1 else "s" }} · {{ blocked_count }} blocked</p>
+      </div>
+
+      {% if rows %}
+      <div class="customers-table">
+        <div class="customers-table__row customers-table__head">
+          <span class="customers-table__name customers-table__head-label">Name</span>
+          <span class="customers-table__phone customers-table__head-label">Phone</span>
+          <span class="customers-table__email customers-table__head-label">Email</span>
+          <span class="customers-table__orders customers-table__head-label">Orders</span>
+          <span class="customers-table__last customers-table__head-label">Last order</span>
+          <span class="customers-table__status customers-table__head-label">Status</span>
+          <span class="customers-table__chevron"></span>
+        </div>
+        {% for row in rows %}
+        <a
+          class="customers-table__row customers-table__row--link{% if selected_panel and selected_panel.user_id == row.user_id %} customers-table__row--selected{% endif %}"
+          href="{{ row.detail_url }}"
+        >
+          <span class="customers-table__name customers-table__cell">
+            <span class="driver-card__avatar">{{ row.initials }}</span>{{ row.name }}
+          </span>
+          <span class="customers-table__phone customers-table__cell mono-amount">{{ row.phone_label }}</span>
+          <span class="customers-table__email customers-table__cell">{{ row.email }}</span>
+          <span class="customers-table__orders customers-table__cell">{{ row.orders_count }}</span>
+          <span class="customers-table__last customers-table__cell">{{ row.last_order_label }}</span>
+          <span class="customers-table__status">{{ dot_chip(row.status_label, row.status_tone) }}</span>
+          <span class="customers-table__chevron">{{ icon("chevron-right") }}</span>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="customers-cards">
+        {% for row in rows %}
+        <a class="customers-card" href="{{ row.detail_url }}">
+          <span class="driver-card__avatar">{{ row.initials }}</span>
+          <span class="customers-card__text">
+            <span class="body-strong">{{ row.name }}</span>
+            <span class="caption">{{ row.phone_label }} · {{ row.orders_count }} orders</span>
+          </span>
+          {{ dot_chip(row.status_label, row.status_tone) }}
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="admin-table-footer">
+        {% if page_info.showing_label %}<p class="caption">{{ page_info.showing_label }}</p>{% endif %}
+        {{ pagination(page_info.page, page_info.total_pages, page_url) }}
+      </div>
+      {% else %}
+      {{ empty_state("magnifying-glass", "No customers match this search", "", "Clear search", url_for("admin.customers")) }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if selected_panel %}
+{% set panel = selected_panel %}
+<div class="customer-panel__backdrop" data-customer-panel-backdrop data-close-href="{{ close_url }}"></div>
+<div class="customer-panel" data-customer-panel role="dialog" aria-modal="true" aria-labelledby="customer-panel-title">
+  <div class="customer-panel__header">
+    <p class="h4" id="customer-panel-title">{{ panel.name }}</p>
+    <a class="icon-btn" href="{{ close_url }}" aria-label="Close" data-customer-panel-close>{{ icon("xmark") }}</a>
+  </div>
+  <div class="customer-panel__badges">
+    {{ dot_chip(panel.status_label, panel.status_tone) }}
+    <span class="caption">{{ panel.since_label }}</span>
+  </div>
+
+  <div class="customer-panel__row"><span>Phone</span><span class="mono-amount">{{ panel.phone_label }}</span></div>
+  <div class="customer-panel__row"><span>Email</span><span>{{ panel.email }}</span></div>
+  <div class="customer-panel__row"><span>Orders</span><span>{{ panel.orders_count }}</span></div>
+  <div class="customer-panel__row"><span>Total spent (delivered)</span><span class="mono-amount">{{ panel.total_spent_label }}</span></div>
+
+  <p class="overline">Last 5 orders</p>
+  <div class="customer-panel__orders">
+    {% for order in panel.last_orders %}
+    <a class="customer-panel__order" href="{{ order.detail_url }}">
+      <span class="customer-panel__order-text">
+        <span class="body-strong">{{ order.order_number }} · {{ order.title }}</span>
+        <span class="caption mono-amount">{{ order.amount_label }}</span>
+      </span>
+      {{ status_chip(order.status, order.status_label) }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="customer-panel__spacer"></div>
+  <div class="info-card">{{ icon("circle-info") }}<p class="info-card__message">{{ panel.confirm_message }}</p></div>
+  <form method="post" action="{{ panel.block_url }}" data-loading-text="Saving…" data-confirm="{{ panel.confirm_title }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="action" value="{{ panel.action }}" />
+    <button
+      type="submit"
+      class="btn btn--{{ 'outline' if panel.action == 'unblock' else 'danger' }} customer-panel__action"
+    >
+      <span>{{ panel.action_label }}</span>
+    </button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_versioned('js/admin_customers.js') }}"></script>
+{% endblock %}

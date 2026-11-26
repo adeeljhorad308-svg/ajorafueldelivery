@@ -153,14 +153,30 @@ def oldest_open_emergency_created_at(db):
     return row["oldest"]
 
 
+def list_open_emergencies(db):
+    """Every open emergency, oldest first (docs/SPEC.md screen 15) - the
+    5-minute-rule reorder to the top happens in presentation, not here, since
+    it depends on "now", not a column SQLite can sort by."""
+    return db.execute(
+        f"{_ADMIN_ORDER_SELECT} WHERE orders.is_emergency = 1 AND orders.status IN "  # noqa: S608
+        "('Pending', 'Assigned', 'On the Way') ORDER BY orders.created_at",
+    ).fetchall()
+
+
 def list_open_emergencies_after_id(db, after_id):
     """Open emergencies the admin's browser hasn't rendered yet (order_id is
-    monotonic, so this is robust to clock drift - /api/admin/live uses it to
-    slide new rows into the Latest orders table)."""
+    monotonic, so this is robust to clock drift). Used by /api/admin/live to
+    slide a new row into the dashboard's Latest orders table, and a new card
+    into the Emergency requests screen - the extra columns past
+    total_amount/customer_name are only read by the latter."""
     return db.execute(
         """
-        SELECT orders.order_id, orders.total_amount, users.name AS customer_name
+        SELECT orders.order_id, orders.total_amount, orders.created_at, orders.quantity,
+               orders.area, orders.address, orders.note, orders.call_confirmed, orders.status,
+               services.name AS service_name, services.unit AS service_unit,
+               users.name AS customer_name, users.phone AS customer_phone
         FROM orders
+        JOIN services ON services.service_id = orders.service_id
         JOIN users ON users.user_id = orders.user_id
         WHERE orders.is_emergency = 1 AND orders.status IN ('Pending', 'Assigned', 'On the Way')
               AND orders.order_id > ?

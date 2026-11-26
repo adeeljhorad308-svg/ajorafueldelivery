@@ -1,0 +1,47 @@
+/* Dot + word status pill (docs/FIGMA.md Customers "Active"/"Blocked",
+   Drivers "Available"/"Busy"/"Off duty") - a colour-tinted pill like
+   status-chip, but a plain dot instead of an icon for a lower-emphasis
+   on/off style status. Never colour alone: the word is always shown too. */
+
+.dot-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.dot-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.dot-chip--success {
+  background: var(--color-bg-status-success-tint);
+}
+.dot-chip--success .dot-chip__dot {
+  background: var(--color-status-success);
+}
+.dot-chip--warning {
+  background: var(--color-bg-status-warning-tint);
+}
+.dot-chip--warning .dot-chip__dot {
+  background: var(--color-status-warning);
+}
+.dot-chip--error {
+  background: var(--color-bg-status-error-tint);
+}
+.dot-chip--error .dot-chip__dot {
+  background: var(--color-status-error);
+}
+.dot-chip--muted {
+  background: var(--color-bg-subtle);
+}
+.dot-chip--muted .dot-chip__dot {
+  background: var(--color-text-muted);
+}

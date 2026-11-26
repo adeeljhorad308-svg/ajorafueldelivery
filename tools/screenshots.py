@@ -69,6 +69,9 @@ DEFAULT_PATHS = [
     "/admin/orders/43",  # Pending + Call needed
     "/admin/orders/1",  # Delivered (read-only)
     "/admin/orders/7",  # Cancelled (read-only)
+    "/admin/emergency",
+    "/admin/customers",
+    "/admin/customers/1",  # Ali Raza: pop-up 4 customer panel
 ]
 
 

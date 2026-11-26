@@ -26,6 +26,14 @@
   height: 28px;
   color: var(--color-icon-muted);
 }
+/* "No open emergencies" (docs/FIGMA.md 44:3275): green, since an empty
+   emergency list is good news, unlike every other empty list in the app. */
+.empty-state__icon--success {
+  background: var(--color-bg-status-success-tint);
+}
+.empty-state__icon--success .icon {
+  color: var(--color-status-success);
+}
 .empty-state__title {
   font-family: var(--font-sans);
   font-weight: 600;
