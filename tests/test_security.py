@@ -121,6 +121,22 @@ def test_checklist_2_rate_limit_eleven_logins_per_minute(tmp_path):
     # be set before create_app() rather than toggled on the shared fixture app.
     from app import create_app
     from app.db import get_db, init_db
+    from app.security import limiter
+
+    # `limiter` is a module-level singleton shared by every app this suite
+    # builds. Limiter.init_app() only reads RATELIMIT_STRATEGY the first time
+    # it runs with rate limiting enabled, then caches it on the singleton
+    # (self._strategy) for good, so a later test's config override would
+    # silently be ignored. Reset the cached strategy/storage so this test
+    # always gets a clean one, and use a moving window instead of the
+    # default fixed window: a fixed window resets at the top of every
+    # wall-clock minute, so 11 rapid requests that happen to straddle that
+    # boundary can let more than 10 through before the 429 — a moving window
+    # counts real elapsed time between requests instead, so it is immune to
+    # where in the minute the test happens to run.
+    limiter._strategy = None
+    limiter._storage = None
+    limiter._limiter = None
 
     rate_limited_app = create_app(
         {
@@ -132,6 +148,7 @@ def test_checklist_2_rate_limit_eleven_logins_per_minute(tmp_path):
             # earlier test's False would otherwise leak forward as the
             # default for any app that doesn't set this key itself.
             "RATELIMIT_ENABLED": True,
+            "RATELIMIT_STRATEGY": "moving-window",
         }
     )
     with rate_limited_app.app_context():
