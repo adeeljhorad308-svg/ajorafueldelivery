@@ -79,6 +79,10 @@ DEFAULT_PATHS = [
     "/admin/drivers#add-driver",  # pop-up 6: add
     "/admin/drivers#edit-driver-1",  # pop-up 6: edit (Ahmed Raza)
     "/admin/drivers#remove-driver-1",  # pop-up 6: remove refused (Ahmed Raza is Busy)
+    "/admin/reports",
+    "/admin/reports?period=day&date=2020-01-01",  # empty period
+    "/app#logout",  # pop-up 7: customer
+    "/admin#logout",  # pop-up 7: admin
 ]
 
 
@@ -180,6 +184,11 @@ def _slug(path):
     return name
 
 
+def _open_logout_dialog(page):
+    page.click('[data-action="open-logout"]')
+    page.wait_for_selector("#logout-dialog:not([hidden])")
+
+
 def _capture_path(page, base_url, path):
     real_path, _, fragment = path.partition("#")
     page.goto(f"{base_url}{real_path}")
@@ -187,6 +196,8 @@ def _capture_path(page, base_url, path):
         page.wait_for_load_state("networkidle")
     if fragment == "confirm":
         CONFIRM_HANDLERS[real_path](page)
+    elif fragment == "logout":
+        _open_logout_dialog(page)
     elif fragment and real_path.startswith(("/admin/orders/", "/admin/services", "/admin/drivers")):
         _open_admin_dialog(page, fragment)
     name = _slug(path)

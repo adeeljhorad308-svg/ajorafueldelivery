@@ -43,9 +43,13 @@
         <span class="admin-sidebar__role">Admin</span>
       </span>
     </div>
-    <form method="post" action="{{ url_for('auth.logout') }}">
+    <form method="post" action="{{ url_for('auth.logout') }}" id="logout-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-      <button class="admin-sidebar__item admin-sidebar__logout" type="submit">
+      <button
+        class="admin-sidebar__item admin-sidebar__logout"
+        type="submit"
+        data-action="open-logout"
+      >
         {{ icon("right-from-bracket") }}<span class="admin-sidebar__item-label">Log out</span>
       </button>
     </form>

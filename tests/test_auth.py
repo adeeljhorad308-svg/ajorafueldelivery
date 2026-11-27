@@ -193,6 +193,32 @@ def test_login_blocked_account_shown_only_after_correct_password(client, make_us
     assert b"This account is blocked. Please contact AJORA support." in correct.data
 
 
+def test_logout_confirm_dialog_posts_the_real_logout_form(client, make_user):
+    """Pop-up 7 (docs/FIGMA.md P7): the dialog's Log out button targets
+    #logout-form by id instead of JS submitting it, so the no-JS fallback
+    (a plain POST from the page's own logout button) and the confirmed path
+    both end up posting the exact same form."""
+    make_user(email="cust@example.com", password=VALID_PASSWORD)
+    client.post("/login", data={"email": "cust@example.com", "password": VALID_PASSWORD})
+    body = client.get("/app").data.decode()
+
+    assert 'id="logout-form"' in body
+    assert 'data-action="open-logout"' in body
+    assert "Log out of AJORA?" in body
+    assert 'form="logout-form"' in body
+    assert 'data-action="confirm-logout"' in body
+
+
+def test_logout_confirm_dialog_present_for_admin_too(client, app, make_user):
+    make_user(email="admin@example.com", password=VALID_PASSWORD, role="admin")
+    client.post("/login", data={"email": "admin@example.com", "password": VALID_PASSWORD})
+    body = client.get("/admin").data.decode()
+
+    assert 'id="logout-form"' in body
+    assert 'data-action="open-logout"' in body
+    assert 'form="logout-form"' in body
+
+
 def test_logout_bumps_session_version(client, app, make_user):
     user_id = make_user(email="cust@example.com", password=VALID_PASSWORD)
     client.post("/login", data={"email": "cust@example.com", "password": VALID_PASSWORD})

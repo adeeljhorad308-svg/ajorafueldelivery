@@ -174,5 +174,6 @@ from app.admin import (  # noqa: E402, F401
     drivers,
     emergency,
     order_detail,
+    reports,
 )
 from app.admin import services as services_routes  # noqa: E402, F401

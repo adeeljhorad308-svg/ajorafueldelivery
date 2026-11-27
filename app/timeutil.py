@@ -7,7 +7,7 @@ that depend on local time of day (dispatch) and for display formatting -
 never for comparisons or storage.
 """
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 KARACHI = ZoneInfo("Asia/Karachi")
@@ -98,3 +98,68 @@ def start_of_karachi_day(dt):
     """UTC-aware instant for local midnight on dt's Asia/Karachi calendar day."""
     local_date = to_karachi(dt).date()
     return from_karachi_date_and_hour(local_date, 0)
+
+
+def start_of_karachi_week(dt):
+    """UTC-aware instant for local midnight on the Monday of dt's Asia/Karachi
+    calendar week (Reports screen, docs/SPEC.md FR-16)."""
+    local_date = to_karachi(dt).date()
+    monday = local_date - timedelta(days=local_date.weekday())
+    return from_karachi_date_and_hour(monday, 0)
+
+
+def start_of_karachi_month(dt):
+    """UTC-aware instant for local midnight on the 1st of dt's Asia/Karachi
+    calendar month (Reports screen)."""
+    local_date = to_karachi(dt).date()
+    return from_karachi_date_and_hour(local_date.replace(day=1), 0)
+
+
+def add_karachi_months(dt, months):
+    """Shift a Reports period anchor date by whole calendar months, clamped to
+    the 1st (callers only ever pass a month's start, so there is no day to
+    lose by clamping)."""
+    local_date = to_karachi(dt).date()
+    month_index = local_date.month - 1 + months
+    year = local_date.year + month_index // 12
+    month = month_index % 12 + 1
+    return from_karachi_date_and_hour(local_date.replace(year=year, month=month, day=1), 0)
+
+
+_FULL_MONTHS = (
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+)  # fmt: skip
+
+
+def format_weekday_day_month_year(dt):
+    """'Mon 31 Aug 2026' in Asia/Karachi (Reports screen, Day period label)."""
+    local = to_karachi(dt)
+    return f"{_WEEKDAYS[local.weekday()]} {local.day} {_MONTHS[local.month - 1]} {local.year}"
+
+
+def format_report_week_label(week_start):
+    """'16–22 Nov 2026' in Asia/Karachi, spelling out the month(s)/year(s)
+    again only where the week actually crosses that boundary."""
+    start = to_karachi(week_start)
+    end = to_karachi(week_start + timedelta(days=6))
+    if start.year != end.year:
+        return f"{format_date(week_start)} – {format_date(week_start + timedelta(days=6))}"
+    if start.month != end.month:
+        return (
+            f"{start.day} {_MONTHS[start.month - 1]} – "
+            f"{end.day} {_MONTHS[end.month - 1]} {end.year}"
+        )
+    return f"{start.day}–{end.day} {_MONTHS[start.month - 1]} {end.year}"
+
+
+def weekday_abbrev(local_date):
+    """'Mon'..'Sun' for a date object already in local (Karachi) terms
+    (Reports screen chart axis labels)."""
+    return _WEEKDAYS[local_date.weekday()]
+
+
+def format_report_month_label(month_start):
+    """'November 2026' in Asia/Karachi (Reports screen, Month period label)."""
+    local = to_karachi(month_start)
+    return f"{_FULL_MONTHS[local.month - 1]} {local.year}"

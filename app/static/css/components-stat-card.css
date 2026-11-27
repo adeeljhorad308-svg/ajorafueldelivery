@@ -1,0 +1,55 @@
+/* Stat card (components/stat_card.html): dashboard and Reports number card.
+   Value in JetBrains Mono. Alert tone only for open emergencies and security
+   lockouts (docs/FIGMA.md Stat card, node 10:398). */
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+.stat-card--alert {
+  background: var(--color-bg-status-error-wash);
+  border: 2px solid var(--color-status-error);
+}
+.stat-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.stat-card__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  letter-spacing: 2px;
+  color: var(--color-text-muted);
+}
+.stat-card--alert .stat-card__label {
+  color: var(--color-text-error);
+}
+.stat-card__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-icon-muted);
+}
+.stat-card--alert .stat-card__icon {
+  color: var(--color-status-error);
+}
+.stat-card__value {
+  color: var(--color-text-primary);
+}
+.stat-card__note {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.stat-card--alert .stat-card__note {
+  color: var(--color-text-error);
+}

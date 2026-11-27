@@ -1,5 +1,6 @@
 import { initErrorActions } from "./error_actions.js";
 import { initFormLoadingState } from "./form_loading.js";
+import { initLogoutDialog } from "./logout_dialog.js";
 import { initMenuToggle } from "./menu.js";
 import { initPasswordRules } from "./password_rules.js";
 import { initPasswordToggles } from "./password_toggle.js";
@@ -11,3 +12,4 @@ initToasts();
 initFormLoadingState();
 initErrorActions();
 initPasswordRules();
+initLogoutDialog();

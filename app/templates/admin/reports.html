@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% from "components/icon.html" import icon %}
+{% from "components/stat_card.html" import stat_card %}
+{% from "components/empty_state.html" import empty_state %}
+{% from "components/admin_sidebar.html" import admin_sidebar with context %}
+{% from "components/top_bar_admin.html" import admin_topbar_mobile, admin_topbar, admin_mobile_title with context %}
+
+{% block title %}Reports – AJORA Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_versioned('css/admin-shell.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/components-stat-card.css') }}" />
+<link rel="stylesheet" href="{{ static_versioned('css/admin-reports.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  {{ admin_sidebar("reports") }}
+  <div class="admin-main">
+    {{ admin_topbar_mobile() }}
+    <div class="admin-content">
+      {{ admin_topbar("Reports") }}
+      {{ admin_mobile_title("Reports") }}
+
+      <div class="reports-page">
+        <div class="report-period">
+          <div class="report-period-switch" role="group" aria-label="Period">
+            {% for segment in period_controls.segments %}
+            <a
+              class="report-period-switch__option{% if segment.selected %} report-period-switch__option--selected{% endif %}"
+              href="{{ segment.href }}"
+              {% if segment.selected %}aria-current="true"{% endif %}
+              >{{ segment.label }}</a
+            >
+            {% endfor %}
+          </div>
+          <div class="report-period__nav">
+            <a
+              class="icon-btn icon-btn--outline"
+              href="{{ period_controls.previous_href }}"
+              aria-label="Previous period"
+              >{{ icon("chevron-left") }}</a
+            >
+            <p class="report-period__range body-strong">{{ period_controls.range_label }}</p>
+            <a
+              class="icon-btn icon-btn--outline"
+              href="{{ period_controls.next_href }}"
+              aria-label="Next period"
+              >{{ icon("chevron-right") }}</a
+            >
+          </div>
+        </div>
+
+        <div class="report-cards">
+          {% for card in stat_cards %}
+          {{ stat_card(card) }}
+          {% endfor %}
+        </div>
+
+        {% if is_empty %}
+        {{ empty_state(
+          "chart-column",
+          "No completed orders in this period",
+          "Pick another day, week or month. Numbers count only Delivered and Cancelled orders."
+        ) }}
+        {% else %}
+        <div class="report-note">
+          {{ icon("circle-info") }}
+          <p class="caption">{{ counting_note }}</p>
+        </div>
+
+        <div class="report-charts-row">
+          <section class="report-chart" aria-labelledby="chart-orders-per-day-title">
+            <div class="report-chart__header">
+              <p class="h4" id="chart-orders-per-day-title">Orders per day</p>
+            </div>
+            <div class="report-chart__plot">
+              <canvas data-report-chart="orders_per_day" aria-hidden="true"></canvas>
+            </div>
+            <table class="sr-only">
+              <caption>Orders per day</caption>
+              <thead><tr><th scope="col">Day</th><th scope="col">Orders</th></tr></thead>
+              <tbody>
+                {% for label, value in charts.orders_per_day.rows %}
+                <tr><td>{{ label }}</td><td>{{ value }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+
+          <section class="report-chart" aria-labelledby="chart-orders-by-service-title">
+            <div class="report-chart__header">
+              <p class="h4" id="chart-orders-by-service-title">Orders by service</p>
+            </div>
+            <div class="report-chart__plot report-chart__plot--bars">
+              <canvas data-report-chart="orders_by_service" aria-hidden="true"></canvas>
+            </div>
+            <table class="sr-only">
+              <caption>Orders by service</caption>
+              <thead><tr><th scope="col">Service</th><th scope="col">Orders</th></tr></thead>
+              <tbody>
+                {% for label, value in charts.orders_by_service.rows %}
+                <tr><td>{{ label }}</td><td>{{ value }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+        </div>
+
+        <section class="report-chart report-chart--wide" aria-labelledby="chart-predicted-actual-title">
+          <div class="report-chart__header">
+            <p class="h4" id="chart-predicted-actual-title">Predicted vs actual delivery time (min)</p>
+            <div class="report-chart__legend">
+              <span class="report-chart__legend-item"
+                ><span class="report-chart__swatch report-chart__swatch--predicted"></span>Predicted</span
+              >
+              <span class="report-chart__legend-item"
+                ><span class="report-chart__swatch report-chart__swatch--actual"></span>Actual</span
+              >
+            </div>
+          </div>
+          <div class="report-chart__plot">
+            <canvas data-report-chart="predicted_vs_actual" aria-hidden="true"></canvas>
+          </div>
+          {% if charts.predicted_vs_actual_note %}
+          <p class="caption">{{ charts.predicted_vs_actual_note }}</p>
+          {% endif %}
+          <table class="sr-only">
+            <caption>Predicted vs actual delivery time in minutes</caption>
+            <thead><tr><th scope="col">Day</th><th scope="col">Predicted</th><th scope="col">Actual</th></tr></thead>
+            <tbody>
+              {% for label, predicted, actual in charts.predicted_vs_actual.rows %}
+              <tr><td>{{ label }}</td><td>{{ predicted }}</td><td>{{ actual }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+
+        <script type="application/json" data-report-data>{{ charts | tojson }}</script>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if not is_empty %}
+<script src="{{ static_versioned('js/vendor/chart.umd.min.js') }}"></script>
+<script type="module" src="{{ static_versioned('js/admin_reports.js') }}"></script>
+{% endif %}
+{% endblock %}

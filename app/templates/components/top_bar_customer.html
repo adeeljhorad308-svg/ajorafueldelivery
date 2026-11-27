@@ -35,9 +35,9 @@
       >{{ icon("receipt") }}<span>My orders</span></a
     >
   </nav>
-  <form method="post" action="{{ url_for('auth.logout') }}">
+  <form method="post" action="{{ url_for('auth.logout') }}" id="logout-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <button class="icon-btn" type="submit" aria-label="Log out">
+    <button class="icon-btn" type="submit" data-action="open-logout" aria-label="Log out">
       {{ icon("right-from-bracket") }}
     </button>
   </form>

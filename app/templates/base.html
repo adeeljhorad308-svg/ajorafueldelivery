@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}AJORA{% endblock %}</title>
+    <meta
+      name="description"
+      content="{% block meta_description %}AJORA: AI-based smart fuel delivery and vehicle assistance for Lahore.{% endblock %}"
+    />
     <link
       rel="preload"
       href="{{ static_versioned('fonts/inter-regular.woff2') }}"
@@ -25,12 +29,21 @@
       rel="stylesheet"
       href="{{ static_versioned('css/components-feedback.css') }}"
     />
+    <link rel="stylesheet" href="{{ static_versioned('css/dialog.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ static_versioned('css/components-logout-dialog.css') }}"
+    />
     {% block extra_css %}{% endblock %}
     <link rel="icon" href="{{ static_versioned('favicon.ico') }}" />
     <link
       rel="icon"
       type="image/svg+xml"
       href="{{ static_versioned('brand/svg/favicon.svg') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="{{ static_versioned('brand/png/apple-touch-icon.png') }}"
     />
   </head>
   <body>
@@ -48,6 +61,8 @@
       message in flashes %} {% if category == "success" %} {{ toast("success",
       message) }} {% endif %} {% endfor %}
     </div>
+    {% from "components/logout_dialog.html" import logout_dialog %}
+    {{ logout_dialog() }}
     <script type="module" src="{{ static_versioned('js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
   </body>
